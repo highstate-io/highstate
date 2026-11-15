@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localContainerRuntime, localPulumiStateBackend } from "@highstate/backend/shared"
 import { camelCaseToHumanReadable } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import {
@@ -36,9 +37,20 @@ const projectIdRules = [
 
 const projectsStore = useProjectsStore()
 const workspaceStore = useWorkspaceStore()
+const runtimeSettings = useRuntimeSettingsStore()
+const containerRuntimeId = ref("")
+const pulumiStateBackendId = ref("")
+const placementError = computed(() => runtimeSettings.error)
+const placementLoaded = computed(() => !runtimeSettings.loading && !runtimeSettings.error)
 
 const isFormValid = computed(() => {
-  return valid.value && unlockMethodValid.value
+  return (
+    valid.value &&
+    unlockMethodValid.value &&
+    placementLoaded.value &&
+    runtimeSettings.runtimes.some(item => item.id === containerRuntimeId.value) &&
+    runtimeSettings.stateBackends.some(item => item.id === pulumiStateBackendId.value)
+  )
 })
 
 const createProject = async () => {
@@ -62,6 +74,10 @@ const createProject = async () => {
       projectName.value,
       { title: title.value },
       unlockMethod,
+      {
+        containerRuntimeId: containerRuntimeId.value,
+        pulumiStateBackendId: pulumiStateBackendId.value,
+      },
     )
 
     workspaceStore.openProjectPanel(project.id)
@@ -80,6 +96,17 @@ const createProject = async () => {
 
 // reset form when dialog closes
 watch(visible, newVisible => {
+  if (newVisible) {
+    containerRuntimeId.value =
+      runtimeSettings.runtimes.find(item => item.systemName === localContainerRuntime.systemName)
+        ?.id ?? ""
+
+    pulumiStateBackendId.value =
+      runtimeSettings.stateBackends.find(
+        item => item.systemName === localPulumiStateBackend.systemName,
+      )?.id ?? ""
+  }
+
   if (!newVisible) {
     projectName.value = ""
     unlockMethodForm.value?.resetForm()
@@ -89,6 +116,25 @@ watch(visible, newVisible => {
 watch(projectName, newProjectId => {
   title.value = camelCaseToHumanReadable(newProjectId)
 })
+
+watch(
+  [() => runtimeSettings.runtimes, () => runtimeSettings.stateBackends],
+  () => {
+    if (!containerRuntimeId.value) {
+      containerRuntimeId.value =
+        runtimeSettings.runtimes.find(item => item.systemName === localContainerRuntime.systemName)
+          ?.id ?? ""
+    }
+
+    if (!pulumiStateBackendId.value) {
+      pulumiStateBackendId.value =
+        runtimeSettings.stateBackends.find(
+          item => item.systemName === localPulumiStateBackend.systemName,
+        )?.id ?? ""
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -116,6 +162,30 @@ watch(projectName, newProjectId => {
             label="Title"
             hint="A human-readable title for your project"
             persistent-hint
+          />
+
+          <VDivider class="my-6" />
+
+          <VAlert v-if="placementError" type="error" class="mb-4">
+            {{ placementError }}
+          </VAlert>
+          <VSelect
+            v-model="containerRuntimeId"
+            :items="runtimeSettings.runtimes"
+            item-title="meta.title"
+            item-value="id"
+            label="Container runtime"
+            :loading="runtimeSettings.loading"
+            :disabled="!placementLoaded || projectsStore.loadingCreateProject"
+          />
+          <VSelect
+            v-model="pulumiStateBackendId"
+            :items="runtimeSettings.stateBackends"
+            item-title="meta.title"
+            item-value="id"
+            label="Pulumi state backend"
+            :loading="runtimeSettings.loading"
+            :disabled="!placementLoaded || projectsStore.loadingCreateProject"
           />
 
           <VDivider class="my-6" />

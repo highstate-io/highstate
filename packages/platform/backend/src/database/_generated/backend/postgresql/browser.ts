@@ -33,10 +33,13 @@ export type ProjectImportPort = Prisma.ProjectImportPortModel
  */
 export type UserWorkspaceLayout = Prisma.UserWorkspaceLayoutModel
 /**
- * Model Library
+ * Model LibrarySnapshotImage
+ * A backend-local image materialized from a portable project library snapshot.
  * 
+ * The referenced snapshot lives in the project's separate database, so its ID and hash are stored without
+ * a database relation. This record is disposable cache state and can be rebuilt from the snapshot.
  */
-export type Library = Prisma.LibraryModel
+export type LibrarySnapshotImage = Prisma.LibrarySnapshotImageModel
 /**
  * Model Object
  * The object allows to track arbitrary object across multiple projects and search them globally by their IDs.
@@ -59,10 +62,20 @@ export type ProjectSpace = Prisma.ProjectSpaceModel
  */
 export type ProjectModelStorage = Prisma.ProjectModelStorageModel
 /**
- * Model PulumiBackend
- * 
+ * Model PulumiStateBackend
+ * A reusable Pulumi state backend configuration.
  */
-export type PulumiBackend = Prisma.PulumiBackendModel
+export type PulumiStateBackend = Prisma.PulumiStateBackendModel
+/**
+ * Model NpmRegistryCredential
+ * Backend-scoped credentials for an npm-compatible registry and package scope.
+ */
+export type NpmRegistryCredential = Prisma.NpmRegistryCredentialModel
+/**
+ * Model ContainerRegistryCredential
+ * Backend-scoped credentials for an OCI container registry.
+ */
+export type ContainerRegistryCredential = Prisma.ContainerRegistryCredentialModel
 /**
  * Model BackendRole
  * A backend role groups permissions over backend resources, project spaces, and projects.
@@ -83,6 +96,24 @@ export type UserGroupBackendRoleBinding = Prisma.UserGroupBackendRoleBindingMode
  * A backend role binding grants a backend role to a backend service account.
  */
 export type ServiceAccountBackendRoleBinding = Prisma.ServiceAccountBackendRoleBindingModel
+/**
+ * Model ContainerRuntime
+ * A reusable container runtime used to place all workloads for a project.
+ */
+export type ContainerRuntime = Prisma.ContainerRuntimeModel
+/**
+ * Model RuntimeWorkload
+ * A backend-owned logical workload placed by a container runtime adapter.
+ * 
+ * Engine-specific child resources are discovered through runtime labels rather than persisted individually.
+ */
+export type RuntimeWorkload = Prisma.RuntimeWorkloadModel
+/**
+ * Model RuntimeAction
+ * One independently cancellable action executed by a logical runtime workload.
+ * Tracks dispatch and termination; operation and evaluation records own domain outcomes.
+ */
+export type RuntimeAction = Prisma.RuntimeActionModel
 /**
  * Model BackendServiceAccount
  * A backend service account represents a non-human identity in the backend authorization realm.

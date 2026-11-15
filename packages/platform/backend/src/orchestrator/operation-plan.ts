@@ -78,7 +78,6 @@ export function createOperationPlan(
 
     const instanceId = requestedInstanceIds[0] as InstanceId
     const instance = context.getInstance(instanceId)
-
     if (instance.kind !== "unit") {
       throw new InvalidOperationPlanError(
         `Preview is not supported for composite instance "${instanceId}"`,
@@ -93,6 +92,7 @@ export function createOperationPlan(
             id: instanceId,
             parentId: instance.parentId,
             message: "explicitly requested",
+            ...packageUpgradeMetadata(context, instanceId),
           },
         ],
       },
@@ -157,8 +157,8 @@ function processInstance(
   operationType: OperationType,
 ): void {
   const instance =
-    operationType === "destroy"
-      ? context.tryGetInstanceForDestroy(instanceId)
+    operationType === "destroy" || operationType === "refresh"
+      ? context.getExecutionInstance(instanceId, operationType)
       : context.tryGetInstance(instanceId)
 
   if (!instance) {
@@ -470,7 +470,9 @@ function createOrderedPhases(
   if (type === "update" || type === "preview" || type === "refresh") {
     // filter instances that actually need updating
     const instancesNeedingUpdate = includedIds.filter(id => {
-      const instance = context.getInstance(id)
+      const instance =
+        type === "refresh" ? context.getExecutionInstance(id, "refresh")! : context.getInstance(id)
+
       const inclusionReason = workState.included.get(id)
 
       // always include if outdated or forced
@@ -569,7 +571,7 @@ function createOrderedPhases(
 
   if (type === "recreate") {
     const destroyInstances = topologicalSort(includedIds, context, true)
-      .map(id => createPhaseInstance(id, context, type, workState))
+      .map(id => createPhaseInstance(id, context, "destroy", workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
 
     const updateInstances = topologicalSort(includedIds, context, false)
@@ -631,7 +633,7 @@ function createGhostDestroyPhase(
         return ghostInstance
       }
 
-      return createPhaseInstance(id, context, "update", workState)
+      return createPhaseInstance(id, context, "destroy", workState)
     })
     .filter((instance): instance is OperationPhaseInstance => instance !== null)
 
@@ -649,7 +651,6 @@ function hasGhostDescendant(instanceId: InstanceId, context: OperationContext): 
     const childId = queue.shift()!
     const child = context.getInstance(childId)
     const childState = context.getState(child.id)
-
     if (isVirtualGhostInstance(childState)) {
       return true
     }
@@ -671,8 +672,8 @@ function createPhaseInstance(
   const state = context.getState(instanceId)
 
   const instance =
-    operationType === "destroy"
-      ? context.tryGetInstanceForDestroy(instanceId)
+    operationType === "destroy" || operationType === "refresh"
+      ? context.getExecutionInstance(instanceId, operationType)
       : context.tryGetInstance(instanceId)
 
   if (!instance) {
@@ -681,6 +682,7 @@ function createPhaseInstance(
 
   if (
     operationType !== "destroy" &&
+    operationType !== "refresh" &&
     instance.kind === "composite" &&
     !hasUnitDescendant(instanceId, context)
   ) {
@@ -713,7 +715,15 @@ function createPhaseInstance(
     id: instanceId,
     parentId: instance.parentId ?? state.parentInstanceId ?? undefined,
     message,
+    ...(operationType === "update" || operationType === "recreate"
+      ? packageUpgradeMetadata(context, instanceId)
+      : {}),
   }
+}
+
+function packageUpgradeMetadata(context: OperationContext, instanceId: InstanceId) {
+  const libraryPackageUpgrade = context.getLibraryPackageUpgrade(instanceId)
+  return libraryPackageUpgrade ? { libraryPackageUpgrade } : {}
 }
 
 function hasUnitDescendant(instanceId: InstanceId, context: OperationContext): boolean {
@@ -775,7 +785,8 @@ function generateContextualMessage(
 
     // check if changed by using same logic as isOutdated (for units only)
     const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instanceId)
-    if (state.inputHash !== expectedHash) {
+
+    if (state.inputHash !== expectedHash || context.hasExecutionUpgrade(instanceId)) {
       return "changed"
     }
 
@@ -933,9 +944,13 @@ function isOutdated(instance: InstanceModel, context: OperationContext): boolean
     return true
   }
 
+  if (!context.tryGetInstance(instance.id)) {
+    return false
+  }
+
   // check if input hash has changed by comparing with expected hash from resolver
   const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instance.id)
-  return state.inputHash !== expectedHash
+  return state.inputHash !== expectedHash || context.hasExecutionUpgrade(instance.id)
 }
 
 function topologicalSort(

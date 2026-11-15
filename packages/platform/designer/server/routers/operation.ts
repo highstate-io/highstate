@@ -24,7 +24,7 @@ export const operationRouter = router({
   }),
 
   plan: publicProcedure.input(operationPlanInputSchema).mutation(async ({ input, ctx }) => {
-    return await ctx.operationManager.plan(input)
+    return await ctx.operationManager.planReviewed(input)
   }),
 
   watch: publicProcedure

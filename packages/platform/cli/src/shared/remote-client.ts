@@ -7,6 +7,7 @@ import {
   ProjectModelService,
   ProjectService,
   SecretService,
+  RuntimeSettingsService,
 } from "@highstate/api/v1"
 
 export type HighstateClients = {
@@ -16,6 +17,7 @@ export type HighstateClients = {
   operation: Client<typeof OperationService>
   projectModel: Client<typeof ProjectModelService>
   project: Client<typeof ProjectService>
+  runtimeSettings: Client<typeof RuntimeSettingsService>
 }
 
 export function createHighstateClients(apiUrl: string, apiToken: string): HighstateClients {
@@ -29,5 +31,6 @@ export function createHighstateClients(apiUrl: string, apiToken: string): Highst
     operation: createClient(OperationService, transport),
     projectModel: createClient(ProjectModelService, transport),
     project: createClient(ProjectService, transport),
+    runtimeSettings: createClient(RuntimeSettingsService, transport),
   }
 }

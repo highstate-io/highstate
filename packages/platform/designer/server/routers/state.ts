@@ -60,8 +60,7 @@ export const stateRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const project = await ctx.projectService.getProjectOrThrowCore(input.projectId)
-      const library = await ctx.libraryBackend.loadLibrary(project.libraryId)
+      const { model: library } = await ctx.projectLibraryService.getCatalog(ctx.requestContext)
 
       return await ctx.entitySnapshotService.listReferencedEntitySnapshotsForOutput(
         ctx.requestContext,

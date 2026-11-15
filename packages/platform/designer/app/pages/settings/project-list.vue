@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import type { ProjectOutput } from "@highstate/backend/shared"
 import {
   baseHeaders,
   IdTableCell,
   SettingsDataTable,
   SettingsListPage,
   type TableHeader,
+  TableItemAction,
 } from "#layers/core/app/features/settings"
+import ProjectEditDialog from "#layers/core/app/features/settings/components/ProjectEditDialog.vue"
 
 const projectsStore = useProjectsStore()
 const router = useRouter()
+const selectedProject = shallowRef<ProjectOutput | null>(null)
+const editVisible = ref(false)
+
+function editProject(project: ProjectOutput) {
+  selectedProject.value = project
+  editVisible.value = true
+}
 
 definePageMeta({
   name: "settings.project-list",
@@ -22,11 +32,10 @@ definePageMeta({
 const tableHeaders: TableHeader[] = [
   baseHeaders.name,
   baseHeaders.id,
+  { key: "containerRuntimeId", title: "Runtime" },
+  { key: "pulumiStateBackendId", title: "State backend" },
   baseHeaders.createdAt,
-  {
-    key: "actions",
-    title: "Actions",
-  },
+  baseHeaders.actions,
 ]
 
 const search = ref("")
@@ -81,14 +90,21 @@ const navigateToProject = (projectId: string) => {
       >
         <!-- Actions Column -->
         <template #item.actions="{ item }">
-          <VBtn
-            icon="mdi-arrow-right"
-            variant="text"
-            size="small"
-            @click="navigateToProject(item.id)"
-          />
+          <div class="d-flex justify-center ga-1">
+            <TableItemAction
+              icon="mdi-pencil-outline"
+              tooltip="Edit project"
+              @click="editProject(item)"
+            />
+            <TableItemAction
+              icon="mdi-arrow-right"
+              tooltip="Open project"
+              @click="navigateToProject(item.id)"
+            />
+          </div>
         </template>
       </SettingsDataTable>
     </template>
   </SettingsListPage>
+  <ProjectEditDialog v-model="editVisible" :project="selectedProject" />
 </template>

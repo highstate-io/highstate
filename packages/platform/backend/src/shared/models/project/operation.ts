@@ -24,6 +24,15 @@ export const operationPhaseInstanceSchema = z.object({
    * Human-readable explanation of the decision.
    * */
   message: z.string(),
+  libraryPackageUpgrade: z
+    .object({
+      packageName: z.string(),
+      version: z.string(),
+      libraryPackageVersionId: z.string(),
+      previousVersion: z.string().optional(),
+      previousLibraryPackageVersionId: z.string().optional(),
+    })
+    .optional(),
 })
 
 /**
@@ -296,6 +305,7 @@ export const operationPlanInputSchema = z.object({
 export const operationLaunchInputSchema = operationPlanInputSchema.extend({
   meta: operationMetaSchema,
   plan: operationPhaseSchema.array().optional(),
+  planToken: z.string().optional(),
 })
 
 export type OperationMeta = z.infer<typeof operationMetaSchema>

@@ -74,7 +74,12 @@ export function tryWrapAbortErrorLike(error: unknown): unknown {
   return error
 }
 
-export const stringArrayType = z.string().transform(args => args.split(",").map(arg => arg.trim()))
+export const stringArrayType = z.string().transform(args =>
+  args
+    .split(",")
+    .map(arg => arg.trim())
+    .filter(Boolean),
+)
 
 export function errorToString(error: unknown): string {
   if (error instanceof Error) {

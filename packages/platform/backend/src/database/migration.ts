@@ -4,16 +4,19 @@ import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { resolve as importMetaResolve } from "import-meta-resolve"
 import { DatabaseVersionUnsupportedError } from "../shared"
+import { migrateRuntimeSettingsIdentity } from "./runtime-identity-migration"
 
 export interface MigrationClient {
   $transaction<T>(callback: (tx: unknown) => Promise<T>): Promise<T>
-  $executeRawUnsafe(query: string): Promise<number>
+  $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>
+  $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>
 }
 
 export type MigrationPack = {
   type: "backend" | "project"
   schemaPath: string
   migrationNames: string[]
+  dataMigrations?: Record<string, (client: MigrationClient) => Promise<void>>
 }
 
 export const migrationPacks = {
@@ -26,7 +29,10 @@ export const migrationPacks = {
       "20260222113554_add_object_tracking",
       "20260503160615_add_entity_sharing_system",
       "20260823193137_add_authorization",
+      "20261025160007_runtime_redesign",
+      "20261115021010_runtime_entity_identity",
     ],
+    dataMigrations: { "20261115021010_runtime_entity_identity": migrateRuntimeSettingsIdentity },
   },
   project: {
     type: "project" as const,
@@ -40,6 +46,8 @@ export const migrationPacks = {
       "20260720230553_add_panels",
       "20260822154433_add_passkey_identity",
       "20260823193150_add_authorization",
+      "20261025160007_project_library_snapshots",
+      "20261025161204_record_initial_library_selection",
     ],
   },
 }
@@ -84,14 +92,38 @@ export async function migrateDatabase(
 
     const statements = splitToStatements(content)
 
-    // execute each statement and update the version in a single transaction
-    await client.$transaction(async tx => {
-      for (const statement of statements) {
-        await (tx as MigrationClient).$executeRawUnsafe(statement)
-      }
+    // SQLite ignores foreign_keys changes inside transactions; table rebuilds would otherwise
+    // cascade deletions into referencing tables, even when the replacement preserves every key.
+    const rebuildsTables = /PRAGMA\s+foreign_keys\s*=\s*OFF/i.test(content)
+    if (rebuildsTables) {
+      await client.$executeRawUnsafe("PRAGMA foreign_keys=OFF")
+    }
 
-      await writeVersion(nextVersion)
-    })
+    try {
+      await client.$transaction(async tx => {
+        const transaction = tx as MigrationClient
+
+        for (const statement of statements) {
+          if (/^PRAGMA\s+(foreign_keys|defer_foreign_keys)\s*=/i.test(statement)) {
+            continue
+          }
+
+          await transaction.$executeRawUnsafe(statement)
+        }
+
+        await migrationPack.dataMigrations?.[nextMigrationName!]?.(transaction)
+        const violations = await transaction.$queryRawUnsafe<unknown[]>("PRAGMA foreign_key_check")
+        if (violations.length > 0) {
+          throw new Error(`Migration "${nextMigrationName}" violates foreign key constraints`)
+        }
+
+        await writeVersion(nextVersion)
+      })
+    } finally {
+      if (rebuildsTables) {
+        await client.$executeRawUnsafe("PRAGMA foreign_keys=ON")
+      }
+    }
   }
 
   logger.info(`database is up to date at version %d`, migrationNames.length)

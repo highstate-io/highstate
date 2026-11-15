@@ -1,0 +1,106 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+import "io/highstate/v1/common.proto";
+import "io/highstate/v1/library.proto";
+import "io/highstate/v1/project_model.proto";
+
+// CompositeEvaluationRequest starts one complete project composite evaluation.
+message CompositeEvaluationRequest {
+  // The packaged library snapshot whose implementations must be loaded.
+  string library_snapshot_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The backend-assigned revision of the resident model and resolved inputs.
+  string model_revision = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The local overlay revision included in evaluation, when active.
+  optional string local_overlay_revision = 3;
+
+  // The complete resident project instance graph.
+  repeated io.highstate.v1.Instance instances = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Resolved inputs for the resident instances.
+  repeated CompositeInstanceInputs resolved_inputs = 5;
+
+  // Project-specific virtual component definitions available during evaluation.
+  repeated io.highstate.v1.Component virtual_components = 6;
+}
+
+// CompositeInstanceInputs contains resolved input ports for one resident instance.
+message CompositeInstanceInputs {
+  // The resident instance ID.
+  string instance_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The resolved input ports.
+  repeated CompositeInput inputs = 2;
+}
+
+// CompositeInput contains the resolved values for one component input.
+message CompositeInput {
+  // The component input name.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The resolved values in their deterministic input order.
+  repeated ResolvedInstanceInput values = 2;
+}
+
+// ResolvedInstanceInput identifies one resolved instance output and its effective entity type.
+message ResolvedInstanceInput {
+  // The resolved instance output reference.
+  io.highstate.v1.InstanceReference reference = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The effective versioned entity type of the referenced value.
+  string entity_type = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CompositeEvaluationResult returns generated models or a project-level evaluation failure.
+message CompositeEvaluationResult {
+  // The packaged library snapshot used by the workload.
+  string library_snapshot_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resident model revision evaluated by the workload.
+  string model_revision = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The local overlay revision used by the workload, when active.
+  optional string local_overlay_revision = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The evaluation outcome.
+  oneof outcome {
+    // Generated virtual instances and isolated branch errors.
+    CompositeEvaluationSuccess success = 4;
+
+    // A project-level validation failure that invalidates the complete result.
+    CompositeEvaluationFailure failure = 5;
+  }
+}
+
+// CompositeEvaluationSuccess contains generated virtual instances and isolated branch failures.
+message CompositeEvaluationSuccess {
+  // Top-level composites and generated descendants produced by evaluation.
+  repeated io.highstate.v1.Instance virtual_instances = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Ordinary composite failures isolated to individual branches.
+  repeated CompositeEvaluationError errors = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CompositeEvaluationError describes an ordinary failure isolated to one composite branch.
+message CompositeEvaluationError {
+  // The top-level composite instance whose branch failed.
+  string instance_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A stable machine-readable error code.
+  string code = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The human-readable evaluation error.
+  string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CompositeEvaluationFailure describes a domain failure that invalidates the complete evaluation.
+message CompositeEvaluationFailure {
+  // A stable machine-readable error code.
+  string code = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The human-readable evaluation failure.
+  string message = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

@@ -58,6 +58,8 @@ function createState(
     parentId: null,
     parentInstanceId: null,
     selfHash: null,
+    librarySnapshotId: null,
+    libraryPackageVersionId: null,
     inputHash: null,
     outputHash: null,
     dependencyOutputHash: null,

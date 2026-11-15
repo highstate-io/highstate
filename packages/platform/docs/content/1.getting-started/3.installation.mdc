@@ -15,28 +15,22 @@ Right now it's a local development tool - cloud hosting and managed deployments 
 Before installing Highstate, ensure you have the following tools installed:
 
 - [**Bun**](https://bun.sh/) - Package manager and runtime used by Highstate components
-- [**Docker**](https://docker.com/) - Required for terminal containers and some unit operations
-- [**Pulumi CLI**](https://www.pulumi.com/docs/install/) - Optional, the CLI downloads the needed version automatically when it is missing
+- [**Docker**](https://docker.com/) - The default runtime for packaged operations, evaluation, terminals, workers, and image builds
+- [**Pulumi CLI**](https://www.pulumi.com/docs/install/) - Used by local development execution; packaged runners include their own toolchain
 
 Some components may require additional tools depending on their functionality.
 
-## Pulumi Setup
+## Runtime and Pulumi Setup
 
 Highstate uses Pulumi as its infrastructure engine.
-If you want to use Pulumi state directly, you can configure its state storage before deploying anything:
+Project settings select workload placement separately from Pulumi state storage.
+Packaged execution requires a reachable TLS runtime listener and a digest-pinned compatible runner base image.
+Configure these before deploying, following [Runtimes and Project Libraries](/advanced/runtime-and-libraries).
 
-```bash
-# use local file system for state storage
-pulumi login --local
-
-# or use Pulumi's managed cloud backend if desired
-pulumi login
-
-# or use AWS S3, Azure Blob, or Google Cloud Storage
-pulumi login s3://my-pulumi-state-bucket
-pulumi login azblob://my-pulumi-state-container
-pulumi login gs://my-pulumi-state-bucket
-```
+The default Pulumi state backend uses persistent storage on the selected runtime.
+Other backend URLs can target Pulumi Cloud, S3, Azure Blob, or Google Cloud Storage.
+Set the backend URL and authentication in Highstate's Pulumi state backend settings, then select it for the project.
+Running `pulumi login` on the backend host does not configure a containerized runner.
 
 For more details, see [Pulumi's state backend documentation](https://www.pulumi.com/docs/concepts/state/).
 
@@ -53,7 +47,7 @@ cd highstate-project
 ```
 
 The generated project includes the Highstate CLI, the contract package, the Pulumi integration, and the Standard Library.
-Runtime implementation packages are still installed automatically as needed.
+Project libraries resolve exact npm versions into snapshots whose dependencies are installed into execution images.
 
 ## Launch Highstate Designer
 
@@ -64,6 +58,7 @@ highstate designer
 
 Then you can open the designer in you browser by provided URL and create your first project.
 Highstate stores its local data in `.highstate/`, keeps project models in `projects/`, and uses the configured Pulumi backend for Pulumi state.
+The project library view shows snapshot resolution and image-build status before packaged operations can run.
 
 ::
 

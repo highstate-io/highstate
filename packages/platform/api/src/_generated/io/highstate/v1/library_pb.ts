@@ -2,10 +2,11 @@
 // @generated from file io/highstate/v1/library.proto (package io.highstate.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_struct, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { ComponentKind } from "./common_pb";
 import { file_io_highstate_v1_common } from "./common_pb";
 import type { JsonObject, Message } from "@bufbuild/protobuf";
@@ -14,7 +15,7 @@ import type { JsonObject, Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/library.proto.
  */
 export const file_io_highstate_v1_library: GenFile = /*@__PURE__*/
-  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvbGlicmFyeS5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIqQCCgdMaWJyYXJ5EkEKCmNvbXBvbmVudHMYASADKAsyKC5pby5oaWdoc3RhdGUudjEuTGlicmFyeS5Db21wb25lbnRzRW50cnlCA+BBAxI9CghlbnRpdGllcxgCIAMoCzImLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5LkVudGl0aWVzRW50cnlCA+BBAxpNCg9Db21wb25lbnRzRW50cnkSCwoDa2V5GAEgASgJEikKBXZhbHVlGAIgASgLMhouaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudDoCOAEaSAoNRW50aXRpZXNFbnRyeRILCgNrZXkYASABKAkSJgoFdmFsdWUYAiABKAsyFy5pby5oaWdoc3RhdGUudjEuRW50aXR5OgI4ASLWBAoJQ29tcG9uZW50EhEKBHR5cGUYASABKAlCA+BBAxIxCgRraW5kGAIgASgOMh4uaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudEtpbmRCA+BBAxJBCglhcmd1bWVudHMYAyADKAsyKS5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50LkFyZ3VtZW50c0VudHJ5QgPgQQMSOwoGaW5wdXRzGAQgAygLMiYuaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudC5JbnB1dHNFbnRyeUID4EEDEj0KB291dHB1dHMYBSADKAsyJy5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50Lk91dHB1dHNFbnRyeUID4EEDEjEKBG1ldGEYBiABKAsyHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50TWV0YUID4EEDEhwKD2RlZmluaXRpb25faGFzaBgHIAEoDUID4EEDGlQKDkFyZ3VtZW50c0VudHJ5EgsKA2tleRgBIAEoCRIxCgV2YWx1ZRgCIAEoCzIiLmlvLmhpZ2hzdGF0ZS52MS5Db21wb25lbnRBcmd1bWVudDoCOAEaTQoLSW5wdXRzRW50cnkSCwoDa2V5GAEgASgJEi0KBXZhbHVlGAIgASgLMh4uaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudFBvcnQ6AjgBGk4KDE91dHB1dHNFbnRyeRILCgNrZXkYASABKAkSLQoFdmFsdWUYAiABKAsyHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50UG9ydDoCOAEiiwEKEENvbXBvbmVudFN1bW1hcnkSEQoEdHlwZRgBIAEoCUID4EEDEjEKBGtpbmQYAiABKA4yHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50S2luZEID4EEDEjEKBG1ldGEYAyABKAsyHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50TWV0YUID4EEDIpMBChFDb21wb25lbnRBcmd1bWVudBIsCgZzY2hlbWEYASABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0QgPgQQMSFQoIcmVxdWlyZWQYAiABKAhCA+BBAxI5CgRtZXRhGAMgASgLMiYuaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudEFyZ3VtZW50TWV0YUID4EEDIvwBChVDb21wb25lbnRBcmd1bWVudE1ldGESEgoFdGl0bGUYASABKAlCA+BBAxIeCgxnbG9iYWxfdGl0bGUYAiABKAlCA+BBA0gAiAEBEh0KC2Rlc2NyaXB0aW9uGAMgASgJQgPgQQNIAYgBARIXCgVjb2xvchgEIAEoCUID4EEDSAKIAQESFgoEaWNvbhgFIAEoCUID4EEDSAOIAQESHAoKaWNvbl9jb2xvchgGIAEoCUID4EEDSASIAQFCDwoNX2dsb2JhbF90aXRsZUIOCgxfZGVzY3JpcHRpb25CCAoGX2NvbG9yQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIrsBCg1Db21wb25lbnRQb3J0EhgKC2VudGl0eV90eXBlGAEgASgJQgPgQQMSHAoKZnJvbV9pbnB1dBgCIAEoCUID4EEDSACIAQESFQoIcmVxdWlyZWQYAyABKAhCA+BBAxIVCghtdWx0aXBsZRgEIAEoCEID4EEDEjUKBG1ldGEYBSABKAsyIi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50UG9ydE1ldGFCA+BBA0INCgtfZnJvbV9pbnB1dCJWChFDb21wb25lbnRQb3J0TWV0YRISCgV0aXRsZRgBIAEoCUID4EEDEh0KC2Rlc2NyaXB0aW9uGAIgASgJQgPgQQNIAIgBAUIOCgxfZGVzY3JpcHRpb24ihAMKDUNvbXBvbmVudE1ldGESEgoFdGl0bGUYASABKAlCA+BBAxIdCgtkZXNjcmlwdGlvbhgCIAEoCUID4EEDSACIAQESFwoFY29sb3IYAyABKAlCA+BBA0gBiAEBEhYKBGljb24YBCABKAlCA+BBA0gCiAEBEhwKCmljb25fY29sb3IYBSABKAlCA+BBA0gDiAEBEiAKDnNlY29uZGFyeV9pY29uGAYgASgJQgPgQQNIBIgBARImChRzZWNvbmRhcnlfaWNvbl9jb2xvchgHIAEoCUID4EEDSAWIAQESGgoIY2F0ZWdvcnkYCCABKAlCA+BBA0gGiAEBEiAKE2RlZmF1bHRfbmFtZV9wcmVmaXgYCSABKAlCA+BBA0IOCgxfZGVzY3JpcHRpb25CCAoGX2NvbG9yQgcKBV9pY29uQg0KC19pY29uX2NvbG9yQhEKD19zZWNvbmRhcnlfaWNvbkIXChVfc2Vjb25kYXJ5X2ljb25fY29sb3JCCwoJX2NhdGVnb3J5IqUCCgZFbnRpdHkSEQoEdHlwZRgBIAEoCUID4EEDEhcKCmV4dGVuc2lvbnMYAiADKAlCA+BBAxIeChFkaXJlY3RfZXh0ZW5zaW9ucxgDIAMoCUID4EEDEjkKCmluY2x1c2lvbnMYBCADKAsyIC5pby5oaWdoc3RhdGUudjEuRW50aXR5SW5jbHVzaW9uQgPgQQMSQAoRZGlyZWN0X2luY2x1c2lvbnMYBSADKAsyIC5pby5oaWdoc3RhdGUudjEuRW50aXR5SW5jbHVzaW9uQgPgQQMSLgoEbWV0YRgHIAEoCzIbLmlvLmhpZ2hzdGF0ZS52MS5FbnRpdHlNZXRhQgPgQQMSHAoPZGVmaW5pdGlvbl9oYXNoGAggASgNQgPgQQNKBAgGEAciwAEKCkVudGl0eU1ldGESEgoFdGl0bGUYASABKAlCA+BBAxIdCgtkZXNjcmlwdGlvbhgCIAEoCUID4EEDSACIAQESFwoFY29sb3IYAyABKAlCA+BBA0gBiAEBEhYKBGljb24YBCABKAlCA+BBA0gCiAEBEhwKCmljb25fY29sb3IYBSABKAlCA+BBA0gDiAEBQg4KDF9kZXNjcmlwdGlvbkIICgZfY29sb3JCBwoFX2ljb25CDQoLX2ljb25fY29sb3IiZgoPRW50aXR5SW5jbHVzaW9uEhEKBHR5cGUYASABKAlCA+BBAxIVCghyZXF1aXJlZBgCIAEoCEID4EEDEhUKCG11bHRpcGxlGAMgASgIQgPgQQMSEgoFZmllbGQYBCABKAlCA+BBAyIsChFHZXRMaWJyYXJ5UmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQIiRAoSR2V0TGlicmFyeVJlc3BvbnNlEi4KB2xpYnJhcnkYASABKAsyGC5pby5oaWdoc3RhdGUudjEuTGlicmFyeUID4EECIlcKFUxpc3RDb21wb25lbnRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISEQoJcGFnZV9zaXplGAIgASgFEhIKCnBhZ2VfdG9rZW4YAyABKAkiaAoWTGlzdENvbXBvbmVudHNSZXNwb25zZRI1Cgpjb21wb25lbnRzGAEgAygLMiEuaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudFN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIkEKE0dldENvbXBvbmVudFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhEKBHR5cGUYAiABKAlCA+BBAiJKChRHZXRDb21wb25lbnRSZXNwb25zZRIyCgljb21wb25lbnQYASABKAsyGi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50QgPgQQIypwIKDkxpYnJhcnlTZXJ2aWNlElUKCkdldExpYnJhcnkSIi5pby5oaWdoc3RhdGUudjEuR2V0TGlicmFyeVJlcXVlc3QaIy5pby5oaWdoc3RhdGUudjEuR2V0TGlicmFyeVJlc3BvbnNlEmEKDkxpc3RDb21wb25lbnRzEiYuaW8uaGlnaHN0YXRlLnYxLkxpc3RDb21wb25lbnRzUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5MaXN0Q29tcG9uZW50c1Jlc3BvbnNlElsKDEdldENvbXBvbmVudBIkLmlvLmhpZ2hzdGF0ZS52MS5HZXRDb21wb25lbnRSZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkdldENvbXBvbmVudFJlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_struct, file_io_highstate_v1_common]);
+  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvbGlicmFyeS5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIqUDCgdMaWJyYXJ5EkEKCmNvbXBvbmVudHMYASADKAsyKC5pby5oaWdoc3RhdGUudjEuTGlicmFyeS5Db21wb25lbnRzRW50cnlCA+BBAxI9CghlbnRpdGllcxgCIAMoCzImLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5LkVudGl0aWVzRW50cnlCA+BBAxIlChNsaWJyYXJ5X3NuYXBzaG90X2lkGAMgASgJQgPgQQNIAIgBARJACg1sb2NhbF9vdmVybGF5GAQgASgLMiQuaW8uaGlnaHN0YXRlLnYxLkxvY2FsTGlicmFyeU92ZXJsYXlCA+BBAxpNCg9Db21wb25lbnRzRW50cnkSCwoDa2V5GAEgASgJEikKBXZhbHVlGAIgASgLMhouaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudDoCOAEaSAoNRW50aXRpZXNFbnRyeRILCgNrZXkYASABKAkSJgoFdmFsdWUYAiABKAsyFy5pby5oaWdoc3RhdGUudjEuRW50aXR5OgI4AUIWChRfbGlicmFyeV9zbmFwc2hvdF9pZCKSBQoJQ29tcG9uZW50EhEKBHR5cGUYASABKAlCA+BBAxIxCgRraW5kGAIgASgOMh4uaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudEtpbmRCA+BBAxJBCglhcmd1bWVudHMYAyADKAsyKS5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50LkFyZ3VtZW50c0VudHJ5QgPgQQMSOwoGaW5wdXRzGAQgAygLMiYuaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudC5JbnB1dHNFbnRyeUID4EEDEj0KB291dHB1dHMYBSADKAsyJy5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50Lk91dHB1dHNFbnRyeUID4EEDEjEKBG1ldGEYBiABKAsyHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50TWV0YUID4EEDEhwKD2RlZmluaXRpb25faGFzaBgHIAEoDUID4EEDEjoKBnNvdXJjZRgIIAEoCzIlLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5Q2F0YWxvZ1NvdXJjZUID4EEDGlQKDkFyZ3VtZW50c0VudHJ5EgsKA2tleRgBIAEoCRIxCgV2YWx1ZRgCIAEoCzIiLmlvLmhpZ2hzdGF0ZS52MS5Db21wb25lbnRBcmd1bWVudDoCOAEaTQoLSW5wdXRzRW50cnkSCwoDa2V5GAEgASgJEi0KBXZhbHVlGAIgASgLMh4uaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudFBvcnQ6AjgBGk4KDE91dHB1dHNFbnRyeRILCgNrZXkYASABKAkSLQoFdmFsdWUYAiABKAsyHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50UG9ydDoCOAEixwEKEENvbXBvbmVudFN1bW1hcnkSEQoEdHlwZRgBIAEoCUID4EEDEjEKBGtpbmQYAiABKA4yHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50S2luZEID4EEDEjEKBG1ldGEYAyABKAsyHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50TWV0YUID4EEDEjoKBnNvdXJjZRgEIAEoCzIlLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5Q2F0YWxvZ1NvdXJjZUID4EEDIpMBChFDb21wb25lbnRBcmd1bWVudBIsCgZzY2hlbWEYASABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0QgPgQQMSFQoIcmVxdWlyZWQYAiABKAhCA+BBAxI5CgRtZXRhGAMgASgLMiYuaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudEFyZ3VtZW50TWV0YUID4EEDIvwBChVDb21wb25lbnRBcmd1bWVudE1ldGESEgoFdGl0bGUYASABKAlCA+BBAxIeCgxnbG9iYWxfdGl0bGUYAiABKAlCA+BBA0gAiAEBEh0KC2Rlc2NyaXB0aW9uGAMgASgJQgPgQQNIAYgBARIXCgVjb2xvchgEIAEoCUID4EEDSAKIAQESFgoEaWNvbhgFIAEoCUID4EEDSAOIAQESHAoKaWNvbl9jb2xvchgGIAEoCUID4EEDSASIAQFCDwoNX2dsb2JhbF90aXRsZUIOCgxfZGVzY3JpcHRpb25CCAoGX2NvbG9yQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIrsBCg1Db21wb25lbnRQb3J0EhgKC2VudGl0eV90eXBlGAEgASgJQgPgQQMSHAoKZnJvbV9pbnB1dBgCIAEoCUID4EEDSACIAQESFQoIcmVxdWlyZWQYAyABKAhCA+BBAxIVCghtdWx0aXBsZRgEIAEoCEID4EEDEjUKBG1ldGEYBSABKAsyIi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50UG9ydE1ldGFCA+BBA0INCgtfZnJvbV9pbnB1dCJWChFDb21wb25lbnRQb3J0TWV0YRISCgV0aXRsZRgBIAEoCUID4EEDEh0KC2Rlc2NyaXB0aW9uGAIgASgJQgPgQQNIAIgBAUIOCgxfZGVzY3JpcHRpb24ihAMKDUNvbXBvbmVudE1ldGESEgoFdGl0bGUYASABKAlCA+BBAxIdCgtkZXNjcmlwdGlvbhgCIAEoCUID4EEDSACIAQESFwoFY29sb3IYAyABKAlCA+BBA0gBiAEBEhYKBGljb24YBCABKAlCA+BBA0gCiAEBEhwKCmljb25fY29sb3IYBSABKAlCA+BBA0gDiAEBEiAKDnNlY29uZGFyeV9pY29uGAYgASgJQgPgQQNIBIgBARImChRzZWNvbmRhcnlfaWNvbl9jb2xvchgHIAEoCUID4EEDSAWIAQESGgoIY2F0ZWdvcnkYCCABKAlCA+BBA0gGiAEBEiAKE2RlZmF1bHRfbmFtZV9wcmVmaXgYCSABKAlCA+BBA0IOCgxfZGVzY3JpcHRpb25CCAoGX2NvbG9yQgcKBV9pY29uQg0KC19pY29uX2NvbG9yQhEKD19zZWNvbmRhcnlfaWNvbkIXChVfc2Vjb25kYXJ5X2ljb25fY29sb3JCCwoJX2NhdGVnb3J5IuECCgZFbnRpdHkSEQoEdHlwZRgBIAEoCUID4EEDEhcKCmV4dGVuc2lvbnMYAiADKAlCA+BBAxIeChFkaXJlY3RfZXh0ZW5zaW9ucxgDIAMoCUID4EEDEjkKCmluY2x1c2lvbnMYBCADKAsyIC5pby5oaWdoc3RhdGUudjEuRW50aXR5SW5jbHVzaW9uQgPgQQMSQAoRZGlyZWN0X2luY2x1c2lvbnMYBSADKAsyIC5pby5oaWdoc3RhdGUudjEuRW50aXR5SW5jbHVzaW9uQgPgQQMSLgoEbWV0YRgHIAEoCzIbLmlvLmhpZ2hzdGF0ZS52MS5FbnRpdHlNZXRhQgPgQQMSHAoPZGVmaW5pdGlvbl9oYXNoGAggASgNQgPgQQMSOgoGc291cmNlGAkgASgLMiUuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlDYXRhbG9nU291cmNlQgPgQQNKBAgGEAciyAIKFExpYnJhcnlDYXRhbG9nU291cmNlEjwKBGtpbmQYASABKA4yKS5pby5oaWdoc3RhdGUudjEuTGlicmFyeUNhdGFsb2dTb3VyY2VLaW5kQgPgQQMSHgoMcGFja2FnZV9uYW1lGAIgASgJQgPgQQNIAIgBARIhCg9wYWNrYWdlX3ZlcnNpb24YAyABKAlCA+BBA0gBiAEBEiwKGmxpYnJhcnlfcGFja2FnZV92ZXJzaW9uX2lkGAQgASgJQgPgQQNIAogBARIlChNsaWJyYXJ5X3NuYXBzaG90X2lkGAUgASgJQgPgQQNIA4gBAUIPCg1fcGFja2FnZV9uYW1lQhIKEF9wYWNrYWdlX3ZlcnNpb25CHQobX2xpYnJhcnlfcGFja2FnZV92ZXJzaW9uX2lkQhYKFF9saWJyYXJ5X3NuYXBzaG90X2lkIj8KFlNlbGVjdGVkTGlicmFyeVBhY2thZ2USFAoMcGFja2FnZV9uYW1lGAEgASgJEg8KB3ZlcnNpb24YAiABKAkigQIKFUxpYnJhcnlQYWNrYWdlVmVyc2lvbhIPCgJpZBgBIAEoCUID4EEDEhkKDHBhY2thZ2VfbmFtZRgCIAEoCUID4EEDEhQKB3ZlcnNpb24YAyABKAlCA+BBAxIZCgxyZWdpc3RyeV91cmwYBCABKAlCA+BBAxIeChFwYWNrYWdlX2ludGVncml0eRgFIAEoCUID4EEDEjYKEHBhY2thZ2VfbWV0YWRhdGEYBiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0QgPgQQMSMwoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyLfAQoPTGlicmFyeVNuYXBzaG90Eg8KAmlkGAEgASgJQgPgQQMSEQoEaGFzaBgCIAEoCUID4EEDEj4KCHZlcnNpb25zGAMgAygLMicuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlTbmFwc2hvdFZlcnNpb25CA+BBAxIzCg1jb21wYXRpYmlsaXR5GAQgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEID4EEDEjMKCmNyZWF0ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMicgoWTGlicmFyeVNuYXBzaG90VmVyc2lvbhInChpsaWJyYXJ5X3BhY2thZ2VfdmVyc2lvbl9pZBgBIAEoCUID4EEDEhkKDHBhY2thZ2VfbmFtZRgCIAEoCUID4EEDEhQKB3ZlcnNpb24YAyABKAlCA+BBAyLnBAoUTGlicmFyeVNuYXBzaG90SW1hZ2USDwoCaWQYASABKAlCA+BBAxIgChNsaWJyYXJ5X3NuYXBzaG90X2lkGAIgASgJQgPgQQMSIgoVbGlicmFyeV9zbmFwc2hvdF9oYXNoGAMgASgJQgPgQQMSIQoUY29udGFpbmVyX3J1bnRpbWVfaWQYBCABKAlCA+BBAxI+CgVwaGFzZRgFIAEoDjIqLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5U25hcHNob3RJbWFnZVBoYXNlQgPgQQMSGQoHbWVzc2FnZRgGIAEoCUID4EEDSACIAQESGgoIcHJvZ3Jlc3MYByABKAFCA+BBA0gBiAEBEhsKCWltYWdlX3JlZhgIIAEoCUID4EEDSAKIAQESHgoMaW1hZ2VfZGlnZXN0GAkgASgJQgPgQQNIA4gBARIXCgVlcnJvchgKIAEoCUID4EEDSASIAQESMwoKdXBkYXRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAxIXCgpnZW5lcmF0aW9uGAwgASgEQgPgQQMSHAoKaW1hZ2VfaGFzaBgNIAEoCUID4EEDSAWIAQESOgoMY29tcGxldGVkX2F0GA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDSAaIAQFCCgoIX21lc3NhZ2VCCwoJX3Byb2dyZXNzQgwKCl9pbWFnZV9yZWZCDwoNX2ltYWdlX2RpZ2VzdEIICgZfZXJyb3JCDQoLX2ltYWdlX2hhc2hCDwoNX2NvbXBsZXRlZF9hdCKwAQoTTG9jYWxMaWJyYXJ5T3ZlcmxheRIUCgdlbmFibGVkGAEgASgIQgPgQQMSEwoGYWN0aXZlGAIgASgIQgPgQQMSGQoHbWVzc2FnZRgDIAEoCUID4EEDSACIAQESHgoRY29uZmxpY3RpbmdfdHlwZXMYBCADKAlCA+BBAxIaCghyZXZpc2lvbhgFIAEoCUID4EEDSAGIAQFCCgoIX21lc3NhZ2VCCwoJX3JldmlzaW9uIsABCgpFbnRpdHlNZXRhEhIKBXRpdGxlGAEgASgJQgPgQQMSHQoLZGVzY3JpcHRpb24YAiABKAlCA+BBA0gAiAEBEhcKBWNvbG9yGAMgASgJQgPgQQNIAYgBARIWCgRpY29uGAQgASgJQgPgQQNIAogBARIcCgppY29uX2NvbG9yGAUgASgJQgPgQQNIA4gBAUIOCgxfZGVzY3JpcHRpb25CCAoGX2NvbG9yQgcKBV9pY29uQg0KC19pY29uX2NvbG9yImYKD0VudGl0eUluY2x1c2lvbhIRCgR0eXBlGAEgASgJQgPgQQMSFQoIcmVxdWlyZWQYAiABKAhCA+BBAxIVCghtdWx0aXBsZRgDIAEoCEID4EEDEhIKBWZpZWxkGAQgASgJQgPgQQMiMwoYR2V0UHJvamVjdExpYnJhcnlSZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAiKyAwoZR2V0UHJvamVjdExpYnJhcnlSZXNwb25zZRJHChFzZWxlY3RlZF9wYWNrYWdlcxgBIAMoCzInLmlvLmhpZ2hzdGF0ZS52MS5TZWxlY3RlZExpYnJhcnlQYWNrYWdlQgPgQQMSRAoQZGVzaXJlZF9zbmFwc2hvdBgCIAEoCzIgLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5U25hcHNob3RCA+BBA0gAiAEBEk8KFmRlc2lyZWRfc25hcHNob3RfaW1hZ2UYAyABKAsyJS5pby5oaWdoc3RhdGUudjEuTGlicmFyeVNuYXBzaG90SW1hZ2VCA+BBA0gBiAEBEkAKDWxvY2FsX292ZXJsYXkYBCABKAsyJC5pby5oaWdoc3RhdGUudjEuTG9jYWxMaWJyYXJ5T3ZlcmxheUID4EEDEkMKC2RpYWdub3N0aWNzGAUgAygLMikuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RMaWJyYXJ5RGlhZ25vc3RpY0ID4EEDQhMKEV9kZXNpcmVkX3NuYXBzaG90QhkKF19kZXNpcmVkX3NuYXBzaG90X2ltYWdlIkQKGFByb2plY3RMaWJyYXJ5RGlhZ25vc3RpYxISCgVwaGFzZRgBIAEoCUID4EEDEhQKB21lc3NhZ2UYAiABKAlCA+BBAyJkChhBZGRMaWJyYXJ5UGFja2FnZVJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDHBhY2thZ2VfbmFtZRgCIAEoCUID4EECEhQKB3ZlcnNpb24YAyABKAlCA+BBAiKbAQoZQWRkTGlicmFyeVBhY2thZ2VSZXNwb25zZRI9CgdwYWNrYWdlGAEgASgLMicuaW8uaGlnaHN0YXRlLnYxLlNlbGVjdGVkTGlicmFyeVBhY2thZ2VCA+BBAhI/ChBkZXNpcmVkX3NuYXBzaG90GAIgASgLMiAuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlTbmFwc2hvdEID4EECIlEKG1JlbW92ZUxpYnJhcnlQYWNrYWdlUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGQoMcGFja2FnZV9uYW1lGAIgASgJQgPgQQIiXwocUmVtb3ZlTGlicmFyeVBhY2thZ2VSZXNwb25zZRI/ChBkZXNpcmVkX3NuYXBzaG90GAEgASgLMiAuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlTbmFwc2hvdEID4EECImcKG1VwZGF0ZUxpYnJhcnlQYWNrYWdlUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGQoMcGFja2FnZV9uYW1lGAIgASgJQgPgQQISFAoHdmVyc2lvbhgDIAEoCUID4EECIp4BChxVcGRhdGVMaWJyYXJ5UGFja2FnZVJlc3BvbnNlEj0KB3BhY2thZ2UYASABKAsyJy5pby5oaWdoc3RhdGUudjEuU2VsZWN0ZWRMaWJyYXJ5UGFja2FnZUID4EECEj8KEGRlc2lyZWRfc25hcHNob3QYAiABKAsyIC5pby5oaWdoc3RhdGUudjEuTGlicmFyeVNuYXBzaG90QgPgQQIiOgofVXBkYXRlQWxsTGlicmFyeVBhY2thZ2VzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQIirAEKIFVwZGF0ZUFsbExpYnJhcnlQYWNrYWdlc1Jlc3BvbnNlEkcKEXNlbGVjdGVkX3BhY2thZ2VzGAEgAygLMicuaW8uaGlnaHN0YXRlLnYxLlNlbGVjdGVkTGlicmFyeVBhY2thZ2VCA+BBAxI/ChBkZXNpcmVkX3NuYXBzaG90GAIgASgLMiAuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlTbmFwc2hvdEID4EECIlcKIUxpc3RMaWJyYXJ5UGFja2FnZVZlcnNpb25zUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGQoMcGFja2FnZV9uYW1lGAIgASgJQgPgQQIiOwoiTGlzdExpYnJhcnlQYWNrYWdlVmVyc2lvbnNSZXNwb25zZRIVCgh2ZXJzaW9ucxgBIAMoCUID4EEDIrEBCh9HZXRMaWJyYXJ5UGFja2FnZVZlcnNpb25SZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhInChpsaWJyYXJ5X3BhY2thZ2VfdmVyc2lvbl9pZBgCIAEoCUID4EECEhkKDHBhY2thZ2VfbmFtZRgDIAEoCUgAiAEBEhQKB3ZlcnNpb24YBCABKAlIAYgBAUIPCg1fcGFja2FnZV9uYW1lQgoKCF92ZXJzaW9uImgKIEdldExpYnJhcnlQYWNrYWdlVmVyc2lvblJlc3BvbnNlEkQKD3BhY2thZ2VfdmVyc2lvbhgBIAEoCzImLmlvLmhpZ2hzdGF0ZS52MS5MaWJyYXJ5UGFja2FnZVZlcnNpb25CA+BBAiJOCh1TZXRMb2NhbExpYnJhcnlPdmVybGF5UmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFAoHZW5hYmxlZBgCIAEoCEID4EECImIKHlNldExvY2FsTGlicmFyeU92ZXJsYXlSZXNwb25zZRJACg1sb2NhbF9vdmVybGF5GAEgASgLMiQuaW8uaGlnaHN0YXRlLnYxLkxvY2FsTGlicmFyeU92ZXJsYXlCA+BBAiI7CiBSZXRyeUxpYnJhcnlTbmFwc2hvdEltYWdlUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQIiXgohUmV0cnlMaWJyYXJ5U25hcHNob3RJbWFnZVJlc3BvbnNlEjkKBWltYWdlGAEgASgLMiUuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlTbmFwc2hvdEltYWdlQgPgQQIiLAoRR2V0TGlicmFyeVJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECIkQKEkdldExpYnJhcnlSZXNwb25zZRIuCgdsaWJyYXJ5GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlCA+BBAiJXChVMaXN0Q29tcG9uZW50c1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhEKCXBhZ2Vfc2l6ZRgCIAEoBRISCgpwYWdlX3Rva2VuGAMgASgJImgKFkxpc3RDb21wb25lbnRzUmVzcG9uc2USNQoKY29tcG9uZW50cxgBIAMoCzIhLmlvLmhpZ2hzdGF0ZS52MS5Db21wb25lbnRTdW1tYXJ5EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSJBChNHZXRDb21wb25lbnRSZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhIRCgR0eXBlGAIgASgJQgPgQQIiSgoUR2V0Q29tcG9uZW50UmVzcG9uc2USMgoJY29tcG9uZW50GAEgASgLMhouaW8uaGlnaHN0YXRlLnYxLkNvbXBvbmVudEID4EECKsABChhMaWJyYXJ5Q2F0YWxvZ1NvdXJjZUtpbmQSKwonTElCUkFSWV9DQVRBTE9HX1NPVVJDRV9LSU5EX1VOU1BFQ0lGSUVEEAASJwojTElCUkFSWV9DQVRBTE9HX1NPVVJDRV9LSU5EX1BBQ0tBR0UQARIlCiFMSUJSQVJZX0NBVEFMT0dfU09VUkNFX0tJTkRfTE9DQUwQAhInCiNMSUJSQVJZX0NBVEFMT0dfU09VUkNFX0tJTkRfVklSVFVBTBADKvECChlMaWJyYXJ5U25hcHNob3RJbWFnZVBoYXNlEiwKKExJQlJBUllfU05BUFNIT1RfSU1BR0VfUEhBU0VfVU5TUEVDSUZJRUQQABInCiNMSUJSQVJZX1NOQVBTSE9UX0lNQUdFX1BIQVNFX1FVRVVFRBABEisKJ0xJQlJBUllfU05BUFNIT1RfSU1BR0VfUEhBU0VfSU5TVEFMTElORxADEikKJUxJQlJBUllfU05BUFNIT1RfSU1BR0VfUEhBU0VfQlVJTERJTkcQBhIoCiRMSUJSQVJZX1NOQVBTSE9UX0lNQUdFX1BIQVNFX1BVU0hJTkcQBxIqCiZMSUJSQVJZX1NOQVBTSE9UX0lNQUdFX1BIQVNFX1ZFUklGWUlORxAIEiYKIkxJQlJBUllfU05BUFNIT1RfSU1BR0VfUEhBU0VfUkVBRFkQCRInCiNMSUJSQVJZX1NOQVBTSE9UX0lNQUdFX1BIQVNFX0ZBSUxFRBAKMvMKCg5MaWJyYXJ5U2VydmljZRJqChFHZXRQcm9qZWN0TGlicmFyeRIpLmlvLmhpZ2hzdGF0ZS52MS5HZXRQcm9qZWN0TGlicmFyeVJlcXVlc3QaKi5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdExpYnJhcnlSZXNwb25zZRJqChFBZGRMaWJyYXJ5UGFja2FnZRIpLmlvLmhpZ2hzdGF0ZS52MS5BZGRMaWJyYXJ5UGFja2FnZVJlcXVlc3QaKi5pby5oaWdoc3RhdGUudjEuQWRkTGlicmFyeVBhY2thZ2VSZXNwb25zZRJzChRSZW1vdmVMaWJyYXJ5UGFja2FnZRIsLmlvLmhpZ2hzdGF0ZS52MS5SZW1vdmVMaWJyYXJ5UGFja2FnZVJlcXVlc3QaLS5pby5oaWdoc3RhdGUudjEuUmVtb3ZlTGlicmFyeVBhY2thZ2VSZXNwb25zZRJzChRVcGRhdGVMaWJyYXJ5UGFja2FnZRIsLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVMaWJyYXJ5UGFja2FnZVJlcXVlc3QaLS5pby5oaWdoc3RhdGUudjEuVXBkYXRlTGlicmFyeVBhY2thZ2VSZXNwb25zZRJ/ChhVcGRhdGVBbGxMaWJyYXJ5UGFja2FnZXMSMC5pby5oaWdoc3RhdGUudjEuVXBkYXRlQWxsTGlicmFyeVBhY2thZ2VzUmVxdWVzdBoxLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVBbGxMaWJyYXJ5UGFja2FnZXNSZXNwb25zZRKFAQoaTGlzdExpYnJhcnlQYWNrYWdlVmVyc2lvbnMSMi5pby5oaWdoc3RhdGUudjEuTGlzdExpYnJhcnlQYWNrYWdlVmVyc2lvbnNSZXF1ZXN0GjMuaW8uaGlnaHN0YXRlLnYxLkxpc3RMaWJyYXJ5UGFja2FnZVZlcnNpb25zUmVzcG9uc2USfwoYR2V0TGlicmFyeVBhY2thZ2VWZXJzaW9uEjAuaW8uaGlnaHN0YXRlLnYxLkdldExpYnJhcnlQYWNrYWdlVmVyc2lvblJlcXVlc3QaMS5pby5oaWdoc3RhdGUudjEuR2V0TGlicmFyeVBhY2thZ2VWZXJzaW9uUmVzcG9uc2USeQoWU2V0TG9jYWxMaWJyYXJ5T3ZlcmxheRIuLmlvLmhpZ2hzdGF0ZS52MS5TZXRMb2NhbExpYnJhcnlPdmVybGF5UmVxdWVzdBovLmlvLmhpZ2hzdGF0ZS52MS5TZXRMb2NhbExpYnJhcnlPdmVybGF5UmVzcG9uc2USggEKGVJldHJ5TGlicmFyeVNuYXBzaG90SW1hZ2USMS5pby5oaWdoc3RhdGUudjEuUmV0cnlMaWJyYXJ5U25hcHNob3RJbWFnZVJlcXVlc3QaMi5pby5oaWdoc3RhdGUudjEuUmV0cnlMaWJyYXJ5U25hcHNob3RJbWFnZVJlc3BvbnNlElUKCkdldExpYnJhcnkSIi5pby5oaWdoc3RhdGUudjEuR2V0TGlicmFyeVJlcXVlc3QaIy5pby5oaWdoc3RhdGUudjEuR2V0TGlicmFyeVJlc3BvbnNlEmEKDkxpc3RDb21wb25lbnRzEiYuaW8uaGlnaHN0YXRlLnYxLkxpc3RDb21wb25lbnRzUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5MaXN0Q29tcG9uZW50c1Jlc3BvbnNlElsKDEdldENvbXBvbmVudBIkLmlvLmhpZ2hzdGF0ZS52MS5HZXRDb21wb25lbnRSZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkdldENvbXBvbmVudFJlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_struct, file_google_protobuf_timestamp, file_io_highstate_v1_common]);
 
 /**
  * Library contains the stable catalog exposed by the selected project library.
@@ -35,6 +36,20 @@ export type Library = Message<"io.highstate.v1.Library"> & {
    * @generated from field: map<string, io.highstate.v1.Entity> entities = 2;
    */
   entities: { [key: string]: Entity };
+
+  /**
+   * The packaged snapshot from which this catalog was assembled.
+   *
+   * @generated from field: optional string library_snapshot_id = 3;
+   */
+  librarySnapshotId?: string | undefined;
+
+  /**
+   * The state of the optional local development overlay.
+   *
+   * @generated from field: io.highstate.v1.LocalLibraryOverlay local_overlay = 4;
+   */
+  localOverlay?: LocalLibraryOverlay | undefined;
 };
 
 /**
@@ -98,6 +113,13 @@ export type Component = Message<"io.highstate.v1.Component"> & {
    * @generated from field: uint32 definition_hash = 7;
    */
   definitionHash: number;
+
+  /**
+   * The source that supplied this component.
+   *
+   * @generated from field: io.highstate.v1.LibraryCatalogSource source = 8;
+   */
+  source?: LibraryCatalogSource | undefined;
 };
 
 /**
@@ -133,6 +155,13 @@ export type ComponentSummary = Message<"io.highstate.v1.ComponentSummary"> & {
    * @generated from field: io.highstate.v1.ComponentMeta meta = 3;
    */
   meta?: ComponentMeta | undefined;
+
+  /**
+   * The source that supplied this component.
+   *
+   * @generated from field: io.highstate.v1.LibraryCatalogSource source = 4;
+   */
+  source?: LibraryCatalogSource | undefined;
 };
 
 /**
@@ -441,6 +470,13 @@ export type Entity = Message<"io.highstate.v1.Entity"> & {
    * @generated from field: uint32 definition_hash = 8;
    */
   definitionHash: number;
+
+  /**
+   * The source that supplied this entity.
+   *
+   * @generated from field: io.highstate.v1.LibraryCatalogSource source = 9;
+   */
+  source?: LibraryCatalogSource | undefined;
 };
 
 /**
@@ -449,6 +485,391 @@ export type Entity = Message<"io.highstate.v1.Entity"> & {
  */
 export const EntitySchema: GenMessage<Entity> = /*@__PURE__*/
   messageDesc(file_io_highstate_v1_library, 8);
+
+/**
+ * LibraryCatalogSource identifies the package or local overlay that owns one catalog entry.
+ *
+ * @generated from message io.highstate.v1.LibraryCatalogSource
+ */
+export type LibraryCatalogSource = Message<"io.highstate.v1.LibraryCatalogSource"> & {
+  /**
+   * The kind of catalog source.
+   *
+   * @generated from field: io.highstate.v1.LibraryCatalogSourceKind kind = 1;
+   */
+  kind: LibraryCatalogSourceKind;
+
+  /**
+   * The npm package name for a packaged source.
+   *
+   * @generated from field: optional string package_name = 2;
+   */
+  packageName?: string | undefined;
+
+  /**
+   * The exact npm package version for a packaged source.
+   *
+   * @generated from field: optional string package_version = 3;
+   */
+  packageVersion?: string | undefined;
+
+  /**
+   * The package-version record for a packaged source.
+   *
+   * @generated from field: optional string library_package_version_id = 4;
+   */
+  libraryPackageVersionId?: string | undefined;
+
+  /**
+   * The immutable snapshot containing this packaged definition.
+   *
+   * @generated from field: optional string library_snapshot_id = 5;
+   */
+  librarySnapshotId?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.LibraryCatalogSource.
+ * Use `create(LibraryCatalogSourceSchema)` to create a new message.
+ */
+export const LibraryCatalogSourceSchema: GenMessage<LibraryCatalogSource> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 9);
+
+/**
+ * SelectedLibraryPackage is one exact package selection, including before initial resolution succeeds.
+ *
+ * @generated from message io.highstate.v1.SelectedLibraryPackage
+ */
+export type SelectedLibraryPackage = Message<"io.highstate.v1.SelectedLibraryPackage"> & {
+  /**
+   * The npm package name.
+   *
+   * @generated from field: string package_name = 1;
+   */
+  packageName: string;
+
+  /**
+   * The exact version selected for future snapshots.
+   *
+   * @generated from field: string version = 2;
+   */
+  version: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.SelectedLibraryPackage.
+ * Use `create(SelectedLibraryPackageSchema)` to create a new message.
+ */
+export const SelectedLibraryPackageSchema: GenMessage<SelectedLibraryPackage> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 10);
+
+/**
+ * LibraryPackageVersion describes an evaluated exact package version.
+ *
+ * @generated from message io.highstate.v1.LibraryPackageVersion
+ */
+export type LibraryPackageVersion = Message<"io.highstate.v1.LibraryPackageVersion"> & {
+  /**
+   * The stable package-version ID.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * The npm package name.
+   *
+   * @generated from field: string package_name = 2;
+   */
+  packageName: string;
+
+  /**
+   * The exact npm package version.
+   *
+   * @generated from field: string version = 3;
+   */
+  version: string;
+
+  /**
+   * The registry from which the package was resolved.
+   *
+   * @generated from field: string registry_url = 4;
+   */
+  registryUrl: string;
+
+  /**
+   * The registry-provided package integrity value.
+   *
+   * @generated from field: string package_integrity = 5;
+   */
+  packageIntegrity: string;
+
+  /**
+   * Cached npm package metadata.
+   *
+   * @generated from field: google.protobuf.Struct package_metadata = 6;
+   */
+  packageMetadata?: JsonObject | undefined;
+
+  /**
+   * The time when this package version was evaluated.
+   *
+   * @generated from field: google.protobuf.Timestamp created_at = 7;
+   */
+  createdAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.LibraryPackageVersion.
+ * Use `create(LibraryPackageVersionSchema)` to create a new message.
+ */
+export const LibraryPackageVersionSchema: GenMessage<LibraryPackageVersion> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 11);
+
+/**
+ * LibrarySnapshot describes one immutable packaged library environment.
+ *
+ * @generated from message io.highstate.v1.LibrarySnapshot
+ */
+export type LibrarySnapshot = Message<"io.highstate.v1.LibrarySnapshot"> & {
+  /**
+   * The stable snapshot ID.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * The deterministic hash of the canonical snapshot content.
+   *
+   * @generated from field: string hash = 2;
+   */
+  hash: string;
+
+  /**
+   * The direct package versions, normalized by package name.
+   *
+   * @generated from field: repeated io.highstate.v1.LibrarySnapshotVersion versions = 3;
+   */
+  versions: LibrarySnapshotVersion[];
+
+  /**
+   * Runtime and package-format compatibility requirements.
+   *
+   * @generated from field: google.protobuf.Struct compatibility = 4;
+   */
+  compatibility?: JsonObject | undefined;
+
+  /**
+   * The time when the snapshot was created.
+   *
+   * @generated from field: google.protobuf.Timestamp created_at = 5;
+   */
+  createdAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.LibrarySnapshot.
+ * Use `create(LibrarySnapshotSchema)` to create a new message.
+ */
+export const LibrarySnapshotSchema: GenMessage<LibrarySnapshot> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 12);
+
+/**
+ * LibrarySnapshotVersion identifies one direct package version in a snapshot.
+ *
+ * @generated from message io.highstate.v1.LibrarySnapshotVersion
+ */
+export type LibrarySnapshotVersion = Message<"io.highstate.v1.LibrarySnapshotVersion"> & {
+  /**
+   * The package-version record included in the snapshot.
+   *
+   * @generated from field: string library_package_version_id = 1;
+   */
+  libraryPackageVersionId: string;
+
+  /**
+   * The npm package name.
+   *
+   * @generated from field: string package_name = 2;
+   */
+  packageName: string;
+
+  /**
+   * The exact npm package version.
+   *
+   * @generated from field: string version = 3;
+   */
+  version: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.LibrarySnapshotVersion.
+ * Use `create(LibrarySnapshotVersionSchema)` to create a new message.
+ */
+export const LibrarySnapshotVersionSchema: GenMessage<LibrarySnapshotVersion> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 13);
+
+/**
+ * LibrarySnapshotImage describes backend-local materialization of a project snapshot.
+ *
+ * @generated from message io.highstate.v1.LibrarySnapshotImage
+ */
+export type LibrarySnapshotImage = Message<"io.highstate.v1.LibrarySnapshotImage"> & {
+  /**
+   * The backend-local image cache ID.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * The project snapshot ID.
+   *
+   * @generated from field: string library_snapshot_id = 2;
+   */
+  librarySnapshotId: string;
+
+  /**
+   * The project snapshot hash verified by the backend.
+   *
+   * @generated from field: string library_snapshot_hash = 3;
+   */
+  librarySnapshotHash: string;
+
+  /**
+   * The container runtime where the image is materialized.
+   *
+   * @generated from field: string container_runtime_id = 4;
+   */
+  containerRuntimeId: string;
+
+  /**
+   * The current materialization phase.
+   *
+   * @generated from field: io.highstate.v1.LibrarySnapshotImagePhase phase = 5;
+   */
+  phase: LibrarySnapshotImagePhase;
+
+  /**
+   * Human-readable progress for the current phase.
+   *
+   * @generated from field: optional string message = 6;
+   */
+  message?: string | undefined;
+
+  /**
+   * Completion within the current phase from zero through one, when measurable.
+   *
+   * @generated from field: optional double progress = 7;
+   */
+  progress?: number | undefined;
+
+  /**
+   * The runtime-local or registry image reference, when available.
+   *
+   * @generated from field: optional string image_ref = 8;
+   */
+  imageRef?: string | undefined;
+
+  /**
+   * The immutable OCI image digest, when available.
+   *
+   * @generated from field: optional string image_digest = 9;
+   */
+  imageDigest?: string | undefined;
+
+  /**
+   * The most recent materialization error.
+   *
+   * @generated from field: optional string error = 10;
+   */
+  error?: string | undefined;
+
+  /**
+   * The time when the cache entry was last updated.
+   *
+   * @generated from field: google.protobuf.Timestamp updated_at = 11;
+   */
+  updatedAt?: Timestamp | undefined;
+
+  /**
+   * The materialization generation used to reject stale workload updates.
+   *
+   * @generated from field: uint64 generation = 12;
+   */
+  generation: bigint;
+
+  /**
+   * The hash reported by the verified image build.
+   *
+   * @generated from field: optional string image_hash = 13;
+   */
+  imageHash?: string | undefined;
+
+  /**
+   * The time when image materialization completed.
+   *
+   * @generated from field: optional google.protobuf.Timestamp completed_at = 14;
+   */
+  completedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.LibrarySnapshotImage.
+ * Use `create(LibrarySnapshotImageSchema)` to create a new message.
+ */
+export const LibrarySnapshotImageSchema: GenMessage<LibrarySnapshotImage> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 14);
+
+/**
+ * LocalLibraryOverlay describes availability and conflict state for local development libraries.
+ *
+ * @generated from message io.highstate.v1.LocalLibraryOverlay
+ */
+export type LocalLibraryOverlay = Message<"io.highstate.v1.LocalLibraryOverlay"> & {
+  /**
+   * Whether the project requests the local overlay.
+   *
+   * @generated from field: bool enabled = 1;
+   */
+  enabled: boolean;
+
+  /**
+   * Whether the complete local overlay is active in the effective catalog.
+   *
+   * @generated from field: bool active = 2;
+   */
+  active: boolean;
+
+  /**
+   * Why the requested overlay is unavailable or disabled.
+   *
+   * @generated from field: optional string message = 3;
+   */
+  message?: string | undefined;
+
+  /**
+   * Component and entity types conflicting with the packaged snapshot.
+   *
+   * @generated from field: repeated string conflicting_types = 4;
+   */
+  conflictingTypes: string[];
+
+  /**
+   * The revision of the complete active local overlay.
+   *
+   * @generated from field: optional string revision = 5;
+   */
+  revision?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.LocalLibraryOverlay.
+ * Use `create(LocalLibraryOverlaySchema)` to create a new message.
+ */
+export const LocalLibraryOverlaySchema: GenMessage<LocalLibraryOverlay> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 15);
 
 /**
  * EntityMeta contains display metadata for an entity definition.
@@ -497,7 +918,7 @@ export type EntityMeta = Message<"io.highstate.v1.EntityMeta"> & {
  * Use `create(EntityMetaSchema)` to create a new message.
  */
 export const EntityMetaSchema: GenMessage<EntityMeta> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 9);
+  messageDesc(file_io_highstate_v1_library, 16);
 
 /**
  * EntityInclusion describes an entity value embedded within another entity.
@@ -539,7 +960,532 @@ export type EntityInclusion = Message<"io.highstate.v1.EntityInclusion"> & {
  * Use `create(EntityInclusionSchema)` to create a new message.
  */
 export const EntityInclusionSchema: GenMessage<EntityInclusion> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 10);
+  messageDesc(file_io_highstate_v1_library, 17);
+
+/**
+ * GetProjectLibraryRequest requests project package, snapshot, image, and overlay state.
+ *
+ * @generated from message io.highstate.v1.GetProjectLibraryRequest
+ */
+export type GetProjectLibraryRequest = Message<"io.highstate.v1.GetProjectLibraryRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetProjectLibraryRequest.
+ * Use `create(GetProjectLibraryRequestSchema)` to create a new message.
+ */
+export const GetProjectLibraryRequestSchema: GenMessage<GetProjectLibraryRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 18);
+
+/**
+ * GetProjectLibraryResponse returns the complete project library configuration state.
+ *
+ * @generated from message io.highstate.v1.GetProjectLibraryResponse
+ */
+export type GetProjectLibraryResponse = Message<"io.highstate.v1.GetProjectLibraryResponse"> & {
+  /**
+   * The exact selected packages, unique and sorted by package name, even before a snapshot exists.
+   *
+   * @generated from field: repeated io.highstate.v1.SelectedLibraryPackage selected_packages = 1;
+   */
+  selectedPackages: SelectedLibraryPackage[];
+
+  /**
+   * The desired immutable packaged snapshot, when resolution has succeeded.
+   *
+   * @generated from field: optional io.highstate.v1.LibrarySnapshot desired_snapshot = 2;
+   */
+  desiredSnapshot?: LibrarySnapshot | undefined;
+
+  /**
+   * The backend-local image state for the desired snapshot, when available.
+   *
+   * @generated from field: optional io.highstate.v1.LibrarySnapshotImage desired_snapshot_image = 3;
+   */
+  desiredSnapshotImage?: LibrarySnapshotImage | undefined;
+
+  /**
+   * The local development overlay state.
+   *
+   * @generated from field: io.highstate.v1.LocalLibraryOverlay local_overlay = 4;
+   */
+  localOverlay?: LocalLibraryOverlay | undefined;
+
+  /**
+   * Actionable resolution, image, or publication failures for the desired library.
+   *
+   * @generated from field: repeated io.highstate.v1.ProjectLibraryDiagnostic diagnostics = 5;
+   */
+  diagnostics: ProjectLibraryDiagnostic[];
+};
+
+/**
+ * Describes the message io.highstate.v1.GetProjectLibraryResponse.
+ * Use `create(GetProjectLibraryResponseSchema)` to create a new message.
+ */
+export const GetProjectLibraryResponseSchema: GenMessage<GetProjectLibraryResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 19);
+
+/**
+ * ProjectLibraryDiagnostic describes a failed phase without exposing registry credentials.
+ *
+ * @generated from message io.highstate.v1.ProjectLibraryDiagnostic
+ */
+export type ProjectLibraryDiagnostic = Message<"io.highstate.v1.ProjectLibraryDiagnostic"> & {
+  /**
+   * The phase that failed.
+   *
+   * @generated from field: string phase = 1;
+   */
+  phase: string;
+
+  /**
+   * The actionable failure description.
+   *
+   * @generated from field: string message = 2;
+   */
+  message: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.ProjectLibraryDiagnostic.
+ * Use `create(ProjectLibraryDiagnosticSchema)` to create a new message.
+ */
+export const ProjectLibraryDiagnosticSchema: GenMessage<ProjectLibraryDiagnostic> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 20);
+
+/**
+ * AddLibraryPackageRequest adds one exact npm package version to the project library.
+ *
+ * @generated from message io.highstate.v1.AddLibraryPackageRequest
+ */
+export type AddLibraryPackageRequest = Message<"io.highstate.v1.AddLibraryPackageRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The npm package name.
+   *
+   * @generated from field: string package_name = 2;
+   */
+  packageName: string;
+
+  /**
+   * The exact npm package version.
+   *
+   * @generated from field: string version = 3;
+   */
+  version: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.AddLibraryPackageRequest.
+ * Use `create(AddLibraryPackageRequestSchema)` to create a new message.
+ */
+export const AddLibraryPackageRequestSchema: GenMessage<AddLibraryPackageRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 21);
+
+/**
+ * AddLibraryPackageResponse returns the committed package and desired snapshot.
+ *
+ * @generated from message io.highstate.v1.AddLibraryPackageResponse
+ */
+export type AddLibraryPackageResponse = Message<"io.highstate.v1.AddLibraryPackageResponse"> & {
+  /**
+   * The canonical package selection.
+   *
+   * @generated from field: io.highstate.v1.SelectedLibraryPackage package = 1;
+   */
+  package?: SelectedLibraryPackage | undefined;
+
+  /**
+   * The newly desired immutable snapshot.
+   *
+   * @generated from field: io.highstate.v1.LibrarySnapshot desired_snapshot = 2;
+   */
+  desiredSnapshot?: LibrarySnapshot | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.AddLibraryPackageResponse.
+ * Use `create(AddLibraryPackageResponseSchema)` to create a new message.
+ */
+export const AddLibraryPackageResponseSchema: GenMessage<AddLibraryPackageResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 22);
+
+/**
+ * RemoveLibraryPackageRequest removes one selected package from the project library.
+ *
+ * @generated from message io.highstate.v1.RemoveLibraryPackageRequest
+ */
+export type RemoveLibraryPackageRequest = Message<"io.highstate.v1.RemoveLibraryPackageRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The selected npm package name.
+   *
+   * @generated from field: string package_name = 2;
+   */
+  packageName: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.RemoveLibraryPackageRequest.
+ * Use `create(RemoveLibraryPackageRequestSchema)` to create a new message.
+ */
+export const RemoveLibraryPackageRequestSchema: GenMessage<RemoveLibraryPackageRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 23);
+
+/**
+ * RemoveLibraryPackageResponse returns the newly desired snapshot.
+ *
+ * @generated from message io.highstate.v1.RemoveLibraryPackageResponse
+ */
+export type RemoveLibraryPackageResponse = Message<"io.highstate.v1.RemoveLibraryPackageResponse"> & {
+  /**
+   * The newly desired immutable snapshot.
+   *
+   * @generated from field: io.highstate.v1.LibrarySnapshot desired_snapshot = 1;
+   */
+  desiredSnapshot?: LibrarySnapshot | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.RemoveLibraryPackageResponse.
+ * Use `create(RemoveLibraryPackageResponseSchema)` to create a new message.
+ */
+export const RemoveLibraryPackageResponseSchema: GenMessage<RemoveLibraryPackageResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 24);
+
+/**
+ * UpdateLibraryPackageRequest atomically selects one exact version and rebuilds the project snapshot.
+ *
+ * @generated from message io.highstate.v1.UpdateLibraryPackageRequest
+ */
+export type UpdateLibraryPackageRequest = Message<"io.highstate.v1.UpdateLibraryPackageRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The selected npm package name.
+   *
+   * @generated from field: string package_name = 2;
+   */
+  packageName: string;
+
+  /**
+   * The exact npm package version to select.
+   *
+   * @generated from field: string version = 3;
+   */
+  version: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateLibraryPackageRequest.
+ * Use `create(UpdateLibraryPackageRequestSchema)` to create a new message.
+ */
+export const UpdateLibraryPackageRequestSchema: GenMessage<UpdateLibraryPackageRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 25);
+
+/**
+ * UpdateLibraryPackageResponse returns the committed package and desired snapshot.
+ *
+ * @generated from message io.highstate.v1.UpdateLibraryPackageResponse
+ */
+export type UpdateLibraryPackageResponse = Message<"io.highstate.v1.UpdateLibraryPackageResponse"> & {
+  /**
+   * The canonical package selection.
+   *
+   * @generated from field: io.highstate.v1.SelectedLibraryPackage package = 1;
+   */
+  package?: SelectedLibraryPackage | undefined;
+
+  /**
+   * The newly desired immutable snapshot.
+   *
+   * @generated from field: io.highstate.v1.LibrarySnapshot desired_snapshot = 2;
+   */
+  desiredSnapshot?: LibrarySnapshot | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateLibraryPackageResponse.
+ * Use `create(UpdateLibraryPackageResponseSchema)` to create a new message.
+ */
+export const UpdateLibraryPackageResponseSchema: GenMessage<UpdateLibraryPackageResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 26);
+
+/**
+ * UpdateAllLibraryPackagesRequest selects the latest eligible exact version for every package.
+ *
+ * @generated from message io.highstate.v1.UpdateAllLibraryPackagesRequest
+ */
+export type UpdateAllLibraryPackagesRequest = Message<"io.highstate.v1.UpdateAllLibraryPackagesRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateAllLibraryPackagesRequest.
+ * Use `create(UpdateAllLibraryPackagesRequestSchema)` to create a new message.
+ */
+export const UpdateAllLibraryPackagesRequestSchema: GenMessage<UpdateAllLibraryPackagesRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 27);
+
+/**
+ * UpdateAllLibraryPackagesResponse returns the atomic package selection and desired snapshot.
+ *
+ * @generated from message io.highstate.v1.UpdateAllLibraryPackagesResponse
+ */
+export type UpdateAllLibraryPackagesResponse = Message<"io.highstate.v1.UpdateAllLibraryPackagesResponse"> & {
+  /**
+   * The canonical package selections, unique and sorted by package name.
+   *
+   * @generated from field: repeated io.highstate.v1.SelectedLibraryPackage selected_packages = 1;
+   */
+  selectedPackages: SelectedLibraryPackage[];
+
+  /**
+   * The newly desired immutable snapshot.
+   *
+   * @generated from field: io.highstate.v1.LibrarySnapshot desired_snapshot = 2;
+   */
+  desiredSnapshot?: LibrarySnapshot | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateAllLibraryPackagesResponse.
+ * Use `create(UpdateAllLibraryPackagesResponseSchema)` to create a new message.
+ */
+export const UpdateAllLibraryPackagesResponseSchema: GenMessage<UpdateAllLibraryPackagesResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 28);
+
+/**
+ * ListLibraryPackageVersionsRequest requests available exact npm versions for one package.
+ *
+ * @generated from message io.highstate.v1.ListLibraryPackageVersionsRequest
+ */
+export type ListLibraryPackageVersionsRequest = Message<"io.highstate.v1.ListLibraryPackageVersionsRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The npm package name.
+   *
+   * @generated from field: string package_name = 2;
+   */
+  packageName: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.ListLibraryPackageVersionsRequest.
+ * Use `create(ListLibraryPackageVersionsRequestSchema)` to create a new message.
+ */
+export const ListLibraryPackageVersionsRequestSchema: GenMessage<ListLibraryPackageVersionsRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 29);
+
+/**
+ * ListLibraryPackageVersionsResponse returns available exact npm versions.
+ *
+ * @generated from message io.highstate.v1.ListLibraryPackageVersionsResponse
+ */
+export type ListLibraryPackageVersionsResponse = Message<"io.highstate.v1.ListLibraryPackageVersionsResponse"> & {
+  /**
+   * Exact package versions available from the selected npm registry.
+   *
+   * @generated from field: repeated string versions = 1;
+   */
+  versions: string[];
+};
+
+/**
+ * Describes the message io.highstate.v1.ListLibraryPackageVersionsResponse.
+ * Use `create(ListLibraryPackageVersionsResponseSchema)` to create a new message.
+ */
+export const ListLibraryPackageVersionsResponseSchema: GenMessage<ListLibraryPackageVersionsResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 30);
+
+/**
+ * GetLibraryPackageVersionRequest requests one evaluated package-version record.
+ *
+ * @generated from message io.highstate.v1.GetLibraryPackageVersionRequest
+ */
+export type GetLibraryPackageVersionRequest = Message<"io.highstate.v1.GetLibraryPackageVersionRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The stable package-version ID of a desired snapshot member; alternatively supply package_name and version.
+   *
+   * @generated from field: string library_package_version_id = 2;
+   */
+  libraryPackageVersionId: string;
+
+  /**
+   * The package name, when looking up an exact version instead of a snapshot member ID.
+   *
+   * @generated from field: optional string package_name = 3;
+   */
+  packageName?: string | undefined;
+
+  /**
+   * The exact package version paired with package_name.
+   *
+   * @generated from field: optional string version = 4;
+   */
+  version?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetLibraryPackageVersionRequest.
+ * Use `create(GetLibraryPackageVersionRequestSchema)` to create a new message.
+ */
+export const GetLibraryPackageVersionRequestSchema: GenMessage<GetLibraryPackageVersionRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 31);
+
+/**
+ * GetLibraryPackageVersionResponse returns one evaluated package version.
+ *
+ * @generated from message io.highstate.v1.GetLibraryPackageVersionResponse
+ */
+export type GetLibraryPackageVersionResponse = Message<"io.highstate.v1.GetLibraryPackageVersionResponse"> & {
+  /**
+   * The canonical package-version record.
+   *
+   * @generated from field: io.highstate.v1.LibraryPackageVersion package_version = 1;
+   */
+  packageVersion?: LibraryPackageVersion | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetLibraryPackageVersionResponse.
+ * Use `create(GetLibraryPackageVersionResponseSchema)` to create a new message.
+ */
+export const GetLibraryPackageVersionResponseSchema: GenMessage<GetLibraryPackageVersionResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 32);
+
+/**
+ * SetLocalLibraryOverlayRequest enables or disables the local development overlay.
+ *
+ * @generated from message io.highstate.v1.SetLocalLibraryOverlayRequest
+ */
+export type SetLocalLibraryOverlayRequest = Message<"io.highstate.v1.SetLocalLibraryOverlayRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * Whether the project requests the local overlay.
+   *
+   * @generated from field: bool enabled = 2;
+   */
+  enabled: boolean;
+};
+
+/**
+ * Describes the message io.highstate.v1.SetLocalLibraryOverlayRequest.
+ * Use `create(SetLocalLibraryOverlayRequestSchema)` to create a new message.
+ */
+export const SetLocalLibraryOverlayRequestSchema: GenMessage<SetLocalLibraryOverlayRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 33);
+
+/**
+ * SetLocalLibraryOverlayResponse returns the effective overlay state.
+ *
+ * @generated from message io.highstate.v1.SetLocalLibraryOverlayResponse
+ */
+export type SetLocalLibraryOverlayResponse = Message<"io.highstate.v1.SetLocalLibraryOverlayResponse"> & {
+  /**
+   * The canonical local overlay state.
+   *
+   * @generated from field: io.highstate.v1.LocalLibraryOverlay local_overlay = 1;
+   */
+  localOverlay?: LocalLibraryOverlay | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.SetLocalLibraryOverlayResponse.
+ * Use `create(SetLocalLibraryOverlayResponseSchema)` to create a new message.
+ */
+export const SetLocalLibraryOverlayResponseSchema: GenMessage<SetLocalLibraryOverlayResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 34);
+
+/**
+ * RetryLibrarySnapshotImageRequest retries materialization of the desired snapshot image.
+ *
+ * @generated from message io.highstate.v1.RetryLibrarySnapshotImageRequest
+ */
+export type RetryLibrarySnapshotImageRequest = Message<"io.highstate.v1.RetryLibrarySnapshotImageRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.RetryLibrarySnapshotImageRequest.
+ * Use `create(RetryLibrarySnapshotImageRequestSchema)` to create a new message.
+ */
+export const RetryLibrarySnapshotImageRequestSchema: GenMessage<RetryLibrarySnapshotImageRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 35);
+
+/**
+ * RetryLibrarySnapshotImageResponse returns the queued image state.
+ *
+ * @generated from message io.highstate.v1.RetryLibrarySnapshotImageResponse
+ */
+export type RetryLibrarySnapshotImageResponse = Message<"io.highstate.v1.RetryLibrarySnapshotImageResponse"> & {
+  /**
+   * The canonical backend-local image state.
+   *
+   * @generated from field: io.highstate.v1.LibrarySnapshotImage image = 1;
+   */
+  image?: LibrarySnapshotImage | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.RetryLibrarySnapshotImageResponse.
+ * Use `create(RetryLibrarySnapshotImageResponseSchema)` to create a new message.
+ */
+export const RetryLibrarySnapshotImageResponseSchema: GenMessage<RetryLibrarySnapshotImageResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_library, 36);
 
 /**
  * GetLibraryRequest requests the selected project's library catalog.
@@ -560,7 +1506,7 @@ export type GetLibraryRequest = Message<"io.highstate.v1.GetLibraryRequest"> & {
  * Use `create(GetLibraryRequestSchema)` to create a new message.
  */
 export const GetLibraryRequestSchema: GenMessage<GetLibraryRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 11);
+  messageDesc(file_io_highstate_v1_library, 37);
 
 /**
  * GetLibraryResponse returns the canonical library catalog.
@@ -581,7 +1527,7 @@ export type GetLibraryResponse = Message<"io.highstate.v1.GetLibraryResponse"> &
  * Use `create(GetLibraryResponseSchema)` to create a new message.
  */
 export const GetLibraryResponseSchema: GenMessage<GetLibraryResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 12);
+  messageDesc(file_io_highstate_v1_library, 38);
 
 /**
  * ListComponentsRequest requests one page of component summaries ordered by type.
@@ -616,7 +1562,7 @@ export type ListComponentsRequest = Message<"io.highstate.v1.ListComponentsReque
  * Use `create(ListComponentsRequestSchema)` to create a new message.
  */
 export const ListComponentsRequestSchema: GenMessage<ListComponentsRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 13);
+  messageDesc(file_io_highstate_v1_library, 39);
 
 /**
  * ListComponentsResponse returns one page of component summaries.
@@ -644,7 +1590,7 @@ export type ListComponentsResponse = Message<"io.highstate.v1.ListComponentsResp
  * Use `create(ListComponentsResponseSchema)` to create a new message.
  */
 export const ListComponentsResponseSchema: GenMessage<ListComponentsResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 14);
+  messageDesc(file_io_highstate_v1_library, 40);
 
 /**
  * GetComponentRequest requests one component by versioned type.
@@ -672,7 +1618,7 @@ export type GetComponentRequest = Message<"io.highstate.v1.GetComponentRequest">
  * Use `create(GetComponentRequestSchema)` to create a new message.
  */
 export const GetComponentRequestSchema: GenMessage<GetComponentRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 15);
+  messageDesc(file_io_highstate_v1_library, 41);
 
 /**
  * GetComponentResponse returns one canonical component.
@@ -693,14 +1639,214 @@ export type GetComponentResponse = Message<"io.highstate.v1.GetComponentResponse
  * Use `create(GetComponentResponseSchema)` to create a new message.
  */
 export const GetComponentResponseSchema: GenMessage<GetComponentResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_library, 16);
+  messageDesc(file_io_highstate_v1_library, 42);
 
 /**
- * LibraryService exposes project component and entity catalogs.
+ * LibraryCatalogSourceKind identifies how a catalog entry entered the effective library.
+ *
+ * @generated from enum io.highstate.v1.LibraryCatalogSourceKind
+ */
+export enum LibraryCatalogSourceKind {
+  /**
+   * The source kind was not specified or is not recognized.
+   *
+   * @generated from enum value: LIBRARY_CATALOG_SOURCE_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The entry came from a package in the project snapshot.
+   *
+   * @generated from enum value: LIBRARY_CATALOG_SOURCE_KIND_PACKAGE = 1;
+   */
+  PACKAGE = 1,
+
+  /**
+   * The entry came from the local development overlay.
+   *
+   * @generated from enum value: LIBRARY_CATALOG_SOURCE_KIND_LOCAL = 2;
+   */
+  LOCAL = 2,
+
+  /**
+   * The entry is a project-specific virtual component.
+   *
+   * @generated from enum value: LIBRARY_CATALOG_SOURCE_KIND_VIRTUAL = 3;
+   */
+  VIRTUAL = 3,
+}
+
+/**
+ * Describes the enum io.highstate.v1.LibraryCatalogSourceKind.
+ */
+export const LibraryCatalogSourceKindSchema: GenEnum<LibraryCatalogSourceKind> = /*@__PURE__*/
+  enumDesc(file_io_highstate_v1_library, 0);
+
+/**
+ * LibrarySnapshotImagePhase identifies snapshot image materialization progress.
+ *
+ * @generated from enum io.highstate.v1.LibrarySnapshotImagePhase
+ */
+export enum LibrarySnapshotImagePhase {
+  /**
+   * The phase was not specified or is not recognized.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Materialization is queued.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_QUEUED = 1;
+   */
+  QUEUED = 1,
+
+  /**
+   * The frozen package graph is being installed.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_INSTALLING = 3;
+   */
+  INSTALLING = 3,
+
+  /**
+   * The OCI image is being built.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_BUILDING = 6;
+   */
+  BUILDING = 6,
+
+  /**
+   * The OCI image is being pushed.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_PUSHING = 7;
+   */
+  PUSHING = 7,
+
+  /**
+   * The built image and snapshot hash are being verified.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_VERIFYING = 8;
+   */
+  VERIFYING = 8,
+
+  /**
+   * The image is ready for operations.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_READY = 9;
+   */
+  READY = 9,
+
+  /**
+   * Materialization failed.
+   *
+   * @generated from enum value: LIBRARY_SNAPSHOT_IMAGE_PHASE_FAILED = 10;
+   */
+  FAILED = 10,
+}
+
+/**
+ * Describes the enum io.highstate.v1.LibrarySnapshotImagePhase.
+ */
+export const LibrarySnapshotImagePhaseSchema: GenEnum<LibrarySnapshotImagePhase> = /*@__PURE__*/
+  enumDesc(file_io_highstate_v1_library, 1);
+
+/**
+ * LibraryService manages project packages and exposes the effective component and entity catalog.
  *
  * @generated from service io.highstate.v1.LibraryService
  */
 export const LibraryService: GenService<{
+  /**
+   * Gets project package selections, the desired snapshot, image progress, and local overlay state.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.GetProjectLibrary
+   */
+  getProjectLibrary: {
+    methodKind: "unary";
+    input: typeof GetProjectLibraryRequestSchema;
+    output: typeof GetProjectLibraryResponseSchema;
+  },
+  /**
+   * Adds one exact npm package version after validating the complete proposed package set.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.AddLibraryPackage
+   */
+  addLibraryPackage: {
+    methodKind: "unary";
+    input: typeof AddLibraryPackageRequestSchema;
+    output: typeof AddLibraryPackageResponseSchema;
+  },
+  /**
+   * Removes one package and atomically creates the resulting desired snapshot.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.RemoveLibraryPackage
+   */
+  removeLibraryPackage: {
+    methodKind: "unary";
+    input: typeof RemoveLibraryPackageRequestSchema;
+    output: typeof RemoveLibraryPackageResponseSchema;
+  },
+  /**
+   * Updates one package to an exact version after validating the complete proposed package set.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.UpdateLibraryPackage
+   */
+  updateLibraryPackage: {
+    methodKind: "unary";
+    input: typeof UpdateLibraryPackageRequestSchema;
+    output: typeof UpdateLibraryPackageResponseSchema;
+  },
+  /**
+   * Updates every package as one atomic package-set change.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.UpdateAllLibraryPackages
+   */
+  updateAllLibraryPackages: {
+    methodKind: "unary";
+    input: typeof UpdateAllLibraryPackagesRequestSchema;
+    output: typeof UpdateAllLibraryPackagesResponseSchema;
+  },
+  /**
+   * Lists exact versions available for an npm package.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.ListLibraryPackageVersions
+   */
+  listLibraryPackageVersions: {
+    methodKind: "unary";
+    input: typeof ListLibraryPackageVersionsRequestSchema;
+    output: typeof ListLibraryPackageVersionsResponseSchema;
+  },
+  /**
+   * Gets one evaluated exact package version.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.GetLibraryPackageVersion
+   */
+  getLibraryPackageVersion: {
+    methodKind: "unary";
+    input: typeof GetLibraryPackageVersionRequestSchema;
+    output: typeof GetLibraryPackageVersionResponseSchema;
+  },
+  /**
+   * Enables or disables the optional local development overlay.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.SetLocalLibraryOverlay
+   */
+  setLocalLibraryOverlay: {
+    methodKind: "unary";
+    input: typeof SetLocalLibraryOverlayRequestSchema;
+    output: typeof SetLocalLibraryOverlayResponseSchema;
+  },
+  /**
+   * Retries image materialization for the desired snapshot.
+   *
+   * @generated from rpc io.highstate.v1.LibraryService.RetryLibrarySnapshotImage
+   */
+  retryLibrarySnapshotImage: {
+    methodKind: "unary";
+    input: typeof RetryLibrarySnapshotImageRequestSchema;
+    output: typeof RetryLibrarySnapshotImageResponseSchema;
+  },
   /**
    * Gets the complete library catalog.
    *

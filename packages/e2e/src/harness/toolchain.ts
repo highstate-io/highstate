@@ -1,4 +1,4 @@
-import { access, mkdir, symlink } from "node:fs/promises"
+import { access, mkdir, realpath, symlink } from "node:fs/promises"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 
@@ -21,6 +21,14 @@ export async function preparePulumiCli(directory: string): Promise<string> {
 
   const bin = join(directory, "home/.pulumi/bin")
   await mkdir(bin, { recursive: true })
-  await symlink(executable, join(bin, "pulumi"))
+  const link = join(bin, "pulumi")
+  try {
+    await symlink(executable, link)
+  } catch (error) {
+    if (!(error instanceof Error) || !("code" in error) || error.code !== "EEXIST" ||
+      await realpath(link) !== await realpath(executable)) {
+      throw error
+    }
+  }
   return dirname(executable)
 }

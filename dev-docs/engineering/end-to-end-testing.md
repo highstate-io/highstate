@@ -1,5 +1,8 @@
 # End-to-End Testing
 
+Container runtime lifecycle, conformance, and workload-service scenarios extend this shared harness.
+The [runtime fixture guide](../../packages/e2e/fixtures/USAGE.md) describes their setup and interactive inspection.
+
 The private [`@highstate/e2e` package](../../packages/e2e/package.json) verifies assembled products through API,
 CLI, and browser scenarios.
 Shared harness modules own isolated storage, process lifecycle, fixtures, cleanup, and evidence.

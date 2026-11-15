@@ -13,11 +13,42 @@ import {
   toInstance,
   toInstancePatch,
   toNullableTimestamp,
+  toOperationPhase,
   toProjectModel,
   toTimestamp,
 } from "./conversion"
 
 describe("resource conversion", () => {
+  it("preserves structured npm package upgrades independently of versioned component types", () => {
+    const phase = toOperationPhase({
+      type: "update",
+      instances: [
+        {
+          id: "example.unit.v1:main",
+          message: "Package changed",
+          libraryPackageUpgrade: {
+            packageName: "@example/library",
+            previousVersion: "1.2.3",
+            version: "2.0.0",
+            previousLibraryPackageVersionId: "previous",
+            libraryPackageVersionId: "desired",
+          },
+        },
+      ],
+    })
+
+    expect(phase.instances[0]).toMatchObject({
+      id: "example.unit.v1:main",
+      libraryPackageUpgrade: {
+        packageName: "@example/library",
+        previousVersion: "1.2.3",
+        version: "2.0.0",
+        previousLibraryPackageVersionId: "previous",
+        libraryPackageVersionId: "desired",
+      },
+    })
+  })
+
   it("converts instance dynamic values and references in both directions", () => {
     const backend = {
       id: "example.component.v1:main" as const,

@@ -8,7 +8,6 @@ import {
 import { describe, expect, it } from "vitest"
 import {
   operationOptions,
-  phasesFromPlan,
   phasesToJson,
   planDocumentSchema,
   toArgumentPatchOperation,
@@ -44,13 +43,16 @@ describe("remote model conversion", () => {
       type: "update",
       instance_ids: ["common.server.v1:web"],
       options: { refresh: true },
+      plan_token: "backend-token",
+      model_revision: "revision-1",
       phases: phasesToJson([phase]),
     })
 
-    expect(toJson(OperationPhaseSchema, phasesFromPlan(document)[0]!)).toEqual(
-      toJson(OperationPhaseSchema, phase),
-    )
+    expect(document.phases).toEqual([
+      toJson(OperationPhaseSchema, phase, { useProtoFieldName: true }),
+    ])
 
+    expect(document.plan_token).toBe("backend-token")
     expect(operationOptions(document.options).refresh).toBe(true)
   })
 

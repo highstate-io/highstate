@@ -16,6 +16,7 @@ import {
 } from "../shared"
 
 export type PubSubEventMap = {
+  "runtime-settings": []
   "project-unlock-state": [projectId: string]
   "instance-state": [projectId: string]
   "instance-lock": [projectId: string]
@@ -30,6 +31,7 @@ export type PubSubEventMap = {
 }
 
 const eventSchemas = {
+  "runtime-settings": z.object({}),
   "project-unlock-state": projectUnlockStateSchema,
   "instance-state": instanceStateEventSchema,
   "instance-lock": instanceLockEventSchema,

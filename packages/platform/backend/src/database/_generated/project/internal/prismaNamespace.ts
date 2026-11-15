@@ -395,6 +395,10 @@ export const ModelName = {
   InstanceState: 'InstanceState',
   UserProjectViewport: 'UserProjectViewport',
   UserCompositeViewport: 'UserCompositeViewport',
+  LibraryPackageVersion: 'LibraryPackageVersion',
+  LibrarySnapshot: 'LibrarySnapshot',
+  LibrarySnapshotVersion: 'LibrarySnapshotVersion',
+  ProjectLibraryState: 'ProjectLibraryState',
   InstanceLock: 'InstanceLock',
   InstanceModel: 'InstanceModel',
   HubModel: 'HubModel',
@@ -435,7 +439,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "role" | "userRoleBinding" | "userGroupRoleBinding" | "serviceAccountRoleBinding" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "user" | "userGroup" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
+    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "libraryPackageVersion" | "librarySnapshot" | "librarySnapshotVersion" | "projectLibraryState" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "role" | "userRoleBinding" | "userGroupRoleBinding" | "serviceAccountRoleBinding" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "user" | "userGroup" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1250,6 +1254,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCompositeViewportCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCompositeViewportCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryPackageVersion: {
+      payload: Prisma.$LibraryPackageVersionPayload<ExtArgs>
+      fields: Prisma.LibraryPackageVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryPackageVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryPackageVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryPackageVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryPackageVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryPackageVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryPackageVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryPackageVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryPackageVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryPackageVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>
+        }
+        update: {
+          args: Prisma.LibraryPackageVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryPackageVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryPackageVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryPackageVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryPackageVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryPackageVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryPackageVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryPackageVersion>
+        }
+        groupBy: {
+          args: Prisma.LibraryPackageVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryPackageVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryPackageVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryPackageVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibrarySnapshot: {
+      payload: Prisma.$LibrarySnapshotPayload<ExtArgs>
+      fields: Prisma.LibrarySnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibrarySnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibrarySnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.LibrarySnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibrarySnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.LibrarySnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.LibrarySnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.LibrarySnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibrarySnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.LibrarySnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>
+        }
+        update: {
+          args: Prisma.LibrarySnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibrarySnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibrarySnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibrarySnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibrarySnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.LibrarySnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibrarySnapshot>
+        }
+        groupBy: {
+          args: Prisma.LibrarySnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibrarySnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibrarySnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibrarySnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibrarySnapshotVersion: {
+      payload: Prisma.$LibrarySnapshotVersionPayload<ExtArgs>
+      fields: Prisma.LibrarySnapshotVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibrarySnapshotVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibrarySnapshotVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.LibrarySnapshotVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibrarySnapshotVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>
+        }
+        findMany: {
+          args: Prisma.LibrarySnapshotVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>[]
+        }
+        create: {
+          args: Prisma.LibrarySnapshotVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>
+        }
+        createMany: {
+          args: Prisma.LibrarySnapshotVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibrarySnapshotVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.LibrarySnapshotVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>
+        }
+        update: {
+          args: Prisma.LibrarySnapshotVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibrarySnapshotVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibrarySnapshotVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibrarySnapshotVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibrarySnapshotVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySnapshotVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.LibrarySnapshotVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibrarySnapshotVersion>
+        }
+        groupBy: {
+          args: Prisma.LibrarySnapshotVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibrarySnapshotVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibrarySnapshotVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibrarySnapshotVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectLibraryState: {
+      payload: Prisma.$ProjectLibraryStatePayload<ExtArgs>
+      fields: Prisma.ProjectLibraryStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectLibraryStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectLibraryStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectLibraryStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectLibraryStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>
+        }
+        findMany: {
+          args: Prisma.ProjectLibraryStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>[]
+        }
+        create: {
+          args: Prisma.ProjectLibraryStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>
+        }
+        createMany: {
+          args: Prisma.ProjectLibraryStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectLibraryStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectLibraryStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>
+        }
+        update: {
+          args: Prisma.ProjectLibraryStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectLibraryStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectLibraryStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectLibraryStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectLibraryStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLibraryStatePayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectLibraryStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectLibraryState>
+        }
+        groupBy: {
+          args: Prisma.ProjectLibraryStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectLibraryStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectLibraryStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectLibraryStateCountAggregateOutputType> | number
         }
       }
     }
@@ -3229,6 +3529,10 @@ export const InstanceEvaluationStateScalarFieldEnum = {
   status: 'status',
   message: 'message',
   model: 'model',
+  librarySnapshotId: 'librarySnapshotId',
+  modelRevision: 'modelRevision',
+  localOverlayRevision: 'localOverlayRevision',
+  evaluationActionId: 'evaluationActionId',
   evaluatedAt: 'evaluatedAt'
 } as const
 
@@ -3252,7 +3556,9 @@ export const InstanceStateScalarFieldEnum = {
   resolvedInputs: 'resolvedInputs',
   currentResourceCount: 'currentResourceCount',
   statusFields: 'statusFields',
-  hasResourceHooks: 'hasResourceHooks'
+  hasResourceHooks: 'hasResourceHooks',
+  librarySnapshotId: 'librarySnapshotId',
+  libraryPackageVersionId: 'libraryPackageVersionId'
 } as const
 
 export type InstanceStateScalarFieldEnum = (typeof InstanceStateScalarFieldEnum)[keyof typeof InstanceStateScalarFieldEnum]
@@ -3273,6 +3579,55 @@ export const UserCompositeViewportScalarFieldEnum = {
 } as const
 
 export type UserCompositeViewportScalarFieldEnum = (typeof UserCompositeViewportScalarFieldEnum)[keyof typeof UserCompositeViewportScalarFieldEnum]
+
+
+export const LibraryPackageVersionScalarFieldEnum = {
+  id: 'id',
+  packageName: 'packageName',
+  version: 'version',
+  registryUrl: 'registryUrl',
+  packageIntegrity: 'packageIntegrity',
+  tarballUrl: 'tarballUrl',
+  evaluatedModel: 'evaluatedModel',
+  sourceManifest: 'sourceManifest',
+  packageMetadata: 'packageMetadata',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryPackageVersionScalarFieldEnum = (typeof LibraryPackageVersionScalarFieldEnum)[keyof typeof LibraryPackageVersionScalarFieldEnum]
+
+
+export const LibrarySnapshotScalarFieldEnum = {
+  id: 'id',
+  hash: 'hash',
+  lockfile: 'lockfile',
+  evaluatedModel: 'evaluatedModel',
+  sourceManifest: 'sourceManifest',
+  compatibility: 'compatibility',
+  createdAt: 'createdAt'
+} as const
+
+export type LibrarySnapshotScalarFieldEnum = (typeof LibrarySnapshotScalarFieldEnum)[keyof typeof LibrarySnapshotScalarFieldEnum]
+
+
+export const LibrarySnapshotVersionScalarFieldEnum = {
+  snapshotId: 'snapshotId',
+  libraryPackageVersionId: 'libraryPackageVersionId'
+} as const
+
+export type LibrarySnapshotVersionScalarFieldEnum = (typeof LibrarySnapshotVersionScalarFieldEnum)[keyof typeof LibrarySnapshotVersionScalarFieldEnum]
+
+
+export const ProjectLibraryStateScalarFieldEnum = {
+  id: 'id',
+  selectedPackages: 'selectedPackages',
+  selectionInitialized: 'selectionInitialized',
+  desiredSnapshotId: 'desiredSnapshotId',
+  localOverlayEnabled: 'localOverlayEnabled',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectLibraryStateScalarFieldEnum = (typeof ProjectLibraryStateScalarFieldEnum)[keyof typeof ProjectLibraryStateScalarFieldEnum]
 
 
 export const InstanceLockScalarFieldEnum = {
@@ -3313,6 +3668,7 @@ export const OperationScalarFieldEnum = {
   options: 'options',
   requestedInstanceIds: 'requestedInstanceIds',
   phases: 'phases',
+  librarySnapshotId: 'librarySnapshotId',
   startedAt: 'startedAt',
   updatedAt: 'updatedAt',
   finishedAt: 'finishedAt'
@@ -3329,6 +3685,11 @@ export const InstanceOperationStateScalarFieldEnum = {
   totalResourceCount: 'totalResourceCount',
   model: 'model',
   resolvedInputs: 'resolvedInputs',
+  librarySnapshotId: 'librarySnapshotId',
+  libraryPackageVersionId: 'libraryPackageVersionId',
+  previousLibraryPackageVersionId: 'previousLibraryPackageVersionId',
+  localOverlayActive: 'localOverlayActive',
+  localOverlayRevision: 'localOverlayRevision',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
 } as const
@@ -3695,6 +4056,13 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+    
+
+
+/**
  * Reference to a field of type 'OperationType'
  */
 export type EnumOperationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OperationType'>
@@ -3855,6 +4223,10 @@ export type GlobalOmitConfig = {
   instanceState?: Prisma.InstanceStateOmit
   userProjectViewport?: Prisma.UserProjectViewportOmit
   userCompositeViewport?: Prisma.UserCompositeViewportOmit
+  libraryPackageVersion?: Prisma.LibraryPackageVersionOmit
+  librarySnapshot?: Prisma.LibrarySnapshotOmit
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionOmit
+  projectLibraryState?: Prisma.ProjectLibraryStateOmit
   instanceLock?: Prisma.InstanceLockOmit
   instanceModel?: Prisma.InstanceModelOmit
   hubModel?: Prisma.HubModelOmit

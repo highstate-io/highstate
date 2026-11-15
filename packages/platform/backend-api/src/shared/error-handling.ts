@@ -10,7 +10,12 @@ import {
   RequestInfoSchema,
   RetryInfoSchema,
 } from "@highstate/api/v1"
-import { BackendError, BackendErrorCategory } from "@highstate/backend/shared"
+import {
+  BackendError,
+  BackendErrorCategory,
+  RuntimeSettingsConflictError,
+  RuntimeSettingsInUseError,
+} from "@highstate/backend/shared"
 import { isAbortError } from "abort-controller-x"
 
 const sensitiveMetadataKey = /credential|token|secret|encrypted|cause|stack|path/i
@@ -50,6 +55,20 @@ export function createErrorHandlingInterceptor(services: Services): Interceptor 
 
       if (error instanceof ConnectError) {
         throw error
+      }
+
+      if (error instanceof RuntimeSettingsConflictError) {
+        throw new ConnectError(
+          "Settings changed; reload and review before saving again",
+          Code.Aborted,
+        )
+      }
+
+      if (error instanceof RuntimeSettingsInUseError) {
+        throw new ConnectError(
+          "Settings are still referenced by a project or runtime",
+          Code.FailedPrecondition,
+        )
       }
 
       services.logger.error({ error, method: request.method.name }, "unexpected error")

@@ -120,46 +120,48 @@ export class OperationWorkset {
       Array.from(this.allAffectedInstanceIds).map(instanceId => {
         const state = this.context.getState(instanceId)
 
-        const hasDestroyPhase = this.phases.some(
-          phase =>
-            phase.type === "destroy" &&
-            phase.instances.some(instance => instance.id === instanceId),
-        )
+        const firstPhase = this.phases.find(phase =>
+          phase.instances.some(instance => instance.id === instanceId),
+        )!
 
-        // destroy plans may reference state-only instances that are no longer in the project model
-        const instance = hasDestroyPhase
-          ? (this.context.tryGetInstance(instanceId) ??
-            this.context.tryGetInstanceForDestroy(instanceId))
-          : this.context.tryGetInstance(instanceId)
-
+        const instance = this.context.getExecutionInstance(instanceId, firstPhase.type)
         if (!instance) {
           throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
         }
 
+        const resolvedInputs = this.context.getExecutionInputs(instance.id, firstPhase.type)
+
         const serializedResolvedInputs =
-          this.context.getResolvedInputs(instance.id) != null
+          resolvedInputs != null
             ? this.context.serializeResolvedInputs(
                 mapValues(
                   //
-                  this.context.getResolvedInputs(instance.id) ?? {},
+                  resolvedInputs,
                   inputs => inputs.map(input => input.input),
                 ),
               )
             : (state.resolvedInputs ?? {})
+
+        const provenance = this.context.getExecutionProvenance(instanceId, firstPhase.type)
 
         return [
           {
             stateId: state.id,
             operationId: this.operationId,
             status: "pending",
+            librarySnapshotId: provenance?.librarySnapshotId ?? null,
+            libraryPackageVersionId: provenance?.libraryPackageVersionId ?? null,
+            previousLibraryPackageVersionId: state.libraryPackageVersionId,
+            localOverlayActive: this.context.localOverlayRevision !== null,
+            localOverlayRevision: this.context.localOverlayRevision,
             model: instance,
             resolvedInputs: serializedResolvedInputs,
           },
           {
             // preview runs still provision a pulumi stack; keep "attempted" so a later destroy removes it
             status: state.status === "undeployed" ? "attempted" : state.status,
-            model: instance,
-            resolvedInputs: serializedResolvedInputs,
+            model: state.model ?? instance,
+            resolvedInputs: state.resolvedInputs ?? serializedResolvedInputs,
           },
         ]
       }),
@@ -194,7 +196,7 @@ export class OperationWorkset {
   }
 
   getAffectedCompositeChildren(instanceId: InstanceId): InstanceId[] {
-    if (this.currentPhase === "destroy") {
+    if (this.currentPhase === "destroy" || this.currentPhase === "refresh") {
       // when destroying, only consider children fixed in the state
       return this.context
         .getStateChildIds(instanceId)
@@ -251,7 +253,7 @@ export class OperationWorkset {
   }
 
   getPhaseParentId(instanceId: InstanceId): InstanceId | null {
-    if (this.currentPhase === "destroy") {
+    if (this.currentPhase === "destroy" || this.currentPhase === "refresh") {
       // when destroying, only consider parent fixed in the state
       return this.context.getState(instanceId).parentInstanceId ?? null
     }

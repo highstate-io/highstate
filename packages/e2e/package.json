@@ -9,6 +9,11 @@
     "test:cli": "bun src/run.ts cli",
     "test:browser": "bun src/run.ts browser",
     "inspect": "bun src/inspect.ts",
+    "inspect:runtime": "bun src/runtime-inspect.ts",
+    "test:lifecycle": "bunx --bun nx run-many -t build --projects=@highstate/backend,@highstate/backend-api,@highstate/pulumi --parallel=2 && bun src/lifecycle-run.ts",
+    "test:services": "bunx --bun nx run-many -t build --projects=@highstate/designer,@highstate/worker-sdk --parallel=2 && bun src/services-run.ts",
+    "test:conformance": "bun run --bun vitest run src/conformance",
+    "test:runtime-browser": "bun src/run.ts runtime-browser",
     "typecheck": "tsc --noEmit"
   },
   "nx": {
@@ -16,6 +21,14 @@
     "targets": { "test:e2e": { "cache": false } }
   },
   "dependencies": {
+    "@bufbuild/protobuf": "catalog:",
+    "@connectrpc/connect": "catalog:",
+    "@connectrpc/connect-node": "catalog:",
+    "@highstate/api": "workspace:*",
+    "@highstate/backend": "workspace:*",
+    "@highstate/backend-api": "workspace:*",
+    "@highstate/contract": "workspace:*",
+    "@highstate/worker-sdk": "workspace:*",
     "@msgpack/msgpack": "^3.1.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "age-encryption": "^0.2.4"

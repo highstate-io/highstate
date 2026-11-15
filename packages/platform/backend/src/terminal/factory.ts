@@ -1,20 +1,14 @@
-import type { Logger } from "pino"
+import type { RuntimeAdapterProvider, RuntimeCoordinator } from "../container-runtime"
 import type { TerminalBackend } from "./abstractions"
 import { z } from "zod"
-import { DockerTerminalBackend, dockerTerminalBackendConfig } from "./docker"
+import { RuntimeTerminalBackend, type RuntimeTerminalOptions } from "./runtime"
 
-export const terminalBackendConfig = z.object({
-  HIGHSTATE_TERMINAL_BACKEND_TYPE: z.enum(["docker"]).default("docker"),
-  ...dockerTerminalBackendConfig.shape,
-})
+export const terminalBackendConfig = z.object({})
 
 export function createTerminalBackend(
-  config: z.infer<typeof terminalBackendConfig>,
-  logger: Logger,
+  coordinator: RuntimeCoordinator,
+  adapters: RuntimeAdapterProvider,
+  options?: RuntimeTerminalOptions,
 ): TerminalBackend {
-  switch (config.HIGHSTATE_TERMINAL_BACKEND_TYPE) {
-    case "docker": {
-      return DockerTerminalBackend.create(config, logger)
-    }
-  }
+  return new RuntimeTerminalBackend(coordinator, adapters, options)
 }
