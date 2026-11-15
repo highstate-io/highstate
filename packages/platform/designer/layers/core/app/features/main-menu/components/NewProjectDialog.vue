@@ -170,9 +170,9 @@ watch(
 
 <template>
   <VDialog v-model="visible" max-width="760" :persistent="creating" scrollable>
-    <VCard title="New project">
-      <VForm v-model="valid">
-        <VCardText>
+    <VCard title="New project" class="project-setup-card">
+      <VForm v-model="valid" class="project-setup-form">
+        <VCardText class="project-setup-content">
           <div v-show="step === 1">
             <VTextField
               v-model="projectName"
@@ -359,6 +359,27 @@ watch(
 </template>
 
 <style scoped>
+.project-setup-card {
+  height: min(760px, calc(100dvh - 48px));
+}
+
+.project-setup-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.project-setup-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.project-setup-form > .v-card-actions {
+  flex-shrink: 0;
+}
+
 .project-stepper {
   flex: 0 0 auto;
   background: transparent;
