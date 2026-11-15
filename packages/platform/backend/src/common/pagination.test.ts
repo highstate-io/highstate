@@ -1,14 +1,20 @@
 import { describe, expect, it, vi } from "vitest"
 import { z } from "zod"
 import { InvalidPageSizeError, InvalidPageTokenError } from "../shared/models/errors"
-import { encodePageToken, queryDatabasePage, resolvePageRequest, toPageResult } from "./pagination"
+import {
+  type DatabasePageQuery,
+  encodePageToken,
+  queryDatabasePage,
+  resolvePageRequest,
+  toPageResult,
+} from "./pagination"
 
 describe("cursor pagination", () => {
   const cursorSchema = z.object({ id: z.string().min(1) })
 
   it("applies page size defaults and bounds", () => {
     expect(resolvePageRequest("items", {}, {}, cursorSchema).pageSize).toBe(20)
-    expect(resolvePageRequest("items", { pageSize: 0 }, {}, cursorSchema).pageSize).toBe(0)
+    expect(resolvePageRequest("items", { pageSize: 0 }, {}, cursorSchema).pageSize).toBe(20)
     expect(resolvePageRequest("items", { pageSize: 101 }, {}, cursorSchema).pageSize).toBe(100)
 
     expect(() => resolvePageRequest("items", { pageSize: -1 }, {}, cursorSchema)).toThrow(
@@ -27,6 +33,37 @@ describe("cursor pagination", () => {
         cursorSchema,
       ).cursor,
     ).toEqual({ id: "item" })
+  })
+
+  it.each([undefined, 0])("returns the default database page for size %s", async pageSize => {
+    const rows = Array.from({ length: 21 }, (_, index) => ({ id: String(index) }))
+
+    const fetch = vi.fn(async ({ cursor, take }: DatabasePageQuery<{ id: string }>) => {
+      const offset = cursor ? rows.findIndex(row => row.id === cursor.id) + 1 : 0
+      return rows.slice(offset, offset + take)
+    })
+
+    const options = {
+      collection: "secrets",
+      request: { pageSize },
+      query: { projectId: "project", pageSize },
+      cursorSchema,
+      fetch,
+      cursor: (row: { id: string }) => ({ id: row.id }),
+    }
+
+    const first = await queryDatabasePage(options)
+    expect(fetch).toHaveBeenCalledWith({ cursor: undefined, take: 21 })
+    expect(first.items).toEqual(rows.slice(0, 20))
+    expect(first.nextPageToken).toBeTruthy()
+
+    const last = await queryDatabasePage({
+      ...options,
+      request: { pageSize, pageToken: first.nextPageToken },
+    })
+
+    expect(last.items).toEqual(rows.slice(20))
+    expect(last.nextPageToken).toBeUndefined()
   })
 
   it("rejects malformed and mismatched tokens", () => {

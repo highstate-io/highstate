@@ -48,7 +48,9 @@ export function resolvePageRequest<TCursor>(
   query: unknown,
   cursorSchema: z.ZodType<TCursor>,
 ): ResolvedPageRequest<TCursor> {
-  const pageSize = Math.min(request.pageSize ?? 20, 100)
+  const requestedPageSize = request.pageSize === 0 ? 20 : (request.pageSize ?? 20)
+  const pageSize = Math.min(requestedPageSize, 100)
+
   if (!Number.isInteger(pageSize) || pageSize < 0) {
     throw new InvalidPageSizeError(request.pageSize ?? 0)
   }
