@@ -94,6 +94,7 @@ describe("status", () => {
     expect(status.next_actions).toEqual([])
     expect(formatStatus(status)).not.toContain("Next actions:")
     expect(formatStatus(status)).toContain("State: ready")
+    expect(formatStatus(status)).toContain(`CLI version: ${status.cli_version}`)
   })
 
   it("does not attempt project authentication while a selected project is locked", async () => {
