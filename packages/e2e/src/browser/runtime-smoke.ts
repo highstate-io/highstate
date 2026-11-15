@@ -236,31 +236,50 @@ try {
       await expect(
         page.getByRole("button", { name: "Manage project library", exact: true }),
       ).toHaveCount(0)
+
       await expect(page.getByLabel("Packages", { exact: true })).toHaveCount(0)
       await expect(page.getByLabel("Sources", { exact: true })).toHaveCount(0)
       await page.goto(`${designer!.url}/settings/projects/${projectId}/library`)
+
       await expect(
         settings().getByRole("heading", { name: "Project Library", exact: true }),
       ).toBeVisible()
-      await expect(settings().getByText("No data available", { exact: true })).toBeVisible()
+
+      await expect(settings().getByText("No packages added", { exact: true })).toBeVisible()
       expect(libraryQueries).toBeGreaterThan(0)
+
       await expect(
         settings().getByRole("button", { name: "Update all packages", exact: true }),
       ).toBeDisabled()
-      await settings().getByRole("button", { name: "Create", exact: true }).click()
-      await expect(dialog().getByRole("button", { name: "Save", exact: true })).toBeDisabled()
+
+      await settings().getByRole("button", { name: "Add package", exact: true }).click()
+
+      await expect(
+        dialog().getByRole("button", { name: "Add package", exact: true }),
+      ).toBeDisabled()
+
       await dialog().getByLabel("Package name", { exact: true }).fill("@highstate/library")
-      await expect(dialog().getByRole("button", { name: "Save", exact: true })).toBeDisabled()
+
+      await expect(
+        dialog().getByRole("button", { name: "Add package", exact: true }),
+      ).toBeDisabled()
+
+      await dialog().getByRole("combobox", { name: "Exact version", exact: true }).fill("^1.2.3")
+
+      await expect(
+        dialog().getByRole("button", { name: "Add package", exact: true }),
+      ).toBeDisabled()
+
       await dialog().getByRole("combobox", { name: "Exact version", exact: true }).fill("0.30.2")
-      await expect(dialog().getByRole("button", { name: "Save", exact: true })).toBeEnabled()
+      await expect(dialog().getByRole("button", { name: "Add package", exact: true })).toBeEnabled()
+
       await expect(
         dialog().getByRole("button", { name: "List versions", exact: true }),
       ).toHaveCount(0)
+
       await dialog().getByRole("button", { name: "Cancel", exact: true }).click()
-      await settings().getByRole("button", { name: "Edit library settings", exact: true }).click()
-      await dialog().getByRole("switch", { name: "Local library overlay", exact: true }).uncheck()
-      await dialog().getByRole("button", { name: "Save", exact: true }).click()
-      await expect(dialog()).toBeHidden()
+      await settings().getByRole("switch", { name: "Use local sources", exact: true }).click()
+
       await expect
         .poll(
           async () =>
@@ -273,6 +292,7 @@ try {
             ).localOverlayEnabled,
         )
         .toBe(false)
+
       await page.goto(`${designer!.url}/projects/${projectId}`)
     },
     false,

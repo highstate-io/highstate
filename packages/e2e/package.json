@@ -18,7 +18,12 @@
   },
   "nx": {
     "tags": ["e2e"],
-    "targets": { "test:e2e": { "cache": false } }
+    "targets": {
+      "test": {
+        "dependsOn": ["^build", { "target": "build", "projects": ["@highstate/pulumi"] }]
+      },
+      "test:e2e": { "cache": false }
+    }
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:",

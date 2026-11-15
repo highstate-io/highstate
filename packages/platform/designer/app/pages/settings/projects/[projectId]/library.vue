@@ -2,7 +2,6 @@
 import LibrarySettingsPage from "#layers/core/app/features/library/components/LibrarySettingsPage.vue"
 
 const { projectStore } = useProjectStores()
-
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
   projectStore.addLibraryRoot()

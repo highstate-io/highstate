@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import type { SelectedLibraryPackage } from "@highstate/contract"
+import {
+  exactPackageVersionSchema,
+  libraryPackageInputSchema,
+  npmPackageNameSchema,
+} from "@highstate/backend/shared"
 
 const { projectId, item } = defineProps<{
   projectId: string
   item: SelectedLibraryPackage | null
 }>()
+
 const visible = defineModel<boolean>({ required: true })
 const store = (await useProjectLibraryStore.async(projectId)).library
 const packageName = ref("")
@@ -12,6 +18,16 @@ const version = ref<string | null>("")
 const versions = ref<string[]>([])
 const listing = ref(false)
 const listError = ref("")
+const loaded = ref(false)
+
+const valid = computed(
+  () =>
+    libraryPackageInputSchema.safeParse({
+      packageName: packageName.value.trim(),
+      version: version.value?.trim(),
+    }).success,
+)
+
 let request = 0
 
 watch(packageName, () => {
@@ -19,6 +35,8 @@ watch(packageName, () => {
   versions.value = []
   listError.value = ""
   listing.value = false
+  loaded.value = false
+
   if (!item) {
     version.value = ""
   }
@@ -26,6 +44,7 @@ watch(packageName, () => {
 
 watch(visible, open => {
   request++
+
   if (!open) {
     return
   }
@@ -34,6 +53,7 @@ watch(visible, open => {
   version.value = item?.version ?? ""
   versions.value = []
   listError.value = ""
+  loaded.value = false
 })
 
 watchDebounced(
@@ -43,15 +63,20 @@ watchDebounced(
     versions.value = []
     listError.value = ""
     listing.value = false
-    if (!visible.value || !packageName.value.trim()) {
+    loaded.value = false
+
+    if (!visible.value || !npmPackageNameSchema.safeParse(packageName.value.trim()).success) {
       return
     }
 
     listing.value = true
+
     try {
       const result = await store.listPackageVersions(packageName.value.trim())
+
       if (current === request) {
         versions.value = result
+        loaded.value = true
       }
     } catch (cause) {
       if (current === request) {
@@ -69,13 +94,15 @@ watchDebounced(
 async function save() {
   const name = packageName.value.trim()
   const exactVersion = version.value?.trim()
-  if (!name || !exactVersion || store.busy) {
+
+  if (!valid.value || !exactVersion || store.busy) {
     return
   }
 
   const saved = item
     ? await store.updatePackage(item.packageName, exactVersion)
     : await store.addPackage(name, exactVersion)
+
   if (saved) {
     visible.value = false
   }
@@ -84,7 +111,7 @@ async function save() {
 
 <template>
   <VDialog v-model="visible" max-width="560" :persistent="store.busy">
-    <VCard :title="item ? 'Edit library package' : 'Create library package'">
+    <VCard :title="item ? 'Edit package' : 'Add package'">
       <VForm @submit.prevent="save">
         <VCardText>
           <VAlert v-if="store.error" type="error" density="compact" class="mb-4"
@@ -97,6 +124,7 @@ async function save() {
             density="compact"
             :disabled="store.busy || !!item"
             placeholder="@scope/package"
+            :rules="[value => !value || npmPackageNameSchema.safeParse(value.trim()).success || 'Enter a valid npm package name.']"
             class="mb-3"
           />
           <VCombobox
@@ -109,20 +137,24 @@ async function save() {
             :disabled="store.busy"
             hint="Choose a published version or enter an exact version, for example 1.2.3."
             persistent-hint
+            :rules="[value => !value || exactPackageVersionSchema.safeParse(value.trim()).success || 'Enter an exact version, for example 1.2.3.']"
           />
-          <VAlert v-if="listError" type="warning" density="compact" class="mt-4"
-            >{{ listError }}</VAlert
-          >
+          <p v-if="listError" class="text-caption text-warning mt-3">
+            Couldn't load published versions. You can still enter an exact version.
+          </p>
+          <p v-else-if="loaded && !versions.length" class="text-caption text-medium-emphasis mt-3">
+            No published versions found. You can still enter an exact version.
+          </p>
+          <p v-if="item" class="text-caption text-medium-emphasis mt-3">
+            Editing changes the version of this package. To select a different package, add it
+            separately.
+          </p>
         </VCardText>
         <VCardActions>
           <VSpacer />
           <VBtn :disabled="store.busy" @click="visible = false">Cancel</VBtn>
-          <VBtn
-            color="primary"
-            type="submit"
-            :loading="store.busy"
-            :disabled="!packageName.trim() || !version?.trim()"
-            >Save</VBtn
+          <VBtn color="primary" type="submit" :loading="store.busy" :disabled="!valid || store.busy"
+            >{{ item ? 'Save changes' : 'Add package' }}</VBtn
           >
         </VCardActions>
       </VForm>

@@ -1,4 +1,33 @@
 import type { ComponentModel, EntityModel } from "@highstate/contract"
+import { z } from "zod"
+
+export const npmPackageNameSchema = z
+  .string()
+  .max(214)
+  .regex(/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/)
+  .refine(
+    name => !["node_modules", "favicon.ico"].includes(name.split("/").at(-1)!),
+    "Reserved npm package name",
+  )
+
+export const exactPackageVersionSchema = z
+  .string()
+  .max(256)
+  .regex(
+    /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/,
+  )
+  .refine(
+    version =>
+      version
+        .split(/[.+-]/)
+        .slice(0, 3)
+        .every(part => Number.isSafeInteger(Number(part))),
+    "Invalid npm semantic version",
+  )
+
+export const libraryPackageInputSchema = z
+  .object({ packageName: npmPackageNameSchema, version: exactPackageVersionSchema })
+  .strict()
 
 export type LibraryModel = {
   components: Record<string, ComponentModel>
