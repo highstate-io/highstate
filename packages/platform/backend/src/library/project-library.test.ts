@@ -260,6 +260,34 @@ describe("project library with a local npm registry and real project persistence
     expect(unlocked.desiredSnapshot?.selectedPackages).toEqual([])
   })
 
+  it("adds a package batch atomically and rejects duplicates without changing selections", async () => {
+    const { library, context } = service("batch-additions", [])
+    await library.bootstrap(context.projectId)
+
+    await expect(
+      library.addPackages(context, [
+        { packageName: "@fixture/a", version: "1.0.0" },
+        { packageName: "@fixture/missing", version: "1.0.0" },
+      ]),
+    ).rejects.toThrow()
+
+    expect((await library.getProjectLibrary(context)).selectedPackages).toEqual([])
+
+    await library.addPackages(context, [
+      { packageName: "@fixture/a", version: "1.0.0" },
+      { packageName: "@fixture/b", version: "1.0.0" },
+    ])
+
+    const packages = (await library.getProjectLibrary(context)).selectedPackages
+    expect(packages).toHaveLength(2)
+
+    await expect(
+      library.addPackages(context, [{ packageName: "@fixture/a", version: "1.0.0" }]),
+    ).rejects.toThrow("already selected")
+
+    expect((await library.getProjectLibrary(context)).selectedPackages).toEqual(packages)
+  })
+
   it("resolves omitted implementation packages, persists portable artifacts, and reconstructs frozen", async () => {
     const { library, context } = service("implementations", [
       { packageName: "@fixture/definitions", version: "1.0.0" },

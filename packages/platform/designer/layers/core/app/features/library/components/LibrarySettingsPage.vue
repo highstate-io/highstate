@@ -101,7 +101,7 @@ async function setOverlay(enabled: boolean | null) {
     >
       <template #actions>
         <VBtn color="primary" prepend-icon="mdi-plus" :disabled="store.busy" @click="edit(null)"
-          >Add package</VBtn
+          >Add packages</VBtn
         >
       </template>
     </SettingsPageHeader>

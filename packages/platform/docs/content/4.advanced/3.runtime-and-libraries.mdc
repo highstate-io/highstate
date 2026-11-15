@@ -187,9 +187,11 @@ The Runtime step enables **Add standard library** by default. It uses the backen
 library packages. Clear it to create an empty package selection; unlocking the project later preserves
 that choice. Local library sources are configured independently.
 
-In Designer, open **Settings → Project → Library → Add package** to search available registries,
-inspect package descriptions and README content, and choose a release tag or published exact version.
-Release tags select their current exact version; they are not stored as floating selections.
+In Designer, open **Settings → Project → Library → Add packages** to search available registries
+and select multiple packages from one list. Included and selected packages stay above search results.
+Each row has an inclusion checkbox and a version dropdown with inline search and paginated releases.
+New selections default to the registry's current `latest` release, stored as an exact version rather
+than a floating tag. The selected additions are validated and committed together.
 The explorer uses npm's search API, supported by npmjs and compatible registries such as Verdaccio,
 Artifactory, and Nexus when their npm search endpoint is enabled.
 Registries without that endpoint, including GitHub Packages configurations, support exact-name lookup

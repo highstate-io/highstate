@@ -128,6 +128,27 @@ export class ProjectLibraryService {
     return await this.propose(context.projectId, state, [...state.selectedPackages, selection])
   }
 
+  async addPackages(
+    context: ProjectRequestContext,
+    input: SelectedLibraryPackage[],
+  ): Promise<ProjectLibrarySnapshot> {
+    requireProjectPermission(context, "library.manage")
+    const selections = selectedLibraryPackagesSchema.parse(input)
+    if (!selections.length || selections.length > 50) {
+      throw new Error("Select between 1 and 50 packages")
+    }
+
+    const state = await this.store.read(context.projectId)
+
+    for (const selection of selections) {
+      if (state.selectedPackages.some(pkg => pkg.packageName === selection.packageName)) {
+        throw new Error(`Package "${selection.packageName}" is already selected`)
+      }
+    }
+
+    return await this.propose(context.projectId, state, [...state.selectedPackages, ...selections])
+  }
+
   async updatePackage(
     context: ProjectRequestContext,
     input: { packageName: string; version?: string },

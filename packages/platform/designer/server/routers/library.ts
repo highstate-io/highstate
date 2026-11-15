@@ -13,6 +13,13 @@ import { projectProcedure, router } from "../trpc"
 const projectInput = { projectId: z.cuid2() }
 
 export const libraryRouter = router({
+  addPackages: projectProcedure
+    .input(
+      z.object({ ...projectInput, packages: z.array(libraryPackageInputSchema).min(1).max(50) }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.projectLibraryService.addPackages(ctx.requestContext, input.packages)
+    }),
   listRegistries: projectProcedure.query(async ({ ctx }) => {
     return await ctx.projectLibraryService.listRegistries(ctx.requestContext)
   }),

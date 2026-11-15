@@ -326,26 +326,15 @@ try {
         settings().getByRole("button", { name: "Update all packages", exact: true }),
       ).toBeDisabled()
 
-      await settings().getByRole("button", { name: "Add package", exact: true }).click()
+      await settings().getByRole("button", { name: "Add packages", exact: true }).click()
 
       await expect(
-        dialog().getByRole("button", { name: "Add package", exact: true }),
+        dialog().getByRole("button", { name: "Add packages", exact: true }),
       ).toBeDisabled()
 
-      await dialog().getByLabel("Package name", { exact: true }).fill("@highstate/library")
-
-      await expect(
-        dialog().getByRole("button", { name: "Add package", exact: true }),
-      ).toBeDisabled()
-
-      await dialog().getByRole("combobox", { name: "Exact version", exact: true }).fill("^1.2.3")
-
-      await expect(
-        dialog().getByRole("button", { name: "Add package", exact: true }),
-      ).toBeDisabled()
-
-      await dialog().getByRole("combobox", { name: "Exact version", exact: true }).fill("0.30.2")
-      await expect(dialog().getByRole("button", { name: "Add package", exact: true })).toBeEnabled()
+      await expect(dialog().getByLabel("Search packages", { exact: true })).toBeVisible()
+      await expect(dialog().getByLabel("Package name", { exact: true })).toHaveCount(0)
+      await expect(dialog().getByLabel("Exact version", { exact: true })).toHaveCount(0)
 
       await expect(
         dialog().getByRole("button", { name: "List versions", exact: true }),

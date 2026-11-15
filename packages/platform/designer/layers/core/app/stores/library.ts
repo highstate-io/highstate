@@ -198,6 +198,8 @@ export const useLibraryStore = defineMultiStore({
         onUnitSourceHashChanged,
         addPackage: (packageName: string, version: string) =>
           mutate(() => $client.library.addPackage.mutate({ projectId, packageName, version })),
+        addPackages: (packages: { packageName: string; version: string }[]) =>
+          mutate(() => $client.library.addPackages.mutate({ projectId, packages })),
         updatePackage: (packageName: string, version?: string) =>
           mutate(() => $client.library.updatePackage.mutate({ projectId, packageName, version })),
         removePackage: (packageName: string) =>
