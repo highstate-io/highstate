@@ -29,7 +29,7 @@ export class ProjectKeyringStorage {
   private async run(request: KeyringRequest): Promise<unknown> {
     // secrets travel only through private pipes, never command arguments or temporary files
     const script = `
-      import { AsyncEntry, findCredentialsAsync } from ${JSON.stringify(resolve("@napi-rs/keyring", import.meta.url))};
+      import { AsyncEntry, findCredentialsAsync } from ${JSON.stringify(resolve("@napi-rs/keyring", resolve("@highstate/backend", import.meta.url)))};
       import { randomUUID } from "node:crypto";
       let input = "";
       for await (const chunk of process.stdin) input += chunk;
