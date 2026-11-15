@@ -103,13 +103,13 @@ highstate operation list
 `instance get --recursive` includes evaluated composite children and retained ghost children.
 `state get --all-projections` includes evaluation, operation, parent, extra, and custom-status projections.
 
-Use `--all` on paginated list commands when you need every page.
+Use `--all` on list commands that support it when you need every page.
 Without it, the response includes the backend's continuation token for the next request.
 
 ## Structured Output
 
 Commands use a kubectl-style human-readable format by default.
-List commands print aligned tables with headers, get commands print labeled resource details, and mutation
+Most list commands print aligned tables with headers, get commands print labeled resource details, and mutation
 commands print a concise result.
 Use `--output json` or `--output yaml` for scripts:
 
@@ -199,6 +199,60 @@ The document has top-level `instances` and `hubs` arrays.
 Deleting an instance removes it from desired state but does not automatically destroy deployed infrastructure.
 Run and complete the required destroy operation before deleting the model object.
 Deletion and cancellation commands require `--yes`.
+
+## Working With Secrets
+
+Secret commands use the same backend context and project selection as other API commands.
+The project must be unlocked, and the API key needs the appropriate secret permissions.
+Listing metadata, reading metadata, reading values, and updating values are authorized separately.
+
+Start with metadata, which does not include secret values:
+
+```bash
+highstate secret list --output json
+highstate secret list --state-id <state-id> --output json
+highstate secret get <secret-id> --output json
+```
+
+`secret list` also supports `--search`, `--service-account-id`, `--page-size`, and `--page-token`.
+An omitted or zero page size uses the default of 20; values above 100 are capped.
+Pass the returned `next_page_token` to `--page-token` to retrieve another page.
+The state ID is the stable runtime identifier shown by `state list`, not the component instance ID.
+
+To retrieve values explicitly:
+
+```bash
+highstate secret get <secret-id> --reveal --output json
+highstate instance secrets get <state-id> --output json
+```
+
+Both commands print sensitive values to standard output.
+`instance secrets get` returns all named secret values for the selected unit state.
+
+Replace one existing unit-owned secret by its stable secret ID:
+
+```bash
+highstate secret update <secret-id> --file value.yaml
+```
+
+The document contains the value itself, not a map of secret names.
+It can contain any JSON value, including `null`.
+System-managed and service-account-only secrets are not editable through this command.
+
+To create or update several named secrets for one unit, use an object keyed by the component's declared secret names:
+
+```yaml [secrets.yaml]
+password: replacement-password
+```
+
+```bash
+highstate instance secrets update <state-id> --file secrets.yaml
+```
+
+Supplied names replace their stored values; omitted names remain unchanged.
+Both update commands accept JSON or YAML and support `--file -` to read standard input instead of a file.
+Values do not need to appear in command arguments or shell history, and successful updates do not echo them.
+Updates mark the unit's inputs as changed for its next operation but do not launch a deployment.
 
 ## Planning Operations
 
