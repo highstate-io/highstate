@@ -424,10 +424,9 @@ defineExpose({
           class="mb-4"
           no-data-text="No reusable passkey references. Existing methods still work; add a shared passkey after unlocking."
         />
-        <!-- biome-ignore format: Keep component text on its own line without splitting tag brackets. -->
-        <VAlert v-if="passkeyError" type="error" density="compact" class="mb-4">
-          {{ passkeyError }}
-        </VAlert>
+        <VAlert v-if="passkeyError" type="error" density="compact" class="mb-4"
+          >{{ passkeyError }}</VAlert
+        >
       </template>
       <VAlert type="info" density="compact" class="mb-4">
         {{ passkeyMode === 'new' ? "You'll be prompted to create a passkey." : "You'll be prompted to authenticate the existing passkey. Its identity will be reused without changing the source project." }}
@@ -444,10 +443,9 @@ defineExpose({
         The backend's system keyring is locked or unavailable. Unlock or configure its secret
         service, then retry.
       </VAlert>
-      <!-- biome-ignore format: Keep component text on its own line without splitting tag brackets. -->
-      <VBtn :loading="checkingKeyring" variant="tonal" class="mb-4" @click="checkKeyring">
-        Check keyring access
-      </VBtn>
+      <VBtn :loading="checkingKeyring" variant="tonal" class="mb-4" @click="checkKeyring"
+        >Check keyring access</VBtn
+      >
     </template>
 
     <VAlert type="warning" density="compact" class="mt-4">
@@ -469,10 +467,9 @@ defineExpose({
         independent method; after transfer, add the destination backend's keyring.
       </p>
       <p class="mt-2">
-        <!-- biome-ignore format: Keep warning text readable without splitting tag brackets. -->
-        <strong v-if="initialSetup">
-          If you lose your only unlock method, your encrypted project data cannot be recovered.
-        </strong>
+        <strong v-if="initialSetup"
+          >If you lose your only unlock method, your encrypted project data cannot be recovered.</strong
+        >
         Keep an independent recovery method for each project that does not depend on the same device
         or account.
       </p>
