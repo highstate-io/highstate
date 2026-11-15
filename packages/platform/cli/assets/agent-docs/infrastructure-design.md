@@ -28,11 +28,11 @@ hosts and clusters rather than provisioning replacements.
 For example, connect an existing cluster to new library-managed applications and databases while leaving cluster
 provisioning with its current owner.
 
-Connecting to an existing resource does not automatically import all of its resources into Pulumi ownership.
-For resources that must themselves become managed, inspect the unit implementation and provider's import or
-adoption support, including identifiers and expected configuration.
-Do not assume that creating a matching Highstate instance adopts the existing object without replacement.
-Where adoption is unsupported, explain whether a custom unit or an explicit migration is required.
+Distinguish that reuse from transferring the existing resource into the unit that would normally create it.
+Highstate does not yet fully support importing existing resources into those units' lifecycle management.
+When ownership transfer is required, explain that limitation and assess an explicit migration rather than
+presenting an existing-resource connection as adoption.
+Use `component-authoring` for the Existing … pattern and naming conventions.
 Avoid concurrent management of the same resource by Highstate and the previous tool.
 Plan data migration, backups, cutover, and rollback before changing ownership of stateful services.
 
