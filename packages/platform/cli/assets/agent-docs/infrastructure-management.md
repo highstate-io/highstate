@@ -4,13 +4,15 @@ Use this reference to research or update an active Highstate project through the
 
 ## Establish Access
 
-Use `highstate agent status` to refresh current access status before project work. If it reports missing
+Use `highstate status` when access is unknown or a context, project, credential change, or access failure gives
+reason to believe it has changed. Reuse known status rather than refreshing it before every command or task.
+If it reports missing
 authorization, ask the user to configure or provide an API key. If it names a locked project, ask the user to
 unlock that project. Do not attempt to extract, rotate, create, or bypass credentials unless the user explicitly
 requested credential administration and the available interface supports it.
 
 When no project is specified, ask the user which project to use. Pass `--project <project-id>` explicitly to
-`agent status`, `agent instructions`, and every project-scoped command. Do not run `project use`; it mutates the
+`status` and every project-scoped command. Do not run `project use`; it mutates the
 user's persistent CLI configuration.
 
 Normal output goes to stdout and diagnostics go to stderr. Use `--output json` for data you need to inspect or
