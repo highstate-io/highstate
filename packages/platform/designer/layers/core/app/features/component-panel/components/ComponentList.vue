@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { type ComponentModel, parseVersionedName } from "@highstate/contract"
 import { groupBy, map, pipe, sortBy } from "remeda"
-import ProjectLibrary from "../../library/components/ProjectLibrary.vue"
 import ComponentTemplate from "./ComponentTemplate.vue"
 
 const { projectId } = defineProps<{
@@ -10,17 +9,6 @@ const { projectId } = defineProps<{
 
 const libraryStore = await useProjectLibraryStore.async(projectId)
 await until(() => libraryStore.initialized).toBe(true)
-const showLibrary = ref(false)
-
-const packageOptions = computed(() =>
-  [
-    ...new Set(
-      Object.values(libraryStore.library.catalog?.sources ?? {}).flatMap(source =>
-        source.kind === "package" ? [source.packageName] : [],
-      ),
-    ),
-  ].sort(),
-)
 
 type ComponentGroup = {
   baseName: string
@@ -53,9 +41,7 @@ const componentsByCategory = computed(() => {
   )
 
   const components = (Object.values(libraryStore.library.components) as ComponentModel[]).filter(
-    component =>
-      filteredBaseNames.has(getComponentBaseName(component)) &&
-      libraryStore.library.matchesFilters(component),
+    component => filteredBaseNames.has(getComponentBaseName(component)),
   )
 
   const componentGroups = pipe(
@@ -91,21 +77,6 @@ const componentGroupCount = computed(() => {
 
 <template>
   <div class="d-flex flex-column mt-4 pl-4 pr-4 gr-4 sidebar-container">
-    <VBtn variant="outlined" size="small" @click="showLibrary = true">Manage project library</VBtn>
-    <VDialog v-model="showLibrary" max-width="760" scrollable>
-      <VCard>
-        <VCardTitle class="d-flex justify-space-between align-center">
-          Library
-          <VBtn
-            icon="mdi-close"
-            variant="text"
-            aria-label="Close library"
-            @click="showLibrary = false"
-          />
-        </VCardTitle>
-        <VCardText class="pa-0"><ProjectLibrary :project-id="projectId" /></VCardText>
-      </VCard>
-    </VDialog>
     <VTextField
       v-if="libraryStore"
       v-model="libraryStore.library.search"
@@ -113,29 +84,6 @@ const componentGroupCount = computed(() => {
       variant="outlined"
       density="compact"
       placeholder="Search components"
-      hide-details
-    />
-
-    <VSelect
-      v-model="libraryStore.library.packageFilter"
-      :items="packageOptions"
-      label="Packages"
-      multiple
-      chips
-      closable-chips
-      clearable
-      density="compact"
-      hide-details
-    />
-    <VSelect
-      v-model="libraryStore.library.sourceFilter"
-      :items="[{ title: 'Packages', value: 'package' }, { title: 'Local overlay', value: 'local' }, { title: 'Virtual', value: 'virtual' }]"
-      label="Sources"
-      multiple
-      chips
-      closable-chips
-      clearable
-      density="compact"
       hide-details
     />
 

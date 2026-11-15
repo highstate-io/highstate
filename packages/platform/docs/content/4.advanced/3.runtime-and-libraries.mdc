@@ -161,9 +161,10 @@ Desired snapshots and retained deployment, evaluation, operation, runtime action
 preserve the library history they reference.
 Removing an image cache record does not delete its image from a Docker engine or registry.
 
-The Designer's project library controls show selected packages, available versions, package sources, image
+The Designer's project **Library** settings page shows selected packages, available versions, package sources, image
 build progress, diagnostics, and local-overlay status.
-The component list can filter by package and shows package-version provenance.
+Package creation and version changes use the settings edit form; removal requires confirmation.
+The component list retains text search and package-version provenance without package or source filters.
 
 Backend hosts can override the initial selection before starting the Designer or creating the service graph:
 

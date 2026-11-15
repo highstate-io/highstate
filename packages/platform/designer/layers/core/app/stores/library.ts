@@ -18,8 +18,6 @@ export const useLibraryStore = defineMultiStore({
       const busy = ref(false)
       const error = ref<string>()
       const search = ref("")
-      const packageFilter = ref<string[]>([])
-      const sourceFilter = ref<string[]>([])
 
       const { on: onComponentUpdated, trigger: componentUpdated } =
         createEventHook<ComponentModel>()
@@ -170,21 +168,10 @@ export const useLibraryStore = defineMultiStore({
         }
       }
 
-      const matchesFilters = (component: ComponentModel) => {
-        const source = catalog.value?.sources[`components:${component.type}`]
-        return (
-          (!sourceFilter.value.length || (source && sourceFilter.value.includes(source.kind))) &&
-          (!packageFilter.value.length ||
-            (source?.kind === "package" && packageFilter.value.includes(source.packageName)))
-        )
-      }
-
       const filteredComponents = computed(() =>
         Object.values(components).filter(component => {
           const text = `${component.type} ${component.meta.title} ${component.meta.description ?? ""} ${component.meta.category ?? ""}`
-          return (
-            matchesFilters(component) && text.toLowerCase().includes(search.value.toLowerCase())
-          )
+          return text.toLowerCase().includes(search.value.toLowerCase())
         }),
       )
 
@@ -200,10 +187,7 @@ export const useLibraryStore = defineMultiStore({
         busy,
         error,
         search,
-        packageFilter,
-        sourceFilter,
         filteredComponents,
-        matchesFilters,
         initialize,
         refresh,
         ensureUnitSourceHashesLoaded,
