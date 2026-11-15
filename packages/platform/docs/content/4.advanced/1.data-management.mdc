@@ -143,8 +143,10 @@ Do not assume a passkey is synchronized or backed up.
 Existing project-specific passkeys continue working without migration.
 When adding a passkey method, authenticate your existing Highstate passkey in the browser prompt.
 Highstate encrypts a new AGE identity for the method without modifying any existing project or credential.
-If you have never enrolled a Highstate passkey on this domain, expand **First time using a Highstate passkey?** and complete setup once before continuing.
-Cancelled or unavailable authentication does not create a replacement credential.
+The same **Create** action offers enrollment automatically if passkey discovery returns no credential, times out, or is cancelled.
+WebAuthn does not distinguish these outcomes, so cancelling discovery can also lead to a setup prompt even if a passkey already exists.
+Cancelling setup stops the action; Highstate does not retry enrollment.
+Browser-owned authentication and enrollment prompts still require your interaction.
 
 You can migrate other projects gradually: unlock each using a working method, add the chosen shared passkey, and verify it works before removing an old method.
 Existing discoverable credentials can also protect new methods; non-discoverable legacy credentials continue to unlock their original projects through their stored references.

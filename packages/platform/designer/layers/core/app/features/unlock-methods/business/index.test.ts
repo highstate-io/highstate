@@ -75,14 +75,58 @@ describe("createPasskeyUnlockMethod", () => {
     })
   })
 
-  test("does not create a replacement credential when authentication fails", async () => {
-    mocks.encrypt.mockRejectedValueOnce(new Error("Cancelled"))
+  test("does not enroll for unsupported PRF or unrelated failures", async () => {
+    mocks.encrypt.mockRejectedValueOnce(new Error("PRF unavailable"))
+
+    await expect(
+      createPasskeyUnlockMethod({ title: "Shared" }, { id: "project", name: "project" }),
+    ).rejects.toThrow("PRF unavailable")
+
+    expect(mocks.createCredential).not.toHaveBeenCalled()
+  })
+
+  test("lazily enrolls once and encrypts with that credential after discovery fails", async () => {
+    mocks.encrypt.mockRejectedValueOnce(new DOMException("No credential", "NotAllowedError"))
+    mocks.createCredential.mockResolvedValue("new credential")
+
+    const method = await createPasskeyUnlockMethod(
+      { title: "Shared" },
+      { id: "project", name: "project" },
+    )
+
+    expect(mocks.createCredential).toHaveBeenCalledExactlyOnceWith({ keyName: "Highstate" })
+
+    expect(mocks.recipientOptions.mock.calls).toEqual([
+      [undefined],
+      [{ identity: "new credential" }],
+    ])
+
+    expect(mocks.encrypt).toHaveBeenCalledTimes(2)
+    expect(method.encryptedIdentity).toBe("armored identity")
+  })
+
+  test("stops when enrollment is cancelled", async () => {
+    mocks.encrypt.mockRejectedValueOnce(new DOMException("No credential", "NotAllowedError"))
+    mocks.createCredential.mockRejectedValueOnce(new DOMException("Cancelled", "NotAllowedError"))
 
     await expect(
       createPasskeyUnlockMethod({ title: "Shared" }, { id: "project", name: "project" }),
     ).rejects.toThrow("Cancelled")
 
-    expect(mocks.createCredential).not.toHaveBeenCalled()
+    expect(mocks.createCredential).toHaveBeenCalledOnce()
+    expect(mocks.encrypt).toHaveBeenCalledOnce()
+  })
+
+  test("does not repeat enrollment if the post-enrollment authentication fails", async () => {
+    mocks.encrypt.mockRejectedValue(new DOMException("Cancelled", "NotAllowedError"))
+    mocks.createCredential.mockResolvedValue("new credential")
+
+    await expect(
+      createPasskeyUnlockMethod({ title: "Shared" }, { id: "project", name: "project" }),
+    ).rejects.toThrow("Cancelled")
+
+    expect(mocks.createCredential).toHaveBeenCalledOnce()
+    expect(mocks.encrypt).toHaveBeenCalledTimes(2)
   })
 
   test.each([

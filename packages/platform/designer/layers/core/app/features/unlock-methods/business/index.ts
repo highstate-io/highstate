@@ -39,9 +39,30 @@ export async function createPasskeyUnlockMethod(
     throw new Error("Display name is required for passkey unlock method")
   }
 
-  const encrypter = new Encrypter()
-  encrypter.addRecipient(new webauthn.WebAuthnRecipient())
-  const unlockMethod = await createUnlockMethod(meta, encrypter)
+  const encryptIdentity = async (credential?: string) => {
+    const encrypter = new Encrypter()
+
+    encrypter.addRecipient(
+      new webauthn.WebAuthnRecipient(credential ? { identity: credential } : undefined),
+    )
+
+    return await createUnlockMethod(meta, encrypter)
+  }
+
+  let unlockMethod: Awaited<ReturnType<typeof createUnlockMethod>>
+
+  try {
+    unlockMethod = await encryptIdentity()
+  } catch (error) {
+    // webAuthn uses NotAllowedError for missing credentials, cancellation, and timeout
+    // Enrollment is attempted only once; unsupported PRF and other failures must not create credentials.
+    if (!(error instanceof Error) || error.name !== "NotAllowedError") {
+      throw error
+    }
+
+    const credential = await webauthn.createCredential({ keyName: "Highstate" })
+    unlockMethod = await encryptIdentity(credential)
+  }
 
   return {
     type: "passkey",

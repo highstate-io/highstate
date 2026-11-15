@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { UnlockMethodType } from "@highstate/backend/shared"
 import { randomBytes } from "@noble/hashes/utils.js"
-import { webauthn } from "age-encryption"
 import { secureMask } from "micro-key-producer/password.js"
 import { zxcvbn } from "zxcvbn-typescript"
 import { PasswordField } from "#layers/core/app/features/shared"
@@ -58,9 +57,6 @@ const emit = defineEmits<Emits>()
 const valid = ref(false)
 const passwordVisible = ref(false)
 const { $client } = useNuxtApp()
-const enrollingPasskey = ref(false)
-const passkeyEnrolled = ref(false)
-const passkeyError = ref<string>()
 const keyringAvailable = ref<boolean>()
 const checkingKeyring = ref(false)
 
@@ -74,20 +70,6 @@ const checkKeyring = async () => {
     keyringAvailable.value = false
   } finally {
     checkingKeyring.value = false
-  }
-}
-
-const enrollPasskey = async () => {
-  enrollingPasskey.value = true
-  passkeyError.value = undefined
-
-  try {
-    await webauthn.createCredential({ keyName: "Highstate" })
-    passkeyEnrolled.value = true
-  } catch {
-    passkeyError.value = "Passkey setup was cancelled or unavailable. No unlock method was added."
-  } finally {
-    enrollingPasskey.value = false
   }
 }
 
@@ -204,8 +186,6 @@ const resetForm = () => {
   form.password = ""
   form.confirmPassword = ""
   passwordVisible.value = false
-  passkeyError.value = undefined
-  passkeyEnrolled.value = false
   form.autoUnlock = false
   keyringAvailable.value = undefined
 }
@@ -363,22 +343,10 @@ defineExpose({
 
     <template v-else-if="form.type === 'passkey'">
       <VAlert type="info" density="compact" class="mb-4">
-        You'll be prompted to use your existing Highstate passkey. Use the same passkey for all
-        projects on this domain; no source project is needed.
+        Uses your existing Highstate passkey for this domain. If authentication is unavailable or
+        cancelled, the browser offers passkey setup automatically. No separate setup step or source
+        project is needed. Reuse the same passkey for all projects.
       </VAlert>
-      <details v-if="!passkeyEnrolled" class="mb-4">
-        <summary>First time using a Highstate passkey?</summary>
-        <p class="my-2">Set up your passkey once, then reuse it for every project.</p>
-        <VBtn :loading="enrollingPasskey" variant="tonal" @click="enrollPasskey"
-          >Set up Highstate passkey</VBtn
-        >
-      </details>
-      <VAlert v-if="passkeyEnrolled" type="success" density="compact" class="mb-4"
-        >Passkey ready. Continue to attach it to this project.</VAlert
-      >
-      <VAlert v-if="passkeyError" type="error" density="compact" class="mb-4"
-        >{{ passkeyError }}</VAlert
-      >
     </template>
 
     <template v-else-if="form.type === 'keyring'">
