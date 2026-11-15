@@ -2,7 +2,6 @@ import { generateKey } from "@highstate/common"
 import {
   getClusterKubeconfigContent,
   getProvider,
-  Namespace,
   PersistentVolumeClaim,
   Secret,
 } from "@highstate/k8s"
@@ -11,6 +10,7 @@ import { forUnit, makeFile, output, secret, toPromise } from "@highstate/pulumi"
 import { local } from "@pulumi/command"
 import { batch, core, rbac } from "@pulumi/kubernetes"
 import { generateIdentity } from "age-encryption"
+import { createAppNamespace } from "../shared"
 import { createLoginConfig, createPostgresqlConfig } from "./config"
 import { coordinateBackupScript, offlineBackupScript } from "./scripts"
 import { createRuntimeDeployment } from "./workload"
@@ -19,9 +19,7 @@ const { name, args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.
 const cluster = await toPromise(inputs.k8sCluster)
 const provider = getProvider(cluster)
 
-const namespace = inputs.volume
-  ? await Namespace.forResourceAsync(inputs.volume, cluster)
-  : Namespace.create(args.appName, { cluster, privileged: true }, { retainOnDelete: true })
+const namespace = await createAppNamespace(args, inputs, { privileged: true, retainOnDelete: true })
 
 const ns = namespace.metadata.name
 const backendIdentity = getSecret("backendIdentity", generateIdentity)

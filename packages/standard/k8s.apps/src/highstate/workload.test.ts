@@ -4,15 +4,25 @@ import { Namespace, Secret } from "@highstate/k8s"
 import { makeFile, makeSecret, toPromise } from "@highstate/pulumi"
 import { core } from "@pulumi/kubernetes"
 import { isSecret, runtime, secret } from "@pulumi/pulumi"
+import { createAppNamespace, resolveExistingNamespace } from "../shared/namespace"
 import { createLoginConfig, createPostgresqlConfig } from "./config"
 import { createRuntimeDeployment } from "./workload"
 
+const registeredTypes: string[] = []
+
 runtime.setMocks(
   {
-    newResource: args => ({
-      id: args.name,
-      state: { ...args.inputs, metadata: { ...args.inputs.metadata, uid: args.name }, status: {} },
-    }),
+    newResource: args => {
+      registeredTypes.push(args.type)
+      return {
+        id: args.name,
+        state: {
+          ...args.inputs,
+          metadata: { ...args.inputs.metadata, uid: args.name },
+          status: {},
+        },
+      }
+    },
     call: args => args.inputs,
   },
   "highstate-test",
@@ -31,6 +41,65 @@ const loginProvider: oauth.LoginProvider = {
 }
 
 describe("Highstate runtime topology", () => {
+  it("wraps an existing namespace without creating a Kubernetes namespace", async () => {
+    const cluster = {
+      name: "scoped-existing",
+      id: "scoped-existing",
+      connectionId: "scoped-existing",
+      kubeconfig: makeFile({ name: "kubeconfig", content: "mock", isSecret: true }),
+    } as k8s.Cluster
+
+    const existing = {
+      $meta: { type: "k8s.namespace.v1", identity: "scoped-existing" },
+      clusterId: cluster.id,
+      clusterName: cluster.name,
+      apiVersion: "v1",
+      kind: "Namespace",
+      isNamespaced: false,
+      metadata: { name: "scoped-existing", uid: "scoped-existing" },
+    } as k8s.Namespace
+
+    const before = registeredTypes.filter(type => type === "kubernetes:core/v1:Namespace").length
+
+    const namespace = await createAppNamespace(
+      { appName: "different-app" },
+      { k8sCluster: cluster, namespace: existing },
+    )
+
+    expect(await toPromise(namespace!.metadata.name)).toBe("scoped-existing")
+
+    expect(registeredTypes.filter(type => type === "kubernetes:core/v1:Namespace").length).toBe(
+      before,
+    )
+
+    await expect(resolveExistingNamespace(cluster, existing, "different")).rejects.toThrow(
+      "must match",
+    )
+
+    await expect(
+      resolveExistingNamespace({ ...cluster, id: "another-cluster" }, existing),
+    ).rejects.toThrow("Cluster mismatch")
+
+    const volume = {
+      $meta: { type: "k8s.persistent-volume-claim.v1", identity: "volume" },
+      clusterId: cluster.id,
+      clusterName: cluster.name,
+      apiVersion: "v1",
+      kind: "PersistentVolumeClaim",
+      isNamespaced: true,
+      metadata: { name: "data", namespace: "another-namespace", uid: "data" },
+    } as k8s.PersistentVolumeClaim
+
+    await expect(
+      createAppNamespace(
+        { appName: "different-app" },
+        { k8sCluster: cluster, namespace: existing, volume },
+      ),
+    ).rejects.toThrow("same namespace")
+
+    expect(await resolveExistingNamespace(cluster, undefined)).toBeUndefined()
+  })
+
   it("resolves secret references, exclusive runtime lifecycle, and shared Docker bind paths through Pulumi", async () => {
     const cluster = {
       name: "mock",

@@ -1,9 +1,9 @@
 import { generateKey, l3EndpointToString, l4EndpointToString } from "@highstate/common"
-import { Chart, Namespace, PersistentVolumeClaim } from "@highstate/k8s"
+import { Chart, PersistentVolumeClaim } from "@highstate/k8s"
 import { etcd, k8s } from "@highstate/library"
 import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts, createBootstrapServiceEndpoint } from "../shared"
+import { charts, createAppNamespace, createBootstrapServiceEndpoint } from "../shared"
 import { backupEnvironment } from "./scripts"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.etcd)
@@ -12,7 +12,7 @@ if (args.replicas > 1 && inputs.resticRepo) {
   throw new Error("Restic backups are not supported for multi-replica etcd clusters")
 }
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const backupKey = getSecret("backupKey", generateKey)
 

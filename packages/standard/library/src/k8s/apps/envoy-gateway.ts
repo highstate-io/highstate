@@ -1,7 +1,7 @@
 import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { gatewayEntity } from "../../common"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The Envoy Gateway controller and gateway implementation.
@@ -32,6 +32,7 @@ export const envoyGateway = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster"]),
   },
 

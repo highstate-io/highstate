@@ -1,21 +1,17 @@
 import { generateKey, generatePassword } from "@highstate/common"
-import { Namespace, NetworkPolicy, PersistentVolumeClaim, StatefulSet } from "@highstate/k8s"
+import { NetworkPolicy, PersistentVolumeClaim, StatefulSet } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { forUnit } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
+import { createAppNamespace } from "../shared"
 
 const { args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.apps.codeServer)
-
-const existingVolume = await toPromise(inputs.volume)
 
 const password = getSecret("password", generatePassword)
 const sudoPassword = getSecret("sudoPassword", generatePassword)
 const backupKey = getSecret("backupKey", generateKey)
 
-const namespace = await Namespace.createOrGet(args.appName, {
-  cluster: inputs.k8sCluster,
-  resource: existingVolume,
-})
+const namespace = await createAppNamespace(args, inputs)
 
 const volumeClaim = PersistentVolumeClaim.create(
   `${args.appName}-data`,

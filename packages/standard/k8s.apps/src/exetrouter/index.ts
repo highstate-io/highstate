@@ -1,19 +1,16 @@
 import { generateKey, l4EndpointToString } from "@highstate/common"
-import { ConfigMap, Namespace, PersistentVolumeClaim, Service, StatefulSet } from "@highstate/k8s"
+import { ConfigMap, PersistentVolumeClaim, Service, StatefulSet } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, interpolate } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { images } from "../shared"
+import { createAppNamespace, images } from "../shared"
 import { backupExcludes, onlineBackupScript, postRestoreScript } from "./backup"
 
 const { args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.apps.exetrouter)
 
 const backupKey = getSecret("backupKey", generateKey)
 
-const namespace = await Namespace.createOrGet(args.appName, {
-  cluster: inputs.k8sCluster,
-  resource: inputs.volume,
-})
+const namespace = await createAppNamespace(args, inputs)
 
 const volume = await PersistentVolumeClaim.createOrGet(`${args.appName}-data`, {
   namespace,

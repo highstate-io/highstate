@@ -25,6 +25,7 @@ export const grocy = defineUnit({
     ...pick(sharedSecrets, ["backupKey"]),
   },
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint"]),
     ...pick(optionalSharedInputs, ["resticRepo"]),
   },

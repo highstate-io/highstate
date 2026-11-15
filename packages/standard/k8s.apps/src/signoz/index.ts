@@ -1,11 +1,11 @@
-import { Chart, Namespace } from "@highstate/k8s"
+import { Chart } from "@highstate/k8s"
 import { k8s as k8sLibrary } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
-import { charts, createPostgresqlCredentialsSecret } from "../shared"
+import { charts, createAppNamespace, createPostgresqlCredentialsSecret } from "../shared"
 
 const { args, inputs, outputs } = forUnit(k8sLibrary.apps.signoz)
 
-const namespace = Namespace.create(args.namespace ?? args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const postgresqlCredentials = createPostgresqlCredentialsSecret(
   `${args.appName}-postgresql-credentials`,

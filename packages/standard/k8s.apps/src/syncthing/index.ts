@@ -1,9 +1,9 @@
 import { DnsRecordSet, generateKey } from "@highstate/common"
-import { Namespace, PersistentVolumeClaim, StatefulSet } from "@highstate/k8s"
+import { PersistentVolumeClaim, StatefulSet } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { images } from "../shared"
+import { createAppNamespace, images } from "../shared"
 
 const { args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.apps.syncthing)
 
@@ -11,10 +11,7 @@ const deviceFqdn = args.deviceFqdn ?? `device.${args.fqdn}`
 
 const backupKey = getSecret("backupKey", generateKey)
 
-const namespace = await Namespace.createOrGet(args.appName, {
-  cluster: inputs.k8sCluster,
-  resource: inputs.volume,
-})
+const namespace = await createAppNamespace(args, inputs)
 
 const volumeClaim = PersistentVolumeClaim.createOrGet(
   `${args.appName}-data`,

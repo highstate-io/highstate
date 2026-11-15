@@ -1,15 +1,15 @@
 import { endpointToString } from "@highstate/common"
-import { Chart, ClusterAccessScope, Namespace } from "@highstate/k8s"
+import { Chart, ClusterAccessScope } from "@highstate/k8s"
 import { common, k8s } from "@highstate/library"
 import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
-import { charts, processHelmResourcesPostRenderer } from "../shared"
+import { charts, createAppNamespace, processHelmResourcesPostRenderer } from "../shared"
 
 const { name, stateId, args, inputs, outputs } = forUnit(k8s.apps.traefik)
 
 const className = args.className ?? name
 const clusterEndpoints = await toPromise(inputs.k8sCluster.endpoints)
 
-const namespace = await Namespace.createOrGet(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const chart = new Chart(args.appName, {
   namespace,

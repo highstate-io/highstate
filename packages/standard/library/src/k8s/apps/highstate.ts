@@ -32,7 +32,7 @@ export const highstate = defineUnit({
   },
   inputs: {
     ...pick(sharedInputs, ["k8sCluster", "accessPoint", "postgresql"]),
-    ...pick(optionalSharedInputs, ["volume", "resticRepo"]),
+    ...pick(optionalSharedInputs, ["volume", "resticRepo", "namespace"]),
     loginProviders: { entity: loginProviderEntity, multiple: true },
   },
   meta: { title: "Highstate", icon: "mdi:layers-triple", category: "Infrastructure" },

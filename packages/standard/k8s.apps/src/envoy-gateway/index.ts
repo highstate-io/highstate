@@ -1,23 +1,17 @@
 import { endpointToString } from "@highstate/common"
 import { gateway as envoyGateway } from "@highstate/envoy-gateway-crds"
 import { gateway } from "@highstate/gateway-api"
-import {
-  Chart,
-  ClusterAccessScope,
-  createServiceSpec,
-  getProvider,
-  Namespace,
-} from "@highstate/k8s"
+import { Chart, ClusterAccessScope, createServiceSpec, getProvider } from "@highstate/k8s"
 import { common, k8s } from "@highstate/library"
 import { forUnit, makeEntityOutput, output, toPromise } from "@highstate/pulumi"
 import { omit } from "remeda"
-import { charts, processHelmResourcesPostRenderer } from "../shared"
+import { charts, createAppNamespace, processHelmResourcesPostRenderer } from "../shared"
 import { createCertgenJob } from "./certgen"
 
 const { stateId, args, inputs, outputs } = forUnit(k8s.apps.envoyGateway)
 
 const clusterEndpoints = await toPromise(inputs.k8sCluster.endpoints)
-const namespace = await Namespace.createOrGet(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const certgenJob = await createCertgenJob({
   appName: args.appName,

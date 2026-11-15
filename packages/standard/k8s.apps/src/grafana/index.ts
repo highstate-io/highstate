@@ -1,14 +1,12 @@
 import { generatePassword, l4EndpointToString } from "@highstate/common"
-import { Chart, Namespace, Secret } from "@highstate/k8s"
+import { Chart, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { charts } from "../shared"
+import { charts, createAppNamespace } from "../shared"
 
 const { args, getSecret, inputs, outputs } = forUnit(k8s.apps.grafana)
 
-const namespace = await Namespace.createOrGet(args.appName, {
-  cluster: inputs.k8sCluster,
-})
+const namespace = await createAppNamespace(args, inputs)
 
 const adminPassword = getSecret("adminPassword", generatePassword)
 

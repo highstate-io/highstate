@@ -2,7 +2,7 @@ import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { providerEntity } from "../../oauth"
 import { managementEntity } from "../../zitadel"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The Zitadel IAM deployed on Kubernetes.
@@ -47,6 +47,7 @@ export const zitadel = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint", "postgresql"]),
   },
 

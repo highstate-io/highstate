@@ -28,7 +28,7 @@ export const postgresql = defineUnit({
 
   inputs: {
     ...pick(sharedInputs, ["k8sCluster"]),
-    ...pick(optionalSharedInputs, ["resticRepo"]),
+    ...pick(optionalSharedInputs, ["resticRepo", "namespace"]),
   },
 
   outputs: {

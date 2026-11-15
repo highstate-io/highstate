@@ -1,7 +1,7 @@
 import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { serviceEntity } from "../service"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * Grafana deployed on Kubernetes.
@@ -38,6 +38,7 @@ export const grafana = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint"]),
   },
 

@@ -2,7 +2,6 @@ import { generateKey, generatePassword } from "@highstate/common"
 import {
   ConfigMap,
   type ContainerEnvironment,
-  Namespace,
   PersistentVolumeClaim,
   Secret,
   Workload,
@@ -10,19 +9,13 @@ import {
 import { k8s } from "@highstate/library"
 import { forUnit, interpolate } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
+import { createAppNamespace } from "../shared"
 
 const { args, secrets, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.workload)
 
 const appName = args.appName ?? "workload"
-const namespaceName = args.namespace ?? appName
-
 // create or get namespace
-const namespace = args.existingNamespace
-  ? Namespace.get(args.existingNamespace, {
-      name: args.existingNamespace,
-      cluster: inputs.k8sCluster,
-    })
-  : Namespace.create(namespaceName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace({ ...args, appName }, inputs)
 
 // generate secrets
 const mariadbPassword = getSecret("mariadbPassword", generatePassword)

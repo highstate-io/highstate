@@ -144,6 +144,10 @@ export const sharedInputs = $inputs({
   },
   namespace: {
     entity: namespaceEntity,
+    meta: {
+      description:
+        "Install into an existing namespace without creating or owning it. Must match any supplied volume and explicit namespace name.",
+    },
   },
   accessPoint: {
     entity: accessPointEntity,

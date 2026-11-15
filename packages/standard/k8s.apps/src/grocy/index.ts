@@ -1,16 +1,15 @@
 import { generatePassword } from "@highstate/common"
-import { Deployment, Namespace, PersistentVolumeClaim } from "@highstate/k8s"
+import { Deployment, PersistentVolumeClaim } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
+import { createAppNamespace } from "../shared"
 
 const { args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.apps.grocy)
 
 const backupKey = getSecret("backupKey", generatePassword)
 
-const namespace = await Namespace.createOrGet(args.appName, {
-  cluster: inputs.k8sCluster,
-})
+const namespace = await createAppNamespace(args, inputs)
 
 const dataVolumeClaim = PersistentVolumeClaim.create(
   `${args.appName}-data`,

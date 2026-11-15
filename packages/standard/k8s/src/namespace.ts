@@ -197,6 +197,20 @@ export abstract class Namespace extends Resource {
   }
 
   private static readonly namespaceCache = new Map<string, Namespace>()
+  private static readonly referencedNamespaceCache = new Map<string, Namespace>()
+
+  /**
+   * Uses a namespace capability's metadata without reading, creating, or owning the namespace.
+   * Suitable for credentials restricted to resources inside an existing namespace.
+   */
+  static fromEntity(entity: k8s.Namespace, cluster: Input<k8s.Cluster>): Namespace {
+    const name = `${entity.clusterName}.${entity.metadata.name}.${entity.clusterId}`
+    return getOrCreate(
+      Namespace.referencedNamespaceCache,
+      name,
+      () => new ReferencedNamespace(name, entity, cluster),
+    )
+  }
 
   /**
    * Gets an existing namespace for a given entity.
@@ -390,6 +404,23 @@ export type ExternalNamespaceArgs = {
    * The cluster where the namespace is located.
    */
   cluster: Input<k8s.Cluster>
+}
+
+class ReferencedNamespace extends Namespace {
+  constructor(name: string, entity: k8s.Namespace, cluster: Input<k8s.Cluster>) {
+    super(
+      "highstate:k8s:ReferencedNamespace",
+      name,
+      { entity },
+      undefined,
+      output(validateCluster(entity, cluster)),
+      // capabilities carry portable metadata, not API-server-only status fields
+      // Missing provider metadata remains undefined; this reference never fetches it.
+      output(entity.metadata as types.output.meta.v1.ObjectMeta),
+      output({ finalizers: [] }),
+      output({ conditions: [], phase: "" }),
+    )
+  }
 }
 
 class ExternalNamespace extends Namespace {

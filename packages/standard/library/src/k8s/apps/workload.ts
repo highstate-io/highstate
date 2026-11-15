@@ -202,6 +202,7 @@ export const workload = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster"]),
     ...pick(optionalSharedInputs, ["accessPoint", "resticRepo", "mysql", "postgresql", "mongodb"]),
 

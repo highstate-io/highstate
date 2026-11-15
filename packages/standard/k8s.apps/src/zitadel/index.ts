@@ -1,17 +1,17 @@
 import { randomBytes } from "node:crypto"
 import { AccessPointRoute, generatePassword } from "@highstate/common"
-import { getProvider, Namespace, Secret, Service } from "@highstate/k8s"
+import { getProvider, Secret, Service } from "@highstate/k8s"
 import { k8s, oauth, zitadel } from "@highstate/library"
 import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { helm } from "@pulumi/kubernetes"
 import { all, secret } from "@pulumi/pulumi"
 import { stringify } from "yaml"
-import { getPostgresqlConnectionUrl } from "../shared"
+import { createAppNamespace, getPostgresqlConnectionUrl } from "../shared"
 import { zitadelValues } from "./values"
 
 const { args, inputs, secrets, getSecret, stateId, outputs } = forUnit(k8s.apps.zitadel)
 const cluster = await toPromise(inputs.k8sCluster)
-const namespace = await Namespace.createOrGet(args.appName, { cluster })
+const namespace = await createAppNamespace(args, inputs)
 const provider = getProvider(cluster)
 const issuer = `https://${args.fqdn}`
 
