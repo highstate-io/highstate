@@ -102,7 +102,7 @@ describe("createPasskeyUnlockMethod", () => {
     ])
 
     expect(mocks.encrypt).toHaveBeenCalledTimes(2)
-    expect(method.encryptedIdentity).toBe("armored identity")
+    expect(method).toMatchObject({ type: "passkey", encryptedIdentity: "armored identity" })
   })
 
   test("stops when enrollment is cancelled", async () => {
