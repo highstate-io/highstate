@@ -92,6 +92,33 @@ For the application pattern, give multiple children of the same component type d
 such as `<stack>.auth-db` and `<stack>.app-db`.
 Keep reusable defaults independent of personal domains, account IDs, and machine-specific paths.
 
+## Share Data Through Project Ports
+
+Reuse shared infrastructure data through project export and import ports rather than duplicating connection
+configuration or copying credentials between projects.
+Keep shared resources in their owning project and export the entities that consuming projects need, such as a
+cluster, access point, DNS provider, or backup repository.
+Use composites to reuse topology; use project ports to reuse the outputs of already deployed instances.
+
+In the source project, connect selected outputs to an Export Port (`system.export.v1`) and set its `projects`
+argument to the destination project names.
+Update the export port after its dependencies have produced their outputs.
+Each destination project's library then exposes a corresponding import component.
+Discover that component in the destination library rather than inventing its generated type, instantiate it,
+and connect its typed outputs to local consumers.
+Update the import port to capture the exported data before updating dependent units.
+
+For example, a platform project can export its configured Kubernetes cluster and access point to application
+projects, while a storage project exports a Restic repository to projects that need backups.
+Each application project can connect those imports to its own deployment composite without recreating the
+cluster, ingress, or backup repository.
+
+Ports distribute exported entity snapshots; they do not transfer resource ownership or automatically deploy
+consumers when the source changes.
+After changing shared outputs, update the export port, then the destination import ports and affected consumers.
+Export only the entities needed by each destination: connection entities can include credentials and referenced
+data, so sharing them grants more than access to a display label or endpoint.
+
 ## Verify The Design
 
 Confirm that the selected component types exist in the target project's library and that entity contracts connect.
