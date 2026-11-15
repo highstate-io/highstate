@@ -103,9 +103,11 @@ try {
       expect(tabsBox!.x + tabsBox!.width).toBeLessThanOrEqual(accountBox!.x)
       await accountButton.click()
       const dialog = admin!.page.getByRole("dialog")
+
       await expect(
         dialog.getByRole("heading", { name: "E2E Administrator", exact: true }),
       ).toBeVisible()
+
       await expect(dialog).toContainText("admin@example.test")
       await expect(dialog).toContainText("OpenID Connect")
       await expect(dialog.getByRole("button", { name: "Sign out" })).toBeVisible()
