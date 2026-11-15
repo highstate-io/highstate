@@ -173,14 +173,14 @@ watch(
     <VCard title="New project">
       <VForm v-model="valid">
         <VCardText>
-          <VStepper v-model="step" flat hide-actions class="project-stepper">
+          <VStepper v-model="step" flat hide-actions density="compact" class="project-stepper">
             <VStepperHeader>
               <VStepperItem :value="1" title="Project" :complete="step > 1" />
               <VDivider />
               <VStepperItem :value="2" title="Unlock methods" />
             </VStepperHeader>
           </VStepper>
-          <div v-show="step === 1" class="pt-6">
+          <div v-show="step === 1" class="pt-4">
             <VTextField
               v-model="projectName"
               class="mb-4"
@@ -206,6 +206,8 @@ watch(
             <VTextarea
               v-model="description"
               label="Description"
+              :hint="descriptionHint"
+              persistent-hint
               variant="outlined"
               density="compact"
               rows="2"
@@ -251,7 +253,7 @@ watch(
             </p>
           </div>
 
-          <div v-show="step === 2" class="pt-6">
+          <div v-show="step === 2" class="pt-4">
             <div class="mb-4">
               <h3 class="text-subtitle-1 font-weight-medium mb-2">
                 <VIcon class="mr-2">mdi-lock-outline</VIcon>
@@ -344,3 +346,24 @@ watch(
     </VCard>
   </VDialog>
 </template>
+
+<style scoped>
+.project-stepper :deep(.v-stepper-header) {
+  box-shadow: none;
+}
+
+.project-stepper :deep(.v-stepper-item) {
+  padding: 12px 16px;
+}
+
+.project-stepper :deep(.v-stepper-item__avatar) {
+  width: 24px;
+  height: 24px;
+  margin-inline-end: 8px;
+  font-size: 12px;
+}
+
+.project-stepper :deep(.v-stepper-item__title) {
+  font-size: 14px;
+}
+</style>

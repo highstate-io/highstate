@@ -404,7 +404,7 @@ const title = computed(() => {
                   variant="outlined"
                   density="compact"
                   rows="2"
-                  hint="Describe the purpose of this operation (optional)"
+                  :hint="descriptionHint"
                   persistent-hint
                 />
               </div>

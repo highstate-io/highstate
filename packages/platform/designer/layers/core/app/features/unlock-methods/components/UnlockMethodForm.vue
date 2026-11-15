@@ -258,10 +258,11 @@ defineExpose({
       variant="outlined"
       density="compact"
       label="Description"
+      :hint="descriptionHint"
+      persistent-hint
       placeholder="Optional description for this unlock method"
       rows="2"
       auto-grow
-      hide-details
     />
 
     <template v-if="form.type === 'password'">

@@ -367,7 +367,14 @@ async function preflight() {
               :rules="[value => !!value?.trim() || 'Title is required']"
               required
             />
-            <VTextarea v-model="draft.description" label="Description" rows="2" />
+            <VTextarea
+              v-model="draft.description"
+              label="Description"
+              :hint="descriptionHint"
+              persistent-hint
+              rows="2"
+              class="mb-4"
+            />
             <template v-if="kind === 'container-runtime'">
               <VSelect
                 v-model="draft.type"
