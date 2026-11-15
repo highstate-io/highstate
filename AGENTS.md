@@ -32,5 +32,3 @@ Some additional notes:
   `devenv shell -q -- <command>`.
 - Try to use LSP tools to check your code first. Using `bun run build` in most cases will not perform type checking. You can also use `bun run typecheck` where possible. In some cases, LSP tool may provide outdated diagnostics, so you can fall back to `bun run typecheck` if you suspect that.
 - Use `bun run test` in desired package to run tests, not LSP tools.
-- If the `orca-cli` skill is visible, use it to organize development terminals and expose services. If it is not
-  visible, do not try to load, discover, or install it.
