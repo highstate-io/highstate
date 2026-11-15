@@ -19,7 +19,6 @@ import { addDependency, runScript } from "nypm"
 import PQueue from "p-queue"
 import { type PackageJson, readPackageJSON, resolvePackageJSON } from "pkg-types"
 import { groupBy, isNonNullish } from "remeda"
-import Watcher from "watcher"
 import { z } from "zod"
 import { resolveMainLocalProject, stringArrayType } from "../common"
 import {
@@ -28,6 +27,7 @@ import {
   type LibraryUpdate,
   type ResolvedInstanceInput,
 } from "../shared"
+import { WorkspaceWatcher } from "./workspace-watcher"
 
 export const localLibraryBackendConfig = z.object({
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES: stringArrayType.default(() => [
@@ -61,7 +61,7 @@ type RebuildState = {
 }
 
 export class LocalLibraryBackend implements LibraryBackend {
-  private readonly watcher: Watcher
+  private readonly watcher: WorkspaceWatcher
   private readonly workspacePath: string
   readonly importPath: string
   private readonly workspacePatterns: string[]
@@ -96,11 +96,7 @@ export class LocalLibraryBackend implements LibraryBackend {
     this.configBuildOnStartup = buildOnStartup
     this.configBuildOnChanges = buildOnChanges
 
-    this.watcher = new Watcher([workspacePath], {
-      recursive: true,
-      ignoreInitial: true,
-      ignore: /\.git|node_modules|dist|\.highstate|\.nx/,
-    })
+    this.watcher = new WorkspaceWatcher(workspacePath)
 
     this.watcher.on("error", error => {
       if ("code" in error && error.code === "ENOENT") {

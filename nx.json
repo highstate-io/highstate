@@ -13,7 +13,6 @@
       "{workspaceRoot}/bun.lock"
     ],
     "default": [
-      "{workspaceRoot}/patches/**/*",
       "{projectRoot}/**/*",
       "!{projectRoot}/dist/**/*",
       "!{projectRoot}/bin/**/*",

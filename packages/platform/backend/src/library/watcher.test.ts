@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, expect, test, vi } from "vitest"
-import Watcher from "watcher"
+import { WorkspaceWatcher } from "./workspace-watcher"
 
 afterEach(() => vi.restoreAllMocks())
 
@@ -29,7 +29,7 @@ test("root monitoring never opens ancestors or scans unrelated siblings", async 
     return emitter as fs.FSWatcher
   }) as typeof fs.watch)
 
-  const watcher = new Watcher(workspace, { recursive: true, ignoreInitial: true, debounce: 5 })
+  const watcher = new WorkspaceWatcher(workspace, { debounce: 5 })
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -76,17 +76,15 @@ test("root replacement reattaches file watchers and forwards updates", async () 
     return emitter as fs.FSWatcher
   }) as typeof fs.watch)
 
-  const watcher = new Watcher(workspace, {
-    recursive: true,
-    ignoreInitial: true,
+  const watcher = new WorkspaceWatcher(workspace, {
     debounce: 5,
     pollingInterval: 10,
   })
 
   const next = (event: string, target: string) =>
     new Promise<void>((resolve, reject) => {
-      watcher.on(event, path => {
-        if (path === target) {
+      watcher.on("all", (kind, path) => {
+        if (kind === event && path === target) {
           resolve()
         }
       })
