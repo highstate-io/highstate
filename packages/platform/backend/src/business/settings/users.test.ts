@@ -14,6 +14,7 @@ const adminId = "aaaaaaaaaaaaaaaaaaaaaaaa"
 const viewerId = "bbbbbbbbbbbbbbbbbbbbbbbb"
 const roleId = "cccccccccccccccccccccccc"
 const date = new Date("2026-11-15T00:00:00Z")
+
 const backendContext = (permissions: BackendPermission[]) => ({
   realm: "backend" as const,
   subject: { type: "user" as const, userId: adminId, groupIds: [] },
@@ -21,6 +22,7 @@ const backendContext = (permissions: BackendPermission[]) => ({
     { permissions },
   ]),
 })
+
 const projectContext = (permissions: ProjectPermission[]) => ({
   realm: "project" as const,
   projectId: "project",

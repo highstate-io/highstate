@@ -4,6 +4,7 @@ import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 
 const { args, inputs, stateId, outputs } = forUnit(oauth.loginProvider)
 const registration = await toPromise(inputs.registration)
+
 const value = {
   ...registration.provider,
   ...args,

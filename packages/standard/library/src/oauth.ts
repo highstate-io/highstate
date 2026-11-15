@@ -11,6 +11,7 @@ import {
 
 const config = loginProviderConfigSchema.shape
 const meta = { title: "OAuth Provider", icon: "mdi:shield-key", category: "Authentication" }
+
 const registrationSecrets = {
   clientId: config.clientId,
   clientSecret: z.string().min(1).optional(),

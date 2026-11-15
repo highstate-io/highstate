@@ -211,6 +211,7 @@ export async function setHumanProjectRoleBinding(
   requireProjectPermission(context, "role.update", { resourceId: roleId })
   const project = await database.forProject(context.projectId)
   const role = await project.role.findUniqueOrThrow({ where: { id: roleId } })
+
   if (!hasProjectPermissionRulesSubset(context, projectRoleRulesSchema.parse(role.rules))) {
     requireProjectPermission(context, "role.escalate", { resourceId: roleId })
   }

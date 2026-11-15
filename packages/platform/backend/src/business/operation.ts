@@ -156,6 +156,7 @@ export class OperationService {
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
     const operation = await database.operation.findUnique({ where: { id: operationId } })
+
     if (!operation) {
       throw new OperationNotFoundError(context.projectId, operationId)
     }

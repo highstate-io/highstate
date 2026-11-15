@@ -19,6 +19,7 @@ const masterkey = Secret.create(`${args.appName}-masterkey`, {
   namespace,
   stringData: { masterkey: getSecret("masterKey", () => randomBytes(24).toString("base64url")) },
 })
+
 const configuration = Secret.create(`${args.appName}-configuration`, {
   namespace,
   stringData: {
@@ -59,6 +60,7 @@ const apiService = Service.get(
   },
   { dependsOn: release },
 )
+
 const loginService = Service.get(
   `${args.appName}-login`,
   {

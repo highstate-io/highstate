@@ -18,18 +18,23 @@ import { createRuntimeDeployment } from "./workload"
 const { name, args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.apps.highstate)
 const cluster = await toPromise(inputs.k8sCluster)
 const provider = getProvider(cluster)
+
 const namespace = inputs.volume
   ? await Namespace.forResourceAsync(inputs.volume, cluster)
   : Namespace.create(args.appName, { cluster, privileged: true }, { retainOnDelete: true })
+
 const ns = namespace.metadata.name
 const backendIdentity = getSecret("backendIdentity", generateIdentity)
 const backupKey = getSecret("backupKey", generateKey)
 const providers = await toPromise(inputs.loginProviders)
+
 if (args.initialAdminUserIds.length + args.initialAdminGroupIds.length === 0) {
   throw new Error("Configure at least one initial admin user or group ID")
 }
+
 const pg = await toPromise(inputs.postgresql)
 const postgresqlConfig = await createPostgresqlConfig(pg, cluster)
+
 const runtime = Secret.create(`${args.appName}-runtime`, {
   namespace,
   stringData: {
@@ -43,6 +48,7 @@ const runtime = Secret.create(`${args.appName}-runtime`, {
     ...(postgresqlConfig.ca ? { "postgresql-ca.crt": secret(postgresqlConfig.ca) } : {}),
   },
 })
+
 const volume = await PersistentVolumeClaim.createOrGet(
   `${args.appName}-data`,
   {
@@ -54,13 +60,16 @@ const volume = await PersistentVolumeClaim.createOrGet(
   },
   { retainOnDelete: true },
 )
+
 if (inputs.volume && !(await toPromise(volume.spec.accessModes)).includes("ReadWriteOncePod")) {
   throw new Error(
     "Highstate requires a ReadWriteOncePod PVC to enforce exclusive runtime and backup ownership",
   )
 }
+
 const claimName = volume.metadata.name
 const runtimeSecretName = runtime.metadata.name
+
 const deployment = createRuntimeDeployment({
   name: args.appName,
   namespace,
@@ -79,6 +88,7 @@ const deployment = createRuntimeDeployment({
 })
 
 const backupTemplateName = `${args.appName}-offline-backup`
+
 if (inputs.resticRepo) {
   const repo = await toPromise(inputs.resticRepo)
 

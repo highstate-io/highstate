@@ -38,6 +38,7 @@ type OidcConfig = {
 export function applicationCallback(fqdn: string, path: string): string {
   const origin = new URL(`https://${fqdn}`)
   const callback = new URL(path, origin)
+
   if (
     callback.origin !== origin.origin ||
     callback.hash ||

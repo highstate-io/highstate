@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test"
 import { type ApplicationInputs, ApplicationProvider, applicationCallback } from "./provider"
 
 const servers: ReturnType<typeof Bun.serve>[] = []
+
 afterEach(() => {
   for (const server of servers.splice(0)) {
     server.stop(true)
