@@ -1,5 +1,6 @@
 import type { LoginProviderConfig } from "@highstate/contract"
 import * as client from "openid-client"
+import { isAllowedHostedUrl, isDevelopmentHttpEnabled } from "./auth-config"
 
 const clients = new Map<string, Promise<client.Configuration>>()
 
@@ -14,7 +15,7 @@ export async function createLoginClient(
         : client.ClientSecretPost(provider.clientSecret)
 
   if (provider.identity.protocol === "oauth2") {
-    return new client.Configuration(
+    const config = new client.Configuration(
       {
         issuer: new URL(provider.tokenEndpoint!).origin,
         authorization_endpoint: provider.authorizationEndpoint,
@@ -24,6 +25,12 @@ export async function createLoginClient(
       undefined,
       auth,
     )
+
+    if (isDevelopmentHttpEnabled()) {
+      client.allowInsecureRequests(config)
+    }
+
+    return config
   }
 
   const discovered = await client.discovery(
@@ -31,6 +38,7 @@ export async function createLoginClient(
     provider.clientId,
     undefined,
     auth,
+    isDevelopmentHttpEnabled() ? { execute: [client.allowInsecureRequests] } : undefined,
   )
 
   if (discovered.serverMetadata().issuer !== provider.identity.issuer) {
@@ -38,6 +46,16 @@ export async function createLoginClient(
   }
 
   const { supportsPKCE: _supportsPKCE, ...metadata } = discovered.serverMetadata()
+
+  for (const endpoint of [
+    metadata.authorization_endpoint,
+    metadata.token_endpoint,
+    metadata.jwks_uri,
+  ]) {
+    if (endpoint && !isAllowedHostedUrl(endpoint)) {
+      throw new Error("Discovered OIDC endpoints require HTTPS or development loopback HTTP")
+    }
+  }
 
   const config = new client.Configuration(
     {
@@ -52,6 +70,11 @@ export async function createLoginClient(
   )
 
   client.enableNonRepudiationChecks(config)
+
+  if (isDevelopmentHttpEnabled()) {
+    client.allowInsecureRequests(config)
+  }
+
   return config
 }
 

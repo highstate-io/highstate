@@ -1,21 +1,27 @@
 import type { DesignerIdentity, Services } from "@highstate/backend"
 import { createHash, randomBytes } from "node:crypto"
 import { designerIdentitySchema } from "@highstate/backend"
-import { getHostedAuthConfig } from "./auth-config"
+import { getHostedAuthConfig, isDevelopmentHttpEnabled } from "./auth-config"
 
 export const sessionCookie = "__Host-highstate-session"
 export const loginCookie = "__Host-highstate-login"
 export const cookieOptions = { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" }
+export const getSessionCookieName = () =>
+  isDevelopmentHttpEnabled() ? "highstate-dev-session" : sessionCookie
+export const getLoginCookieName = () =>
+  isDevelopmentHttpEnabled() ? "highstate-dev-login" : loginCookie
+export const getCookieOptions = () => ({ ...cookieOptions, secure: !isDevelopmentHttpEnabled() })
 export const opaqueToken = () => randomBytes(32).toString("base64url")
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex")
 
 export function sessionTokenFromHeaders(headers: Headers): string | undefined {
+  const name = getSessionCookieName()
   return headers
     .get("cookie")
     ?.split(";")
     .map(cookie => cookie.trim())
-    .find(cookie => cookie.startsWith(`${sessionCookie}=`))
-    ?.slice(sessionCookie.length + 1)
+    .find(cookie => cookie.startsWith(`${name}=`))
+    ?.slice(name.length + 1)
 }
 
 export async function authenticateHostedSession(

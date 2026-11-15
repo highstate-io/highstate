@@ -1,7 +1,12 @@
 import { getSharedServices } from "@highstate/backend"
 import * as client from "openid-client"
 import { getHostedAuthConfig } from "../../utils/auth-config"
-import { cookieOptions, hashToken, loginCookie, opaqueToken } from "../../utils/hosted-session"
+import {
+  getCookieOptions,
+  getLoginCookieName,
+  hashToken,
+  opaqueToken,
+} from "../../utils/hosted-session"
 import { getLoginClient } from "../../utils/oauth-client"
 
 export default defineEventHandler(async event => {
@@ -24,7 +29,7 @@ export default defineEventHandler(async event => {
   }
 
   await services.database.backend.designerLoginTransaction.create({ data: transaction })
-  setCookie(event, loginCookie, token, { ...cookieOptions, maxAge: 600 })
+  setCookie(event, getLoginCookieName(), token, { ...getCookieOptions(), maxAge: 600 })
   setHeader(event, "Cache-Control", "no-store")
 
   const url = client.buildAuthorizationUrl(await getLoginClient(provider), {

@@ -1,10 +1,10 @@
 import { getSharedServices } from "@highstate/backend"
 import { isHostedAuth } from "../../utils/auth-config"
 import {
-  cookieOptions,
+  getCookieOptions,
+  getSessionCookieName,
   hashToken,
   requireHostedOrigin,
-  sessionCookie,
 } from "../../utils/hosted-session"
 
 export default defineEventHandler(async event => {
@@ -15,7 +15,7 @@ export default defineEventHandler(async event => {
       throw createError({ statusCode: 403, statusMessage: "Invalid request origin" })
     }
 
-    const token = getCookie(event, sessionCookie)
+    const token = getCookie(event, getSessionCookieName())
     if (token) {
       const services = await getSharedServices()
 
@@ -25,7 +25,7 @@ export default defineEventHandler(async event => {
       })
     }
 
-    deleteCookie(event, sessionCookie, cookieOptions)
+    deleteCookie(event, getSessionCookieName(), getCookieOptions())
   }
 
   return sendRedirect(event, "/login", 303)

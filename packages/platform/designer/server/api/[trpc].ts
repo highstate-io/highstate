@@ -1,7 +1,7 @@
 import { getSharedServices } from "@highstate/backend"
 import { createTRPCNuxtHandler } from "trpc-nuxt/server"
 import { appRouter } from "../router"
-import { sessionCookie, sessionTokenFromHeaders } from "../utils/hosted-session"
+import { getSessionCookieName, sessionTokenFromHeaders } from "../utils/hosted-session"
 
 export default createTRPCNuxtHandler({
   endpoint: "/api",
@@ -13,7 +13,7 @@ export default createTRPCNuxtHandler({
       ...services,
       designerSessionToken:
         "node" in event
-          ? getCookie(event, sessionCookie)
+          ? getCookie(event, getSessionCookieName())
           : sessionTokenFromHeaders(event.req.headers),
     }
   },

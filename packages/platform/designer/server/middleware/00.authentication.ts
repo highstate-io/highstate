@@ -2,8 +2,8 @@ import { getSharedServices } from "@highstate/backend"
 import { getHostedAuthConfig, isHostedAuth } from "../utils/auth-config"
 import {
   authenticateHostedSession,
+  getSessionCookieName,
   requireHostedOrigin,
-  sessionCookie,
 } from "../utils/hosted-session"
 import { getPanelIdFromHost } from "../utils/panel-session"
 
@@ -44,7 +44,7 @@ export default defineEventHandler(async event => {
   try {
     event.context.designerIdentity = await authenticateHostedSession(
       await getSharedServices(),
-      getCookie(event, sessionCookie),
+      getCookie(event, getSessionCookieName()),
     )
   } catch {
     if (event.path.startsWith("/api/")) {

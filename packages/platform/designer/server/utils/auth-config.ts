@@ -1,18 +1,53 @@
 import { readFileSync } from "node:fs"
 import { loginProviderConfigSchema, z } from "@highstate/contract"
 
+export function isDevelopmentHttpEnabled(): boolean {
+  const enabled = process.env.HIGHSTATE_AUTH_DEVELOPMENT_HTTP
+  if (enabled !== undefined && enabled !== "true" && enabled !== "false") {
+    throw new Error("Invalid HIGHSTATE_AUTH_DEVELOPMENT_HTTP")
+  }
+
+  if (enabled !== "true") {
+    return false
+  }
+
+  if (process.env.NODE_ENV !== "development") {
+    throw new Error("HTTP authentication is only available in development")
+  }
+
+  return true
+}
+
+function isLoopbackHostname(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    hostname === "[::1]" ||
+    /^127\.(?:\d{1,3}\.){2}\d{1,3}$/.test(hostname)
+  )
+}
+
+export function isAllowedHostedUrl(value: string): boolean {
+  const url = new URL(value)
+  return (
+    url.protocol === "https:" ||
+    (url.protocol === "http:" && isLoopbackHostname(url.hostname) && isDevelopmentHttpEnabled())
+  )
+}
+
 export const hostedAuthConfigSchema = z.object({
   publicUrl: z.url().refine(value => {
     const url = new URL(value)
     return (
-      url.protocol === "https:" &&
+      isAllowedHostedUrl(value) &&
+      (!isDevelopmentHttpEnabled() || isLoopbackHostname(url.hostname)) &&
       url.pathname === "/" &&
       !url.search &&
       !url.hash &&
       !url.username &&
       !url.password
     )
-  }, "Expected an HTTPS origin"),
+  }, "Expected an HTTPS origin or an explicitly enabled development loopback HTTP origin"),
   providers: z
     .array(loginProviderConfigSchema)
     .min(1)
@@ -38,6 +73,8 @@ export function isHostedAuth(): boolean {
 
 let config: HostedAuthConfig | undefined
 export function getHostedAuthConfig(): HostedAuthConfig {
+  isDevelopmentHttpEnabled()
+
   if (!isHostedAuth()) {
     throw new Error("Hosted authentication is disabled")
   }
@@ -76,8 +113,8 @@ export function getHostedAuthConfig(): HostedAuthConfig {
         : provider.identity.userInfoUrl,
     ]
 
-    if (urls.some(url => url && new URL(url).protocol !== "https:")) {
-      throw new Error("Hosted providers require HTTPS")
+    if (urls.some(url => url && !isAllowedHostedUrl(url))) {
+      throw new Error("Hosted providers require HTTPS or development loopback HTTP")
     }
 
     if (

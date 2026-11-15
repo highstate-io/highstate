@@ -1,11 +1,11 @@
 import { getSharedServices } from "@highstate/backend"
 import { getHostedAuthConfig } from "../../utils/auth-config"
 import {
-  cookieOptions,
   createHostedSession,
+  getCookieOptions,
+  getLoginCookieName,
+  getSessionCookieName,
   hashToken,
-  loginCookie,
-  sessionCookie,
 } from "../../utils/hosted-session"
 import { mapLoginProfile } from "../../utils/login-profile"
 import { exchangeLoginCode } from "../../utils/oauth-client"
@@ -14,8 +14,8 @@ export default defineEventHandler(async event => {
   setHeader(event, "Cache-Control", "no-store")
   setHeader(event, "Referrer-Policy", "no-referrer")
   const config = getHostedAuthConfig()
-  const token = getCookie(event, loginCookie)
-  deleteCookie(event, loginCookie, cookieOptions)
+  const token = getCookie(event, getLoginCookieName())
+  deleteCookie(event, getLoginCookieName(), getCookieOptions())
 
   if (!token) {
     throw createError({ statusCode: 401, statusMessage: "Login transaction missing" })
@@ -41,7 +41,7 @@ export default defineEventHandler(async event => {
     const url = new URL(`/api/auth/callback${getRequestURL(event).search}`, config.publicUrl)
     const profile = await exchangeLoginCode(provider, url, transaction)
     const identity = mapLoginProfile(provider, profile)
-    const previous = getCookie(event, sessionCookie)
+    const previous = getCookie(event, getSessionCookieName())
     if (previous) {
       await services.database.backend.designerSession.updateMany({
         where: { tokenHash: hashToken(previous) },
@@ -51,8 +51,8 @@ export default defineEventHandler(async event => {
 
     const session = await createHostedSession(services, identity)
 
-    setCookie(event, sessionCookie, session, {
-      ...cookieOptions,
+    setCookie(event, getSessionCookieName(), session, {
+      ...getCookieOptions(),
       maxAge: config.sessionLifetimeSeconds,
     })
 

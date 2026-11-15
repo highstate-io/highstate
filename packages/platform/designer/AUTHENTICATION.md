@@ -2,14 +2,15 @@
 
 Designer defaults to local authentication using the operating-system user.
 Hosted mode uses OAuth/OIDC login, PostgreSQL-backed opaque sessions, and human role grants.
-It requires HTTPS and never falls back to local authentication when a session or provider fails.
+It requires HTTPS outside explicitly enabled loopback development and never falls back to local authentication.
 
 ## Configuration
 
 | Environment variable | Value |
 | --- | --- |
 | `HIGHSTATE_AUTH_MODE` | `local` (default) or `hosted` |
-| `HIGHSTATE_PUBLIC_URL` | Required hosted HTTPS origin, for example `https://designer.example.com` |
+| `HIGHSTATE_AUTH_DEVELOPMENT_HTTP` | `true` permits loopback HTTP only with `NODE_ENV=development`; default `false` |
+| `HIGHSTATE_PUBLIC_URL` | Required hosted origin; HTTPS except in loopback HTTP development |
 | `HIGHSTATE_AUTH_PROVIDERS` | JSON array of `LoginProviderConfig` objects |
 | `HIGHSTATE_AUTH_PROVIDERS_FILE` | File containing that JSON array; mutually exclusive with `HIGHSTATE_AUTH_PROVIDERS` |
 | `HIGHSTATE_AUTH_ADMIN_USER_IDS` | JSON array of deterministic Highstate user IDs; default `[]` |
@@ -22,7 +23,7 @@ See [`../backend/src/database/POSTGRESQL.md`](../backend/src/database/POSTGRESQL
 
 The provider schema is exported by `@highstate/contract` as `loginProviderConfigSchema` and `LoginProviderConfig`.
 Designer validates configuration at startup and requires at least one provider with a unique ID.
-Provider endpoints must use HTTPS.
+Provider endpoints must use HTTPS except in loopback HTTP development.
 The public configuration endpoint exposes only provider IDs and titles.
 
 ```typescript
@@ -59,6 +60,18 @@ OIDC discovers metadata from `issuer`; its authorization and token endpoints can
 OAuth2 requires explicit authorization and token endpoints and fetches the authenticated profile from `userInfoUrl`.
 Register `${HIGHSTATE_PUBLIC_URL}/api/auth/callback` as the provider's redirect URI, without a double slash.
 OIDC automatically includes the `openid` scope.
+
+### Loopback HTTP development
+
+Set `HIGHSTATE_AUTH_DEVELOPMENT_HTTP=true` when running the Nuxt development server to test hosted login without TLS.
+Use an HTTP public URL and local provider URLs on `localhost`, `*.localhost`, or a loopback IP address.
+The flag is rejected outside `NODE_ENV=development`, including production builds.
+Discovered OIDC authorization, token, and signing-key endpoints follow the same URL restrictions.
+PostgreSQL, encryption, PKCE, signed ID tokens, session revocation, and origin checks remain required.
+
+This mode uses separate `highstate-dev-login` and `highstate-dev-session` cookies without `Secure`.
+They remain host-only, `HttpOnly`, and `SameSite=Lax`; production never reads them.
+Use only disposable local identities and data, since HTTP does not protect credentials in transit.
 
 Mappings are dot-separated own-property paths, such as `profile.id` or `groups`.
 Prototype traversal and executable expressions are rejected.
@@ -109,7 +122,7 @@ The Designer Account link opens this page.
 Login uses authorization code flow, S256 PKCE, browser-bound one-use state, and an OIDC nonce.
 The maintained `openid-client` library validates responses, issuer, audience, timestamps, and ID-token signatures.
 
-Sessions use host-only `Secure`, `HttpOnly`, `SameSite=Lax` cookies.
+Outside loopback HTTP development, sessions use host-only `Secure`, `HttpOnly`, `SameSite=Lax` cookies.
 The database stores token hashes rather than browser credentials.
 Logout durably revokes the session; idle terminal, event, and panel WebSockets check revocation every five seconds.
 Streaming subscriptions also revalidate credentials while idle and before emitting data.
