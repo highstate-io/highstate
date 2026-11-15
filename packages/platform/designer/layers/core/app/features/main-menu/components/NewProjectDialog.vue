@@ -239,7 +239,7 @@ watch(
               :disabled="!placementLoaded || projectsStore.loadingCreateProject"
             />
 
-            <VSwitch
+            <VCheckbox
               v-model="localOverlayEnabled"
               label="Use local library sources"
               :disabled="!supportsLocalLibrary || creating"
