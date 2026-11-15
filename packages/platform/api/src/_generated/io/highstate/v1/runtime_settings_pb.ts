@@ -113,7 +113,7 @@ export type ContainerRuntime = Message<"io.highstate.v1.ContainerRuntime"> & {
   updatedAt?: Timestamp | undefined;
 
   /**
-   * The optimistic concurrency revision of these settings.
+   * An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
    *
    * @generated from field: string revision = 8;
    */
@@ -430,7 +430,7 @@ export type PulumiStateBackend = Message<"io.highstate.v1.PulumiStateBackend"> &
   updatedAt?: Timestamp | undefined;
 
   /**
-   * The optimistic concurrency revision of these settings.
+   * An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
    *
    * @generated from field: string revision = 8;
    */
@@ -507,7 +507,7 @@ export type NpmRegistryCredential = Message<"io.highstate.v1.NpmRegistryCredenti
   credentialsConfigured: boolean;
 
   /**
-   * The optimistic concurrency revision of these settings.
+   * An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
    *
    * @generated from field: string revision = 7;
    */
@@ -577,7 +577,7 @@ export type ContainerRegistryCredential = Message<"io.highstate.v1.ContainerRegi
   credentialsConfigured: boolean;
 
   /**
-   * The optimistic concurrency revision of these settings.
+   * An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
    *
    * @generated from field: string revision = 6;
    */
@@ -783,7 +783,7 @@ export type PutPulumiStateBackendRequest = Message<"io.highstate.v1.PutPulumiSta
   backend?: PulumiStateBackend | undefined;
 
   /**
-   * Zero creates a setting; replacing an existing setting requires its current revision.
+   * Omit on creation; replacing existing settings requires the token read with the edited values.
    *
    * @generated from field: optional string expected_revision = 2;
    */
@@ -911,7 +911,7 @@ export type PutNpmRegistryCredentialRequest = Message<"io.highstate.v1.PutNpmReg
   credential?: NpmRegistryCredential | undefined;
 
   /**
-   * Zero creates a setting; replacing an existing setting requires its current revision.
+   * Omit on creation; replacing existing settings requires the token read with the edited values.
    *
    * @generated from field: optional string expected_revision = 2;
    */
@@ -1039,7 +1039,7 @@ export type PutContainerRegistryCredentialRequest = Message<"io.highstate.v1.Put
   credential?: ContainerRegistryCredential | undefined;
 
   /**
-   * Zero creates a setting; replacing an existing setting requires its current revision.
+   * Omit on creation; replacing existing settings requires the token read with the edited values.
    *
    * @generated from field: optional string expected_revision = 2;
    */

@@ -18,6 +18,11 @@ Identifier upgrades preserve native state locations and ownership without weaken
 Filesystem paths, environment variables, and operator procedures belong in public or source-adjacent
 documentation.
 
+Editable configuration may use opaque concurrency tokens to reject stale replacements within its owning
+database. These tokens neither order changes nor coordinate transactions across backend and project
+databases. Content identity and workload lease generations remain separate concerns. The
+[Prisma engineering guide](../engineering/prisma.md#optimistic-concurrency) defines the implementation policy.
+
 ## Unlock Boundary
 
 Unlocking is runtime activation, not a presentation state.

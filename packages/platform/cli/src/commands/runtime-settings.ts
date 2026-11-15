@@ -200,12 +200,8 @@ abstract class SettingsListCommand extends SettingsCommand {
     this.print(
       { [this.resource.collection]: values },
       humanTable(
-        ["ID", "TITLE", "REVISION"],
-        values.map(value => [
-          value.id,
-          (value.meta as JsonObject | undefined)?.title,
-          value.revision ?? "",
-        ]),
+        ["ID", "TITLE"],
+        values.map(value => [value.id, (value.meta as JsonObject | undefined)?.title]),
         "No settings",
       ),
     )

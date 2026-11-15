@@ -132,6 +132,13 @@ describe("registered runtime settings commands", () => {
     return await cli.run([...args, "--output", "json"])
   }
 
+  it("omits concurrency tokens from human-readable settings tables", async () => {
+    expect(await cli.run(["runtime", "list"])).toBe(0)
+    expect(stdout).toContain(runtime.id)
+    expect(stdout).not.toContain("REVISION")
+    expect(stdout).not.toContain(revision)
+  })
+
   const resources = [
     {
       path: "runtime",

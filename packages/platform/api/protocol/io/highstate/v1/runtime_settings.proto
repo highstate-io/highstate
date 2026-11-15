@@ -42,7 +42,7 @@ message ContainerRuntime {
   // The time when the runtime was last updated.
   google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The optimistic concurrency revision of these settings.
+  // An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
   string revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Reserved name identifying a system-managed runtime.
@@ -162,7 +162,7 @@ message PulumiStateBackend {
   // The time when the state backend was last updated.
   google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The optimistic concurrency revision of these settings.
+  // An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
   string revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Clears stored credentials; omission of credentials otherwise preserves them.
@@ -192,7 +192,7 @@ message NpmRegistryCredential {
   // Whether authentication material is already stored.
   bool credentials_configured = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The optimistic concurrency revision of these settings.
+  // An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
   string revision = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The time when these settings were created.
@@ -219,7 +219,7 @@ message ContainerRegistryCredential {
   // Whether authentication material is already stored.
   bool credentials_configured = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The optimistic concurrency revision of these settings.
+  // An opaque CUIDv2 concurrency token. Compare for equality only; do not display or sort it.
   string revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The time when these settings were created.
@@ -279,7 +279,7 @@ message PutPulumiStateBackendRequest {
   // The state backend to persist. An empty ID creates a state backend.
   PulumiStateBackend backend = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // Zero creates a setting; replacing an existing setting requires its current revision.
+  // Omit on creation; replacing existing settings requires the token read with the edited values.
   optional string expected_revision = 2;
 }
 
@@ -315,7 +315,7 @@ message PutNpmRegistryCredentialRequest {
   // The credential to persist. An empty ID creates a credential.
   NpmRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // Zero creates a setting; replacing an existing setting requires its current revision.
+  // Omit on creation; replacing existing settings requires the token read with the edited values.
   optional string expected_revision = 2;
 }
 
@@ -351,7 +351,7 @@ message PutContainerRegistryCredentialRequest {
   // The credential to persist. An empty ID creates a credential.
   ContainerRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // Zero creates a setting; replacing an existing setting requires its current revision.
+  // Omit on creation; replacing existing settings requires the token read with the edited values.
   optional string expected_revision = 2;
 }
 
