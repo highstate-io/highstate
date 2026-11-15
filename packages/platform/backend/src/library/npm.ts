@@ -10,6 +10,12 @@ import { execa } from "execa"
 import { z } from "zod"
 import { runArchiveCommand } from "./archive-process"
 import {
+  getNpmPackageInfo,
+  type packageSearchInputSchema,
+  registryScopes,
+  searchNpmPackages,
+} from "./npm-explorer"
+import {
   libraryCompatibilitySchema,
   libraryModelSchema,
   librarySourceManifestSchema,
@@ -71,6 +77,20 @@ export function verifyPackageIntegrity(bytes: Uint8Array, integrity: string): vo
 }
 
 export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
+  async listRegistries(projectId: string) {
+    return Object.entries(await registryScopes(this.registries, projectId)).map(
+      ([scope, access]) => ({ scope, registryUrl: access.registryUrl }),
+    )
+  }
+
+  async searchPackages(projectId: string, input: z.infer<typeof packageSearchInputSchema>) {
+    return await searchNpmPackages(this.registries, projectId, input)
+  }
+
+  async getPackageInfo(projectId: string, packageName: string) {
+    return await getNpmPackageInfo(this.registries, projectId, packageName)
+  }
+
   constructor(
     private readonly registries: ProjectNpmRegistryProvider,
     private readonly compatibility: LibraryCompatibility,

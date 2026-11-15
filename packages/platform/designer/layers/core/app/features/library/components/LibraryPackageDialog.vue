@@ -5,6 +5,7 @@ import {
   libraryPackageInputSchema,
   npmPackageNameSchema,
 } from "@highstate/backend/shared"
+import LibraryPackageExplorer from "./LibraryPackageExplorer.vue"
 
 const { projectId, item } = defineProps<{
   projectId: string
@@ -110,10 +111,16 @@ async function save() {
 </script>
 
 <template>
-  <VDialog v-model="visible" max-width="560" :persistent="store.busy">
+  <VDialog v-model="visible" :max-width="item ? 560 : 960" :persistent="store.busy" scrollable>
     <VCard :title="item ? 'Edit package' : 'Add package'">
       <VForm @submit.prevent="save">
         <VCardText>
+          <LibraryPackageExplorer
+            v-if="visible && !item"
+            v-model="packageName"
+            v-model:version="version"
+            :project-id="projectId"
+          />
           <VAlert v-if="store.error" type="error" density="compact" class="mb-4"
             >{{ store.error }}</VAlert
           >

@@ -13,6 +13,34 @@ import { projectProcedure, router } from "../trpc"
 const projectInput = { projectId: z.cuid2() }
 
 export const libraryRouter = router({
+  listRegistries: projectProcedure.query(async ({ ctx }) => {
+    return await ctx.projectLibraryService.listRegistries(ctx.requestContext)
+  }),
+
+  searchPackages: projectProcedure
+    .input(
+      z.object({
+        ...projectInput,
+        query: z.string().trim().min(1).max(200),
+        scope: z.string().max(214).default(""),
+        offset: z.number().int().min(0).max(1000).default(0),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.projectLibraryService.searchPackages(ctx.requestContext, {
+        query: input.query,
+        scope: input.scope,
+        offset: input.offset,
+      })
+    }),
+
+  getPackageInfo: projectProcedure
+    .input(libraryPackageNameInputSchema.extend(projectInput))
+    .query(async ({ ctx, input }) => {
+      return await ctx.projectLibraryService.getPackageInfo(ctx.requestContext, {
+        packageName: input.packageName,
+      })
+    }),
   get: projectProcedure.query(async ({ ctx }): Promise<ProjectLibraryCatalog> => {
     return await ctx.projectLibraryService.getCatalog(ctx.requestContext)
   }),

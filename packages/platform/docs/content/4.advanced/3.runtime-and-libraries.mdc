@@ -178,6 +178,15 @@ This setting initializes new projects and projects without a saved library selec
 existing selection on restart or unlock.
 Packages must be available from the npm registries configured for the project's runtime.
 
+In Designer, open **Settings → Project → Library → Add package** to search available registries,
+inspect package descriptions and README content, and choose a release tag or published exact version.
+Release tags select their current exact version; they are not stored as floating selections.
+The explorer uses npm's search API, supported by npmjs and compatible registries such as Verdaccio,
+Artifactory, and Nexus when their npm search endpoint is enabled.
+Registries without that endpoint, including GitHub Packages configurations, support exact-name lookup
+instead of full-text search. Private registry access uses the project's runtime credentials and scope
+mappings; selecting a registry for discovery does not change installation routing.
+
 ```bash
 highstate library package list
 highstate library package versions @acme/library

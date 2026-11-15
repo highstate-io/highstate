@@ -5,6 +5,12 @@ import type {
   SelectedLibraryPackage,
 } from "@highstate/contract"
 import type { LibraryModel } from "../shared"
+import type {
+  NpmPackageInfo,
+  NpmPackageSearch,
+  NpmRegistryOption,
+  packageSearchInputSchema,
+} from "./npm-explorer"
 import { z } from "zod"
 import {
   exactPackageVersionSchema,
@@ -85,6 +91,12 @@ export type ProjectLibraryDto = ProjectLibraryState & {
 }
 
 export interface ProjectLibraryResolver {
+  listRegistries(projectId: string): Promise<NpmRegistryOption[]>
+  searchPackages(
+    projectId: string,
+    input: z.infer<typeof packageSearchInputSchema>,
+  ): Promise<NpmPackageSearch>
+  getPackageInfo(projectId: string, packageName: string): Promise<NpmPackageInfo>
   resolve(projectId: string, selections: SelectedLibraryPackage[]): Promise<LibrarySnapshotContent>
   listVersions(projectId: string, packageName: string): Promise<string[]>
   getVersion(

@@ -14,6 +14,11 @@ Image materialization follows that commit, so an image failure does not roll bac
 Operations wait for the required image rather than falling back to an older desired environment.
 The project-library service, npm resolver, snapshot store, and snapshot-image manager own exact behavior.
 
+Package discovery uses only registry scope mappings available to the project's selected runtime.
+Registry credentials stay on the backend; browsing cannot override the registry used for installation.
+The explorer uses npm-compatible search where available and exact-name metadata lookup otherwise.
+Registry metadata and README content are untrusted display data, never executable HTML.
+
 Authored instance models identify component types without package or snapshot fields.
 The snapshot's ownership index resolves those types to package versions.
 Deployed and operation state retain exact snapshot membership, allowing historical code to remain available

@@ -189,6 +189,27 @@ export class ProjectLibraryService {
     return await this.propose(context.projectId, state, selections)
   }
 
+  async listRegistries(context: ProjectRequestContext) {
+    requireProjectPermission(context, "library.get")
+    return await this.resolver.listRegistries(context.projectId)
+  }
+
+  async searchPackages(
+    context: ProjectRequestContext,
+    input: Parameters<ProjectLibraryResolver["searchPackages"]>[1],
+  ) {
+    requireProjectPermission(context, "library.get")
+    return await this.resolver.searchPackages(context.projectId, input)
+  }
+
+  async getPackageInfo(context: ProjectRequestContext, input: { packageName: string }) {
+    requireProjectPermission(context, "library.get")
+    return await this.resolver.getPackageInfo(
+      context.projectId,
+      libraryPackageNameInputSchema.parse(input).packageName,
+    )
+  }
+
   async listPackageVersions(
     context: ProjectRequestContext,
     input: { packageName: string },
