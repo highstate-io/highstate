@@ -30,7 +30,10 @@ export type NpmPackageInfo = {
   versions: { version: string; publishedAt?: string; deprecated?: string }[]
 }
 
-export async function registryScopes(provider: ProjectNpmRegistryProvider, projectId: string) {
+export async function registryScopes(
+  provider: ProjectNpmRegistryProvider,
+  projectId: string,
+): Promise<Record<string, NpmRegistryAccess>> {
   return {
     "": await provider.forPackage(projectId, "highstate"),
     ...(await provider.scopes?.(projectId)),
@@ -66,7 +69,9 @@ export async function getNpmPackageInfo(
   const access = await provider.forPackage(projectId, packageName)
   const response = await request(access, encodeURIComponent(packageName))
 
-  if (!response.ok) {throw new Error(`Package lookup failed (${response.status})`)}
+  if (!response.ok) {
+    throw new Error(`Package lookup failed (${response.status})`)
+  }
 
   const document = z
     .object({
@@ -81,7 +86,9 @@ export async function getNpmPackageInfo(
     })
     .parse(await response.json())
 
-  if (document.name !== packageName) {throw new Error("Registry package identity mismatch")}
+  if (document.name !== packageName) {
+    throw new Error("Registry package identity mismatch")
+  }
 
   return {
     name: document.name,
@@ -110,31 +117,43 @@ export async function searchNpmPackages(
   const scopes = await registryScopes(provider, projectId)
   const access = scopes[scope]
 
-  if (!access) {throw new Error("Registry scope is not configured for this project's runtime")}
+  if (!access) {
+    throw new Error("Registry scope is not configured for this project's runtime")
+  }
 
   const params = new URLSearchParams({ text: query, size: "25", from: String(offset) })
   const response = await request(access, `-/v1/search?${params}`)
 
   if ([404, 405, 501].includes(response.status)) {
-    if (!npmPackageNameSchema.safeParse(query).success)
-      {return { packages: [], total: 0, searchable: false }}
+    if (!npmPackageNameSchema.safeParse(query).success) {
+      return { packages: [], total: 0, searchable: false }
+    }
 
     const routed = await provider.forPackage(projectId, query)
-    if (routed.registryUrl !== access.registryUrl)
-      {return { packages: [], total: 0, searchable: false }}
+    if (routed.registryUrl !== access.registryUrl) {
+      return { packages: [], total: 0, searchable: false }
+    }
 
     const exact = await request(access, encodeURIComponent(query))
-    if (exact.status === 404) {return { packages: [], total: 0, searchable: false }}
+    if (exact.status === 404) {
+      return { packages: [], total: 0, searchable: false }
+    }
 
-    if (!exact.ok) {throw new Error(`Package lookup failed (${exact.status})`)}
+    if (!exact.ok) {
+      throw new Error(`Package lookup failed (${exact.status})`)
+    }
 
     const document = summarySchema.parse(await exact.json())
-    if (document.name !== query) {throw new Error("Registry package identity mismatch")}
+    if (document.name !== query) {
+      throw new Error("Registry package identity mismatch")
+    }
 
     return { packages: [document], total: 1, searchable: false }
   }
 
-  if (!response.ok) {throw new Error(`Registry search failed (${response.status})`)}
+  if (!response.ok) {
+    throw new Error(`Registry search failed (${response.status})`)
+  }
 
   const result = z
     .object({
@@ -147,7 +166,9 @@ export async function searchNpmPackages(
 
   for (const item of result.objects) {
     const routed = await provider.forPackage(projectId, item.package.name)
-    if (routed.registryUrl === access.registryUrl) {packages.push(item.package)}
+    if (routed.registryUrl === access.registryUrl) {
+      packages.push(item.package)
+    }
   }
 
   return { packages, total: result.total, searchable: true }
