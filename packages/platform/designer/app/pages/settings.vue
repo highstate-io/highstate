@@ -303,7 +303,8 @@ watch(selectedProjectId, async projectId => {
             <RouterView v-if="currentRoute" :route="currentRoute">
               <template #default="{ Component }">
                 <AccessBoundary
-                  :requirements="currentRoute.name?.toString().endsWith('-details') ? routeAccess(String(currentRoute.name), currentRoute.params) : []"
+                  :panel="!!currentRoute.params.projectId"
+                  :requirements="currentRoute.params.projectId || currentRoute.name?.toString().endsWith('-details') ? routeAccess(String(currentRoute.name), currentRoute.params) : []"
                 >
                   <Suspense v-if="currentRoute.params.projectId">
                     <ProjectTabWrapper

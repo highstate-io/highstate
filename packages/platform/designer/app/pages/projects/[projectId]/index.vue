@@ -26,12 +26,14 @@ const { params } = defineProps<{
 </script>
 
 <template>
-  <ProjectContainer :project-id="params.projectId" can-unlock>
-    <AccessBoundary
-      panel
-      :requirements="[{ permission: 'instance-model.get', projectId: params.projectId, collection: true }]"
-    >
-      <ProjectCanvasPanel :key="params.projectId" :project-id="params.projectId" />
-    </AccessBoundary>
-  </ProjectContainer>
+  <div class="h-100">
+    <ProjectContainer :project-id="params.projectId" can-unlock>
+      <AccessBoundary
+        panel
+        :requirements="[{ permission: 'instance-model.get', projectId: params.projectId, collection: true }]"
+      >
+        <ProjectCanvasPanel :key="params.projectId" :project-id="params.projectId" />
+      </AccessBoundary>
+    </ProjectContainer>
+  </div>
 </template>
