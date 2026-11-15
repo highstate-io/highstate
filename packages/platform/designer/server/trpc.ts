@@ -5,11 +5,12 @@ import {
   resolveHumanBackendContext,
   resolveHumanProjectContext,
 } from "@highstate/backend"
-import { OperationNotFoundError, PermissionDeniedError } from "@highstate/backend/shared"
+import { OperationNotFoundError } from "@highstate/backend/shared"
 import { initTRPC, TRPCError } from "@trpc/server"
 import superjson from "superjson"
 import { z } from "zod"
 import { ensureLocalBackendUser } from "./authentication"
+import { accessRejection } from "./utils/access-errors"
 import { isHostedAuth } from "./utils/auth-config"
 import { initializeHostedProjectAuth } from "./utils/auth-initialization"
 import { authenticateHostedSession } from "./utils/hosted-session"
@@ -48,8 +49,9 @@ export const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
   const identity = await authenticate(ctx)
   const revalidate: (() => Promise<void>)[] = []
   const result = await next({ ctx: { ...ctx, identity, revalidate } })
-  if (!result.ok && result.error.cause instanceof PermissionDeniedError) {
-    throw new TRPCError({ code: "FORBIDDEN", cause: result.error.cause })
+  const rejection = !result.ok ? accessRejection(result.error.cause) : undefined
+  if (rejection) {
+    throw rejection
   }
 
   if (!result.ok && result.error.cause instanceof OperationNotFoundError) {

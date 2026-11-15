@@ -113,7 +113,7 @@ onUnmounted(() => unsubscribeAvailability?.())
 <template>
   <ProjectContainer :project-id="params.projectId" can-unlock>
     <div class="panel-frame-container">
-      <AccessNotice v-if="errorMessage" :message="errorMessage" title="Panel unavailable" />
+      <AccessNotice v-if="errorMessage" panel :message="errorMessage" title="Panel unavailable" />
       <VProgressCircular v-else-if="!launchUrl" indeterminate />
       <iframe v-else :src="launchUrl" class="panel-frame" title="Unit panel" />
     </div>

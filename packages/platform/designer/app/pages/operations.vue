@@ -25,17 +25,17 @@ const projectsStore = useProjectsStore()
 </script>
 
 <template>
-  <AccessBoundary
+  <ProjectContainer
     v-if="projectsStore.focusedProjectId"
-    :requirements="[{ permission: 'operation.list', projectId: projectsStore.focusedProjectId, collection: true }]"
+    :key="projectsStore.focusedProjectId"
+    :project-id="projectsStore.focusedProjectId"
   >
-    <ProjectContainer
-      v-if="projectsStore.focusedProjectId"
-      :key="projectsStore.focusedProjectId"
-      :project-id="projectsStore.focusedProjectId"
+    <AccessBoundary
+      panel
+      :requirements="[{ permission: 'operation.list', projectId: projectsStore.focusedProjectId, collection: true }]"
     >
       <OperationList :project-id="projectsStore.focusedProjectId" />
-    </ProjectContainer>
-  </AccessBoundary>
+    </AccessBoundary>
+  </ProjectContainer>
   <div v-else class="mt-4 text-center text-uppercase text-disabled">No active project</div>
 </template>

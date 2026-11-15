@@ -2,9 +2,14 @@
 import type { AccessRequirement } from "../utils/access-control"
 import { accessError } from "../utils/access-control"
 
-const { requirements = [], title } = defineProps<{
+const {
+  requirements = [],
+  title,
+  panel = false,
+} = defineProps<{
   requirements?: AccessRequirement[]
   title?: string
+  panel?: boolean
 }>()
 const access = useAccess()
 const status = computed(() => access.status(requirements))
@@ -27,8 +32,20 @@ watch(
 </script>
 
 <template>
-  <AccessNotice v-if="failure" :message="failure" :title="title" />
-  <div v-else-if="status.pending" role="status" class="pa-6">Checking access…</div>
-  <AccessNotice v-else-if="!status.allowed" :message="status.reason" :title="title" />
+  <AccessNotice v-if="failure" :message="failure" :title="title" :panel="panel" />
+  <div
+    v-else-if="status.pending"
+    role="status"
+    class="pa-6"
+    :class="{ 'd-flex align-center justify-center h-100': panel }"
+  >
+    Checking access…
+  </div>
+  <AccessNotice
+    v-else-if="!status.allowed"
+    :message="status.reason"
+    :title="title"
+    :panel="panel"
+  />
   <slot v-else />
 </template>

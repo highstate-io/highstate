@@ -28,6 +28,7 @@ const { state: staticRoute } = useAsyncState(() => loadRouteLocation(routeLocati
       </Suspense>
       <AccessBoundary
         v-else
+        panel
         :requirements="routeAccess(params.params.routeName, params.params.routeParams)"
       >
         <Suspense>

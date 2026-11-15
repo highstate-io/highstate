@@ -39,6 +39,9 @@ Client-side permission hints are advisory; business services must still authoriz
 Distinguish denied reads from empty collections, missing resources, loading, and transport failures.
 Show a persistent access explanation in the affected view instead of an empty state, spinner, console-only error,
 or toast alone.
+When a panel's main functionality is denied, replace its entire content with a centered access-denied state,
+similar to the locked-project state. Keep inline notices for restricted collections within otherwise usable settings views.
+Gate protected store initialization behind access checks; unlock-state views must not depend on model or worker reads.
 Do not duplicate the same restriction in both a local explanation and a corner notice. Use corner notices only
 when the restriction cannot be expressed by an inline explanation or a disabled control's tooltip.
 Handle authorization failures from queries, mutations, subscriptions, downloads, and embedded content.

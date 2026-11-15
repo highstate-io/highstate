@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ProjectCanvas } from "#layers/core/app/features/project"
+import ProjectCanvasPanel from "#layers/core/app/features/project/components/ProjectCanvasPanel.vue"
 import { ProjectContainer } from "#layers/core/app/features/shared"
 
 definePageMeta({
@@ -23,18 +23,15 @@ const { params } = defineProps<{
     projectId: string
   }
 }>()
-
-ensureProjectStoresCreated(params.projectId)
-useCanvasStore.ensureCreated("project", params.projectId)
-useProjectPanelStore.ensureCreated(params.projectId)
 </script>
 
 <template>
   <ProjectContainer :project-id="params.projectId" can-unlock>
     <AccessBoundary
+      panel
       :requirements="[{ permission: 'instance-model.get', projectId: params.projectId, collection: true }]"
     >
-      <ProjectCanvas />
+      <ProjectCanvasPanel :key="params.projectId" :project-id="params.projectId" />
     </AccessBoundary>
   </ProjectContainer>
 </template>

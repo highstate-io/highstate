@@ -92,6 +92,6 @@ const onLoad = async (loadedTerminal: Terminal) => {
 </script>
 
 <template>
-  <AccessNotice v-if="failure" :message="failure" title="Logs unavailable" />
+  <AccessNotice v-if="failure" panel :message="failure" title="Logs unavailable" />
   <GenericTerminal v-else @load="onLoad" />
 </template>

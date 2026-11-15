@@ -20,7 +20,7 @@ const unlockAccess = computed(() => ({
   target: { projectId },
 }))
 
-const stateStore = await useProjectStateStore.async(projectId)
+const stateStore = reactive(useProjectUnlockState(projectId))
 const workspaceStore = useWorkspaceStore()
 
 const passKeyInProgress = ref(false)
@@ -81,7 +81,8 @@ const tryPassKeyUnlock = async () => {
   }
 }
 
-const unlockState = await until(() => stateStore.unlockState).not.toBeUndefined()
+await until(() => !!stateStore.unlockState || !!stateStore.failure).toBe(true)
+const unlockState = stateStore.unlockState ?? { type: "locked" as const }
 
 if (
   unlockState.type === "locked" &&
@@ -152,7 +153,16 @@ const tryKeyringUnlock = async () => {
 </script>
 
 <template>
-  <Suspense v-if="stateStore.unlockState?.type === 'unlocked'">
+  <AccessNotice
+    v-if="stateStore.failure"
+    panel
+    :message="accessError(stateStore.failure)?.message ?? 'Project state could not be loaded.'"
+    title="Project unavailable"
+  />
+  <div v-else-if="!stateStore.unlockState" class="password-prompt-container" role="status">
+    Loading project…
+  </div>
+  <Suspense v-else-if="stateStore.unlockState?.type === 'unlocked'">
     <slot />
   </Suspense>
 

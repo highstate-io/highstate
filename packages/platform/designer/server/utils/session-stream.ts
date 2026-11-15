@@ -1,3 +1,5 @@
+import { accessRejection } from "./access-errors"
+
 /**
  * Checks durable credentials during idle streams as well as before each emitted payload.
  */
@@ -28,6 +30,8 @@ export async function* protectSessionStream<T>(
       await validate()
       yield item.value
     }
+  } catch (error) {
+    throw accessRejection(error) ?? error
   } finally {
     clearInterval(timer)
     void iterator.return?.()

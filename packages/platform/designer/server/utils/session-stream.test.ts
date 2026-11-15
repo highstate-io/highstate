@@ -1,7 +1,26 @@
+import { PermissionDeniedError, WorkerOwnershipError } from "@highstate/backend/shared"
 import { afterEach, expect, test, vi } from "vitest"
 import { protectSessionStream } from "./session-stream"
 
 afterEach(() => vi.useRealTimers())
+
+test.each([
+  new PermissionDeniedError("project.get"),
+  new WorkerOwnershipError("project", "worker"),
+])("reports access failures raised inside generators as forbidden", async error => {
+  async function* source() {
+    if (error) {
+      throw error
+    }
+
+    yield "sensitive"
+  }
+
+  await expect(protectSessionStream(source(), async () => {}).next()).rejects.toMatchObject({
+    code: "FORBIDDEN",
+    cause: error,
+  })
+})
 
 test("terminates an idle subscription after session revocation", async () => {
   vi.useFakeTimers()

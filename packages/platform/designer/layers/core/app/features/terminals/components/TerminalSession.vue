@@ -24,6 +24,6 @@ const onLoad = (terminal: Terminal) => {
 </script>
 
 <template>
-  <AccessNotice v-if="failure" :message="failure" title="Terminal unavailable" />
+  <AccessNotice v-if="failure" panel :message="failure" title="Terminal unavailable" />
   <FullScreenTerminal v-else @load="onLoad" />
 </template>
