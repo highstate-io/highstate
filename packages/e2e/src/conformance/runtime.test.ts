@@ -13,14 +13,17 @@ import { observeSession } from "../runtimes/session"
 
 const engine = runtimeEngine()
 const id = `hs-e2e-${randomUUID().slice(0, 12)}`
+
 const evidence = new Evidence(
   resolve(import.meta.dirname, "../../../..", ".artifacts/e2e", id, engine),
 )
+
 const results: { name: string; state: string | undefined }[] = []
 const owners: RuntimeOwnership[] = []
 let fixture: RuntimeFixture | undefined
 let adapter: ContainerRuntimeAdapter
 const image = "mirror.gcr.io/library/busybox:1.37"
+
 const owner = (name: string): RuntimeOwnership => {
   const value: RuntimeOwnership = {
     backendId: id,

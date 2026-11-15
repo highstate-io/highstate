@@ -82,6 +82,7 @@ export function createRuntimeSettingsService(
     async putContainerRuntime(request, context) {
       const auth = await authenticateBackend(services, context)
       const runtime = request.runtime
+
       if (!runtime?.spec) {
         throw new ConnectError("Runtime and spec are required", Code.InvalidArgument)
       }
@@ -202,6 +203,7 @@ export function createRuntimeSettingsService(
     async putPulumiStateBackend(request, context) {
       const auth = await authenticateBackend(services, context)
       const backend = request.backend
+
       if (!backend) {
         throw new ConnectError("Backend is required", Code.InvalidArgument)
       }
@@ -253,6 +255,7 @@ export function createRuntimeSettingsService(
     async putNpmRegistryCredential(request, context) {
       const auth = await authenticateBackend(services, context)
       const credential = request.credential
+
       if (!credential) {
         throw new ConnectError("Credential is required", Code.InvalidArgument)
       }
@@ -303,6 +306,7 @@ export function createRuntimeSettingsService(
     async putContainerRegistryCredential(request, context) {
       const auth = await authenticateBackend(services, context)
       const credential = request.credential
+
       if (!credential) {
         throw new ConnectError("Credential is required", Code.InvalidArgument)
       }

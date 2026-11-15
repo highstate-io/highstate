@@ -120,6 +120,7 @@ export class ProjectLibraryService {
     requireProjectPermission(context, "library.manage")
     const selection = libraryPackageInputSchema.parse(input)
     const state = await this.store.read(context.projectId)
+
     if (state.selectedPackages.some(pkg => pkg.packageName === selection.packageName)) {
       throw new Error(`Package "${selection.packageName}" is already selected`)
     }
@@ -134,6 +135,7 @@ export class ProjectLibraryService {
     requireProjectPermission(context, "library.manage")
     const parsed = updateLibraryPackageInputSchema.parse(input)
     const state = await this.store.read(context.projectId)
+
     if (!state.selectedPackages.some(pkg => pkg.packageName === parsed.packageName)) {
       throw new Error(`Package "${parsed.packageName}" is not selected`)
     }
@@ -161,6 +163,7 @@ export class ProjectLibraryService {
     requireProjectPermission(context, "library.manage")
     const { packageName } = libraryPackageNameInputSchema.parse(input)
     const state = await this.store.read(context.projectId)
+
     if (!state.selectedPackages.some(pkg => pkg.packageName === packageName)) {
       throw new Error(`Package "${packageName}" is not selected`)
     }
@@ -211,7 +214,6 @@ export class ProjectLibraryService {
   ): Promise<ProjectLibraryCatalog> {
     requireProjectPermission(context, "library.manage")
     const { enabled } = localOverlayInputSchema.parse(input)
-
     if (enabled && !(await this.catalogs.supportsLocalOverlay(context.projectId))) {
       throw new Error("Local overlays require the well-known local runtime")
     }
@@ -266,6 +268,7 @@ export class ProjectLibraryService {
 
       const owner = snapshot.sourceManifest.owners[`components:${unitType}`]
       const pkg = snapshot.packages.find(pkg => pkg.packageName === owner)
+
       if (!pkg?.id) {
         throw new Error(`Missing snapshot membership for "${unitType}"`)
       }

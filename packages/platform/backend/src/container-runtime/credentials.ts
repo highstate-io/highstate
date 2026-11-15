@@ -54,11 +54,13 @@ export class RuntimeCredentialSigner {
 
     const signature = Buffer.from(parts[1]!, "base64url")
     const expected = createHmac("sha256", this.key).update(parts[0]!).digest()
+
     if (signature.length !== expected.length || !timingSafeEqual(signature, expected)) {
       throw new Error("Invalid runtime signature")
     }
 
     const value = JSON.parse(Buffer.from(parts[0]!, "base64url").toString()) as RuntimeCredential
+
     if (
       value.audience !== "highstate-runtime-v1" ||
       value.backendId !== this.backendId ||

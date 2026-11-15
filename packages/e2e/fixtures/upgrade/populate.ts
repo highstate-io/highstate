@@ -3,26 +3,32 @@ import { join } from "node:path"
 
 // import the installed published release, never this checkout's workspace backend
 const { createServices, loadConfig } = await import(process.env.HIGHSTATE_E2E_PREVIOUS_BACKEND!)
+
 const { backendPermissionGroups, projectPermissionGroups } = await import(
   process.env.HIGHSTATE_E2E_PREVIOUS_SHARED!
 )
+
 const services = await createServices({ config: await loadConfig(process.env, false) })
+
 const permissions = (groups: { permissions: { name: string }[] }[]) =>
   new Map(
     groups.flatMap(group =>
       group.permissions.map(permission => [permission.name, [{ restrictions: [] }]]),
     ),
   )
+
 const context = {
   realm: "backend",
   subject: { type: "user", userId: "upgrade-fixture", groupIds: [] },
   permissions: permissions(backendPermissionGroups),
 }
+
 const credential = await services.backendApiKeySettingsService.create(context, {
   meta: { title: "Preserved release credential" },
   restrictionRules: [],
   expiresAt: null,
 })
+
 const project = await services.projectService.createProject(
   context,
   {
@@ -40,12 +46,14 @@ const project = await services.projectService.createProject(
     encryptedIdentity: "unused-unencrypted",
   },
 )
+
 const projectContext = {
   realm: "project",
   projectId: project.id,
   subject: { type: "service-account", serviceAccountId: "upgrade-fixture" },
   permissions: permissions(projectPermissionGroups),
 }
+
 const instance = {
   id: "e2e.marker.v1:legacy",
   type: "e2e.marker.v1",
@@ -55,13 +63,16 @@ const instance = {
   inputs: {},
   outputs: {},
 }
+
 await services.projectService.createNodes(projectContext, [instance], [])
 const database = await services.database.forProject(project.id)
 const state = await database.instanceState.findUniqueOrThrow({ where: { instanceId: instance.id } })
 await services.secretService.getPulumiPassword(project.id)
+
 await writeFile(join(process.env.HIGHSTATE_CODEBASE_PATH!, "credential"), credential.token, {
   mode: 0o600,
 })
+
 await writeFile(
   join(process.env.HIGHSTATE_CODEBASE_PATH!, "previous.json"),
   JSON.stringify({
@@ -71,4 +82,5 @@ await writeFile(
     databaseVersion: project.databaseVersion,
   }),
 )
+
 process.exit(0)

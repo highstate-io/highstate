@@ -10,6 +10,7 @@ const versions = ref<string[]>([])
 const listing = ref(false)
 const listError = ref<string>()
 let request = 0
+
 watch(packageName, () => {
   request++
   versions.value = []
@@ -17,6 +18,7 @@ watch(packageName, () => {
   listError.value = undefined
   listing.value = false
 })
+
 const loadVersions = async () => {
   const current = ++request
   listing.value = true
@@ -38,23 +40,28 @@ const loadVersions = async () => {
     }
   }
 }
+
 const addPackage = async () => {
   if (await store.addPackage(packageName.value.trim(), version.value.trim())) {
     packageName.value = ""
   }
 }
+
 const imageSchema = z.object({
   status: z.string(),
   error: z.string().nullish(),
   progress: z.object({ message: z.string().optional(), progress: z.number().optional() }).nullish(),
 })
+
 const image = computed(() => {
   const result = imageSchema.safeParse(store.projectLibrary?.image)
   return result.success ? result.data : undefined
 })
+
 const imagePending = computed(
   () => image.value && !["ready", "failed"].includes(image.value.status),
 )
+
 const imageFailed = computed(
   () =>
     image.value?.status === "failed" ||

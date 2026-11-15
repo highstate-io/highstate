@@ -11,6 +11,7 @@ const { projectId } = defineProps<{
 const libraryStore = await useProjectLibraryStore.async(projectId)
 await until(() => libraryStore.initialized).toBe(true)
 const showLibrary = ref(false)
+
 const packageOptions = computed(() =>
   [
     ...new Set(

@@ -6,6 +6,7 @@ describe("runtime JSON values", () => {
   it("preserves false, true, and nested values across actual protobuf encoding", async () => {
     const root = new protobuf.Root()
     const schema = protobuf.common.get("google/protobuf/struct.proto")
+
     if (!schema?.nested) {
       throw new Error("Protobuf Value schema not found")
     }

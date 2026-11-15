@@ -99,6 +99,7 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
     const id = await database.$transaction(async tx => {
       // fence the actual selection and desired snapshot rather than inventing a generic revision
       const state = await tx.projectLibraryState.findUniqueOrThrow({ where: { id: "default" } })
+
       if (
         canonicalJson(state.selectedPackages) !== canonicalJson(previous.selectedPackages) ||
         state.desiredSnapshotId !== previous.desiredSnapshotId
@@ -108,6 +109,7 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
 
       const cached = await tx.librarySnapshot.findUnique({ where: { hash } })
       let snapshotId = cached?.id
+
       if (!snapshotId) {
         const versions: string[] = []
 

@@ -39,6 +39,7 @@ export interface RuntimeSettingsPreflightProvider {
 }
 
 type Output = RuntimeSettingsOutputs[RuntimeSettingsKind]
+
 const runtimeInclude = {
   npmRegistryCredentials: { select: { id: true } },
   containerRegistryCredentials: { select: { id: true } },

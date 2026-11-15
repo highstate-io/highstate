@@ -5,7 +5,9 @@ import { queryRuntimeSettings } from "./runtime-settings-table"
 const [backupId, localId, remoteId] = ["backup", "local", "remote"]
   .map(name => cuidv2d("runtime-table-test", name))
   .sort()
+
 const timestamps = { createdAt: new Date(), updatedAt: new Date(), systemName: null }
+
 const items = [
   {
     id: remoteId,

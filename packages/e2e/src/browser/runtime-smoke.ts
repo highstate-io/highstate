@@ -1,8 +1,8 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { expect as baseExpect, chromium, type Request } from "@playwright/test"
-import { designerCall } from "../harness/designer-client"
 import { root, startDesigner } from "../harness/designer"
+import { designerCall } from "../harness/designer-client"
 
 const expect = baseExpect.configure({ timeout: 15_000 })
 
@@ -11,10 +11,12 @@ const evidence = join(
   ".artifacts/e2e",
   `runtime-browser-${new Date().toISOString().replaceAll(/[:.]/g, "-")}`,
 )
+
 await mkdir(evidence, { recursive: true })
 const steps: { name: string; status: string; durationMs: number }[] = []
 let activeStep = "production startup"
 let started = Date.now()
+
 const step = async (name: string, action: () => Promise<void>, required = true) => {
   activeStep = name
   started = Date.now()
@@ -41,6 +43,7 @@ const faults: string[] = []
 const pendingRequests = new Set<Request>()
 const navigationEvents: string[] = []
 let failedRequests: { type: string; host: string; path: string }[] = []
+
 try {
   designer = await startDesigner()
   browser = await chromium.launch({ headless: true })

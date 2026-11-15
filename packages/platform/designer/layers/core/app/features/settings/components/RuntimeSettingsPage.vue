@@ -33,12 +33,14 @@ const search = ref("")
 const page = ref(1)
 const itemsPerPage = ref(20)
 const sortBy = ref<CollectionQuery["sortBy"]>([{ key: "meta.title", order: "asc" }])
+
 const headers = [
   baseHeaders.name,
   baseHeaders.id,
   { title: "Revision", key: "revision" },
   baseHeaders.actions,
 ]
+
 const items = computed(
   () =>
     ({
@@ -48,6 +50,7 @@ const items = computed(
       "container-registry-credential": store.ociCredentials,
     })[kind.value],
 )
+
 const data = computed(() =>
   queryRuntimeSettings(items.value, search.value, sortBy.value, page.value, itemsPerPage.value),
 )
@@ -55,6 +58,7 @@ const data = computed(() =>
 watch([kind, search, itemsPerPage], () => {
   page.value = 1
 })
+
 watch(
   () => data.value.total,
   total => {

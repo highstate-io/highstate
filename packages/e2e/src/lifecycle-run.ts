@@ -11,6 +11,7 @@ import { upgrade } from "./scenarios/upgrade"
 
 const environment = await createEnvironment()
 let failure: unknown
+
 try {
   const registry = await startRegistry({ publicHost: environment.host })
 
@@ -87,6 +88,7 @@ try {
     failure = new AggregateError([failure, error].filter(Boolean), "E2E or cleanup failed")
   }
 }
+
 if (failure) {
   throw failure
 }

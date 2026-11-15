@@ -534,6 +534,7 @@ export class RuntimeCoordinator {
   async receive(connection: AgentConnection, event: AgentEvent): Promise<void> {
     const key = connection.scope.workloadId
     const count = this.eventCounts.get(key) ?? 0
+
     if (count >= 32) {
       throw new Error("Runtime incoming event queue is full")
     }
@@ -684,6 +685,7 @@ export class RuntimeCoordinator {
     }
 
     const handler = this.handlers.get(workload.kind)
+
     if (
       !handler &&
       !["completed", "evaluationResult", "error", "cancelResponse"].includes(event.type)
@@ -1040,6 +1042,7 @@ export class RuntimeCoordinator {
 
     for (const resource of native) {
       const labels = resource.labels
+
       if (
         !["backend", "project", "runtime", "workload", "kind", "generation"].every(
           key => labels[`highstate.io/${key}`],

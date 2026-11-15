@@ -363,6 +363,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       // TODO: resolve the path
       const relativePath = unit.source.path ? `./dist/${unit.source.path}` : `./dist`
       const sourceHash = manifest?.sourceHashes?.[`${relativePath}/index.js`]
+
       if (sourceHash === undefined) {
         this.resolvedUnitSources.delete(unit.type)
         this.logger.warn(`source hash not found for unit: "%s"`, unit.type)

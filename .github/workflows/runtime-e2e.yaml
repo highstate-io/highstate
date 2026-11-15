@@ -33,6 +33,7 @@ jobs:
               - 'packages/platform/**'
               - 'scripts/**'
               - '.github/workflows/e2e.yaml'
+              - '.github/workflows/runtime-e2e.yaml'
               - 'package.json'
               - 'bun.lock'
               - 'nx.json'

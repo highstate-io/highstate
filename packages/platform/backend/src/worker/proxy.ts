@@ -42,12 +42,14 @@ export function createWorkerProxyHandler<TOutput>(
     const scope = signer.verify(token, "proxy")
     const iterator = requests[Symbol.asyncIterator]()
     const first = await iterator.next()
+
     if (first.done || first.value.event.case !== "ready") {
       throw new Error("Worker proxy readiness must be first")
     }
 
     const ready = first.value.event.value
     const connection = coordinator.connections.current(scope.workloadId)
+
     if (
       !connection ||
       ready.workloadId !== scope.workloadId ||
@@ -164,6 +166,7 @@ export function createWorkerProxyHandler<TOutput>(
           }
 
           const head = next.value.event.value
+
           if (
             !Number.isInteger(head.statusCode) ||
             head.statusCode < 200 ||

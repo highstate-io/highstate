@@ -52,6 +52,7 @@ export class ImageRegistry {
 
     const url = `${this.config.allowHttp ? "http" : "https"}://${image.host}/v2/${image.repository}/${path}`
     let response = await fetch(url, { headers, signal })
+
     if (response.status === 401) {
       const challenge = response.headers.get("www-authenticate") ?? ""
       if (!challenge.startsWith("Bearer ")) {
@@ -96,6 +97,7 @@ export class ImageRegistry {
     const response = await this.request(reference, `manifests/${image.selector}`, signal)
     const bytes = Buffer.from(await response.arrayBuffer())
     const digest = `sha256:${createHash("sha256").update(bytes).digest("hex")}`
+
     if (image.selector.startsWith("sha256:") && digest !== image.selector) {
       throw new Error("Registry manifest digest mismatch")
     }
@@ -115,6 +117,7 @@ export class ImageRegistry {
       )
 
       const configBytes = Buffer.from(await configResponse.arrayBuffer())
+
       if (
         `sha256:${createHash("sha256").update(configBytes).digest("hex")}` !==
         manifest.config.digest

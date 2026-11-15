@@ -76,6 +76,7 @@ const imageSchema = z.object({
   updatedAt: z.date(),
   completedAt: z.date().nullable().optional(),
 })
+
 const phases = {
   queued: LibrarySnapshotImagePhase.QUEUED,
   installing: LibrarySnapshotImagePhase.INSTALLING,

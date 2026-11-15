@@ -32,6 +32,7 @@ export async function loadRuntimeListenerOptions(): Promise<RuntimeListenerOptio
   const keyPath = process.env.HIGHSTATE_RUNTIME_TLS_KEY_PATH
   const certPath = process.env.HIGHSTATE_RUNTIME_TLS_CERT_PATH
   const caPath = process.env.HIGHSTATE_RUNTIME_TLS_CA_PATH
+
   if (portValue === undefined && !keyPath && !certPath && !caPath) {
     return undefined
   }

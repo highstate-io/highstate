@@ -2,8 +2,8 @@ import { join } from "node:path"
 import { ComponentKind, OperationType } from "@highstate/api/v1"
 import { startBackend } from "./harness/backend"
 import { createClients } from "./harness/clients"
-import { startEffects } from "./harness/effects"
 import { startDesigner } from "./harness/designer"
+import { startEffects } from "./harness/effects"
 import { cleanupProjectResources, createEnvironment } from "./harness/environment"
 import { inspectDesigner } from "./harness/inspection"
 import { createProject } from "./harness/project"
@@ -11,6 +11,7 @@ import { startRegistry } from "./harness/registry"
 import { argumentsFor, runOperation } from "./scenarios/lifecycle"
 
 const environment = await createEnvironment()
+
 try {
   const registry = await startRegistry({ publicHost: environment.host })
   environment.cleanup.add(async () => await registry.cleanup())
@@ -131,6 +132,7 @@ try {
       HIGHSTATE_PUBLIC_API_URL: `http://${environment.host}:${proxy.port}`,
     },
   })
+
   designerUrl = designer.url
   environment.cleanup.add(async () => await designer.stop())
 

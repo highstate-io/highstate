@@ -51,6 +51,7 @@ export class RuntimeWorkerBackend implements WorkerBackend {
 
     const worker = this.running.get(workload.id)
     const identity = event.payload as { workerVersionId?: string; workerInstanceId?: string }
+
     if (
       !worker ||
       workload.ownerId !== worker.workerVersionId ||

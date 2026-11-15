@@ -49,6 +49,7 @@ export class RuntimeEvaluationBackend {
       }
 
       const result = response.result as EvaluationRequest & { result: ProjectEvaluationResult }
+
       if (
         result.librarySnapshotId !== request.librarySnapshotId ||
         result.modelRevision !== request.modelRevision ||

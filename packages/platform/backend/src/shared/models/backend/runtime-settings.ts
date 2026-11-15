@@ -9,16 +9,19 @@ export const runtimeSettingsKindSchema = z.enum([
 export type RuntimeSettingsKind = z.infer<typeof runtimeSettingsKindSchema>
 
 const secretSchema = z.string().min(1).nullable().optional()
+
 const urlSchema = z
   .url()
   .refine(
     value => !new URL(value).username && !new URL(value).password,
     "URL must not contain credentials",
   )
+
 const httpUrlSchema = urlSchema.refine(
   value => ["http:", "https:"].includes(new URL(value).protocol),
   "Expected HTTP or HTTPS URL",
 )
+
 const runtimeCommon = {
   runtimeApiUrl: urlSchema.refine(
     value => new URL(value).protocol === "https:",
@@ -27,6 +30,7 @@ const runtimeCommon = {
   runtimeApiCaBundle: z.string().min(1).optional(),
   imageRepository: z.string().min(1).optional(),
 }
+
 export const containerRuntimeInputSpecSchema = z
   .discriminatedUnion("type", [
     z
@@ -72,6 +76,7 @@ const baseInput = {
   meta: commonObjectMetaSchema.extend({ title: z.string().trim().min(1) }),
   revision: z.number().int().nonnegative(),
 }
+
 export const containerRuntimeInputSchema = z
   .object({
     ...baseInput,
@@ -130,6 +135,7 @@ const outputBase = {
   createdAt: z.date(),
   updatedAt: z.date(),
 }
+
 export const containerRuntimeOutputSchema = z.object({
   ...outputBase,
   systemName: z.string().nullable(),

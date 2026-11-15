@@ -27,13 +27,13 @@ export class ReviewedPlanSigner {
 
   verify(token: string): ReviewedPlan {
     const [payload, signature, extra] = token.split(".")
-
     if (!payload || !signature || extra) {
       throw new Error("Invalid reviewed plan token")
     }
 
     const actual = Buffer.from(signature, "base64url")
     const expected = this.mac(payload)
+
     if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
       throw new Error("Invalid reviewed plan signature")
     }

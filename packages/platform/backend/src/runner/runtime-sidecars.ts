@@ -40,6 +40,7 @@ export class RuntimeSidecarManager {
     this.operations.set(key, entries)
     const declaration = stableJsonStringify(input)
     const existing = entries.get(input.dnsName)
+
     if (existing) {
       if (existing.declaration !== declaration) {
         throw new Error(`Sidecar "${input.dnsName}" already exists with different configuration`)

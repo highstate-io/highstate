@@ -13,6 +13,7 @@ export function immutableBase(reference: string): void {
 export function snapshotBuildFiles(request: ImageBuildRequest): RuntimeFile[] {
   immutableBase(request.baseImage)
   const files = request.files
+
   if (
     !files.some(file => file.path === "bun.lock") ||
     !files.some(file => file.path === "package.json")

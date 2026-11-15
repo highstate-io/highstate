@@ -28,11 +28,13 @@ const pending = new Map<
   string,
   { resolve(message: RuntimeMessage): void; reject(error: unknown): void }
 >()
+
 const send = async (message: RuntimeMessage) => {
   await new Promise<void>((resolve, reject) =>
     process.send!(message, error => (error ? reject(error) : resolve())),
   )
 }
+
 async function request(message: RuntimeMessage): Promise<RuntimeMessage> {
   const requestId = createId()
 
@@ -49,6 +51,7 @@ async function request(message: RuntimeMessage): Promise<RuntimeMessage> {
   }
 }
 let started = false
+
 process.on("message", (message: RuntimeMessage) => {
   if (message.requestId) {
     const entry = pending.get(String(message.requestId))

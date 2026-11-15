@@ -13,7 +13,9 @@ const owner: RuntimeOwnership = {
   generation: 1,
   kind: "terminal",
 }
+
 const servers: Server[] = []
+
 afterEach(async () => {
   for (const server of servers.splice(0)) {
     await new Promise<void>(resolve => server.close(() => resolve()))

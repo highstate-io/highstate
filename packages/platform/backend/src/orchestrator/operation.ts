@@ -869,6 +869,7 @@ export class RuntimeOperation {
         !this.operation.options.forceUpdateChildren
       ) {
         const expected = await this.context.getUpToDateInputHashOutput(instance)
+
         if (
           expected.selfHash === state.selfHash &&
           expected.dependencyOutputHash === state.dependencyOutputHash
@@ -1246,6 +1247,7 @@ export class RuntimeOperation {
 
     const getInstanceContext = (instanceId: string) => {
       const resolvedOutput = this.context.inputResolver.outputs.get(`instance:${instanceId}`)
+
       if (
         this.workset.currentPhase !== "destroy" &&
         this.workset.currentPhase !== "refresh" &&
@@ -1262,6 +1264,7 @@ export class RuntimeOperation {
       try {
         const instance = this.getPhaseInstance(instanceId as InstanceId)
         const component = library.components[instance.type]
+
         if (!component) {
           return undefined
         }
@@ -1388,6 +1391,7 @@ export class RuntimeOperation {
     )
 
     const provenance = this.context.getExecutionProvenance(instance.id, this.workset.currentPhase)
+
     if (
       provenance &&
       (!update.provenance ||
@@ -1582,6 +1586,7 @@ export class RuntimeOperation {
 
     const logger = this.logger.child({ instanceId }, { msgPrefix: `[${instanceId}] ` })
     const abortControllerPair = this.workset.instanceAbortControllers.get(instanceId)
+
     if (!abortControllerPair) {
       throw new Error(`Abort controllers for instance "${instanceId}" are not initialized`)
     }
@@ -1741,6 +1746,7 @@ export class RuntimeOperation {
 
         const outputKey = input.input.output
         const outputArtifactIds = dependencyState.exportedArtifactIds[outputKey]
+
         if (!outputArtifactIds) {
           continue
         }

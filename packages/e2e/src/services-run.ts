@@ -1,8 +1,8 @@
 import { writeFile } from "node:fs/promises"
 import { join } from "node:path"
-import { startDesigner } from "./harness/designer"
 import { startBackend } from "./harness/backend"
 import { createClients } from "./harness/clients"
+import { startDesigner } from "./harness/designer"
 import { startEffects } from "./harness/effects"
 import { cleanupProjectResources, createEnvironment } from "./harness/environment"
 import { command } from "./harness/process"
@@ -13,6 +13,7 @@ import { workloadServices } from "./scenarios/workload-services"
 const root = Bun.fileURLToPath(new URL("../../..", import.meta.url))
 const environment = await createEnvironment()
 let failure: unknown
+
 try {
   const registry = await startRegistry({ publicHost: environment.host })
   environment.cleanup.add(async () => await registry.cleanup())
@@ -144,6 +145,7 @@ try {
     )
   }
 }
+
 if (failure) {
   throw failure
 }

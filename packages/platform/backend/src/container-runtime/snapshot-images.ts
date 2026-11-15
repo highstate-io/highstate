@@ -141,6 +141,7 @@ export class SnapshotImageManager implements SnapshotImageService {
 
     const key = `${projectId}/${snapshotId}/${project.containerRuntimeId}`
     let pending = this.builds.get(key)
+
     if (!pending) {
       pending = this.materialize(projectId, snapshotId, project.containerRuntimeId, false)
       this.builds.set(key, pending)
@@ -156,6 +157,7 @@ export class SnapshotImageManager implements SnapshotImageService {
 
     // cancelling one operation's barrier must not cancel a shared snapshot build
     const image = await abortable(pending, signal)
+
     if (
       (await this.database.backend.project.findUniqueOrThrow({ where: { id: projectId } }))
         .containerRuntimeId !== image.runtimeId

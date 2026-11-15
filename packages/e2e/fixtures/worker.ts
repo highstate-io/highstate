@@ -26,11 +26,13 @@ const server = Bun.serve({
     })
   },
 })
+
 const worker = await Worker.create({
   workerMeta: { title: "Fixture worker" },
   serviceAccountMeta: { title: "Fixture worker account" },
   paramsSchema: z.object({}),
 })
+
 worker.onUnitRegistration(async stateId => {
   await worker.setUnitPanels(stateId, [
     {
@@ -40,4 +42,5 @@ worker.onUnitRegistration(async stateId => {
     },
   ])
 })
+
 await worker.start()

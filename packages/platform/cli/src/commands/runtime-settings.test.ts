@@ -31,6 +31,7 @@ const runtime = create(ContainerRuntimeSchema, {
     },
   },
 })
+
 const backend = create(PulumiStateBackendSchema, {
   id: "backend-1",
   revision: 7n,
@@ -39,6 +40,7 @@ const backend = create(PulumiStateBackendSchema, {
   credentials: Buffer.from("private-token"),
   credentialsConfigured: true,
 })
+
 const npm = create(NpmRegistryCredentialSchema, {
   id: "npm-1",
   revision: 7n,
@@ -47,6 +49,7 @@ const npm = create(NpmRegistryCredentialSchema, {
   registryUrl: "https://registry.npmjs.org",
   credentials: Buffer.from("private-token"),
 })
+
 const container = create(ContainerRegistryCredentialSchema, {
   id: "container-1",
   revision: 7n,

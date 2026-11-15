@@ -642,6 +642,7 @@ export class OperationContext {
     ) {
       const evaluations = states.filter(state => state.evaluationState)
       const evaluatedIds = new Set(evaluations.map(state => state.instanceId))
+
       if (
         evaluations.some(
           ({ evaluationState }) =>
@@ -678,6 +679,7 @@ export class OperationContext {
 
           const type = key.slice("components:".length)
           const pkg = snapshot.packages.find(pkg => pkg.packageName === packageName)
+
           if (!pkg?.id) {
             throw new Error(`Missing snapshot membership for "${type}"`)
           }
@@ -695,6 +697,7 @@ export class OperationContext {
 
           for (const state of states) {
             const stateModel = state.model ?? state.lastOperationState?.model
+
             if (
               state.librarySnapshotId === snapshotId &&
               (stateModel?.type ?? parseInstanceId(state.instanceId)[0]) === type

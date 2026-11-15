@@ -120,6 +120,7 @@ export function createRuntimeService(
         }
 
         const hello = first.value.event.value
+
         if (
           !kinds[hello.workloadKind] ||
           hello.leaseGeneration > BigInt(Number.MAX_SAFE_INTEGER) ||
@@ -406,6 +407,7 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
 
   if (envelope.heartbeat) {
     const sequence = Number(data("heartbeat").sequence ?? 0)
+
     if (
       ids.actionId !== undefined ||
       ids.requestId !== undefined ||
@@ -454,6 +456,7 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
   if (envelope.compositeEvaluationResult) {
     const result = data("compositeEvaluationResult")
     const decoded = fromJson(ConnectRequestSchema, envelope as JsonValue).event
+
     if (decoded.case !== "compositeEvaluationResult") {
       throw new Error("Invalid evaluation result")
     }

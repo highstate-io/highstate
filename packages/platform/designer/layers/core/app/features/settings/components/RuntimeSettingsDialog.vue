@@ -14,6 +14,7 @@ const props = defineProps<{
   kind: RuntimeSettingsKind
   item: RuntimeSettingsOutputs[RuntimeSettingsKind] | null
 }>()
+
 const visible = defineModel<boolean>({ required: true })
 const emit = defineEmits<{ changed: [] }>()
 const store = useRuntimeSettingsStore()
@@ -22,6 +23,7 @@ const busy = ref(false)
 const conflict = ref(false)
 const error = ref("")
 const checks = ref<{ name: string; ok: boolean; detail?: string }[]>([])
+
 const draft = reactive({
   id: "",
   title: "",
@@ -43,6 +45,7 @@ const draft = reactive({
   npmRegistryCredentialIds: [] as string[],
   containerRegistryCredentialIds: [] as string[],
 })
+
 const secrets = reactive({
   caBundle: "",
   clientCertificate: "",
@@ -52,6 +55,7 @@ const secrets = reactive({
   token: "",
   password: "",
 })
+
 const clear = reactive({
   caBundle: false,
   clientCertificate: false,
@@ -59,20 +63,24 @@ const clear = reactive({
   kubeconfig: false,
   credentials: false,
 })
+
 const runtime = computed(() =>
   selected.value && "npmRegistryCredentialIds" in selected.value ? selected.value : null,
 )
+
 const state = computed(() =>
   selected.value && "spec" in selected.value && "url" in selected.value.spec
     ? selected.value.spec
     : null,
 )
+
 const credentialsConfigured = computed(
   () =>
     selected.value &&
     "credentialsConfigured" in selected.value &&
     selected.value.credentialsConfigured,
 )
+
 const settingTitle = computed(
   () =>
     ({

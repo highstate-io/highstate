@@ -4,11 +4,13 @@ const { projectId, packageName, version } = defineProps<{
   packageName: string
   version: string
 }>()
+
 const store = (await useProjectLibraryStore.async(projectId)).library
 const versions = ref<string[]>([])
 const selectedVersion = ref(version)
 const loading = ref(false)
 const error = ref<string>()
+
 watch(
   () => version,
   value => {

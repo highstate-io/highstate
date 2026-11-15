@@ -112,6 +112,7 @@ export class OperationManager {
       })
 
       const evaluatedIds = new Set(evaluations.map(state => state.state.instanceId))
+
       if (
         evaluations.some(
           state =>
@@ -219,6 +220,7 @@ export class OperationManager {
     }
 
     const catalog = await this.projectLibrary?.catalog(project.id)
+
     if (
       catalog &&
       (catalog.snapshotId !== current.librarySnapshotId ||

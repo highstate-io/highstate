@@ -85,6 +85,7 @@ export async function openDockerBuildSession(
     ) => {
       const name = String(call.request.ID ?? call.request.id)
       const file = request.secrets?.find(file => file.path === name)
+
       if (!file) {
         callback({ code: status.NOT_FOUND, message: "Build secret not found" })
         return

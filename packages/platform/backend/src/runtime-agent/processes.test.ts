@@ -4,6 +4,7 @@ import { ActionProcesses } from "./processes"
 
 const fixture = fileURLToPath(new URL("./processes.fixture.ts", import.meta.url))
 const managers: ActionProcesses[] = []
+
 afterEach(() => {
   for (const manager of managers.splice(0)) {
     manager.stop()

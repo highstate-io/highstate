@@ -12,9 +12,11 @@ const busy = ref(false)
 const error = ref("")
 const loaded = computed(() => !settings.loading && !settings.error)
 const overlay = ref<"preserve" | "enable" | "disable">("preserve")
+
 const selectedRuntime = computed(() =>
   settings.runtimes.find(item => item.id === containerRuntimeId.value),
 )
+
 const supportsOverlay = computed(
   () =>
     selectedRuntime.value?.systemName === localContainerRuntime.systemName &&

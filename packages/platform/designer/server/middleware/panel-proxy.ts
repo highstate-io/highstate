@@ -53,6 +53,7 @@ export default defineEventHandler(async event => {
   let session = sessionId ? getPanelSession(sessionId, panelId) : undefined
   const sessionSource = getHeader(event, "origin") ?? getHeader(event, "referer")
   const hasSessionSource = isPanelSessionSource(sessionSource, panelId, getRequestURL(event))
+
   if (
     !session &&
     hasSessionSource &&

@@ -134,6 +134,7 @@ export class DockerRuntimeAdapter implements ContainerRuntimeAdapter {
 
             const events = output as Record<string, unknown>[]
             const failure = events.find(event => event.error)
+
             if (failure) {
               return reject(new Error(String(failure.error)))
             }
@@ -291,6 +292,7 @@ export class DockerRuntimeAdapter implements ContainerRuntimeAdapter {
     throwIfAborted(signal)
     const name = `hs-${owner.workloadId}-${owner.generation}`
     const existing = await this.client.listNetworks({ filters: filters(ownershipLabels(owner)) })
+
     if (existing[0]) {
       return { id: existing[0].Id, owner }
     }

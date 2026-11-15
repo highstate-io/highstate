@@ -63,7 +63,6 @@ export default defineWebSocketHandler({
     }
 
     const [cols, rows] = screenSizeText.split("x").map(Number)
-
     if (![cols, rows].every(value => Number.isSafeInteger(value) && value > 0 && value <= 65535)) {
       throw new Error("Invalid screenSize")
     }

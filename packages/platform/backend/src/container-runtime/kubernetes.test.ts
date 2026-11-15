@@ -37,6 +37,7 @@ async function withCluster(
     if (request.method === "POST") {
       const body = JSON.parse(Buffer.concat(chunks).toString()) as Resource
       const key = `${path}/${body.metadata.name}`
+
       if (resources.has(key)) {
         response.statusCode = 409
         return response.end('{"message":"Conflict","code":409}')
@@ -71,6 +72,7 @@ async function withCluster(
     if (request.method === "PUT") {
       const body = JSON.parse(Buffer.concat(chunks).toString()) as Resource
       const existing = resources.get(path)
+
       if (existing?.metadata.resourceVersion !== body.metadata.resourceVersion) {
         response.statusCode = 409
         return response.end('{"message":"Conflict","code":409}')

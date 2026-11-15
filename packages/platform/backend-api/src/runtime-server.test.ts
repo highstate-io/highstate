@@ -23,6 +23,7 @@ import { loadRuntimeListenerOptions, startRuntimeServer } from "./runtime-server
 let key: string
 let cert: string
 afterEach(() => vi.unstubAllEnvs())
+
 beforeAll(() => {
   const directory = mkdtempSync(join(tmpdir(), "highstate-runtime-tls-"))
 

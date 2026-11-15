@@ -12,6 +12,7 @@ import { transferArtifact } from "../runtime-agent/artifacts"
 import { RuntimeArtifactTransfer } from "./runtime-artifacts"
 
 const servers: Server[] = []
+
 afterEach(async () => {
   await Promise.all(
     servers.splice(0).map(

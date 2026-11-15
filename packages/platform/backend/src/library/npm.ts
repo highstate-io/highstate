@@ -55,6 +55,7 @@ export function verifyPackageIntegrity(bytes: Uint8Array, integrity: string): vo
   }
 
   const actual = createHash(algorithm).update(bytes).digest()
+
   if (
     !candidates.some(value => {
       if (value[1] !== algorithm) {
@@ -82,6 +83,7 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
     npmPackageNameSchema.parse(packageName)
     const access = await this.registries.forPackage(projectId, packageName)
     const registry = new URL(access.registryUrl)
+
     if (registry.username || registry.password || registry.search || registry.hash) {
       throw new Error("Registry URL must not contain credentials, query, or fragment")
     }
@@ -214,6 +216,7 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
     await this.checkCompatibility(metadata)
     const access = await this.registries.forPackage(projectId, selection.packageName)
     const url = new URL(metadata.dist.tarball)
+
     if (url.username || url.password || url.search || url.hash) {
       throw new Error("Tarball URL must not contain credentials, query, or fragment")
     }
@@ -436,6 +439,7 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
 
       for (const pkg of [...packages, ...implementationPackages.values()]) {
         const entry = locked.packages[pkg.packageName]
+
         if (
           !entry ||
           entry[0] !== `${pkg.packageName}@${pkg.version}` ||
@@ -506,6 +510,7 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
 
     for (const [scopeName, access] of accesses) {
       const registry = new URL(access.registryUrl)
+
       if (
         registry.username ||
         registry.password ||

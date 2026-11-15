@@ -86,6 +86,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
   async deleteState(options: UnitStateOptions): Promise<void> {
     const db = await this.database.forProject(options.projectId)
     const deployed = await db.instanceState.findUnique({ where: { id: options.stateId } })
+
     if (options.libraryId === undefined || !deployed?.librarySnapshotId) {
       await this.legacy.deleteState(options)
       return
@@ -206,6 +207,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
 
     const key = `${options.projectId}/${options.operationId}/${snapshotId}`
     let pending = this.executions.get(key)
+
     if (!pending) {
       const sibling = [...this.executions.entries()].find(([key]) =>
         key.startsWith(`${options.projectId}/${options.operationId}/`),
@@ -398,6 +400,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
 
     if (event.type === "unitConfiguration" || event.type === "unitResult") {
       const payload = event.payload as { stateId: string; phase?: string }
+
       if (
         payload.stateId !== options.stateId ||
         (event.type === "unitConfiguration" &&

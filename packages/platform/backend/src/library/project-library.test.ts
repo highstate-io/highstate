@@ -35,6 +35,7 @@ const compatibility: LibraryCompatibility = {
   bunVersion: process.versions.bun ?? "1.3.13",
   pulumiVersion: "3.232.0",
 }
+
 const component = (type: string): ComponentModel => ({
   type,
   kind: "composite",
@@ -44,6 +45,7 @@ const component = (type: string): ComponentModel => ({
   definitionHash: 42,
   meta: { title: type, defaultNamePrefix: "unit" },
 })
+
 const empty = () => ({ components: {}, entities: {} })
 
 describe("project library with a local npm registry and real project persistence", () => {

@@ -358,6 +358,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     for (const [index, file] of (intent.files ?? []).entries()) {
       const fileName = `${name}-f${index}`
       const path = file.path.startsWith("/") ? file.path : `/${file.path}`
+
       if (path.includes("/../") || path.includes("\0")) {
         throw new Error("Invalid Kubernetes file path")
       }
@@ -493,6 +494,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
 
     const template = { metadata: { labels: podLabels }, spec }
     const mode = intent.mode ?? "pod"
+
     if (mode === "deployment") {
       await this.createOrRead(
         () =>
@@ -561,7 +563,6 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
 
   private async pod(id: string, signal?: AbortSignal): Promise<k8s.V1Pod> {
     const [kind, name] = id.split("/")
-
     if (kind === "pod") {
       return await this.core.readNamespacedPod({ namespace: this.config.namespace, name: name! })
     }
@@ -837,6 +838,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     for (let attempt = 0; attempt < 60; attempt++) {
       const remaining = await Promise.all(resources.map(resource => resource.list()))
       const roots = await this.discover(labels, signal)
+
       if (remaining.every(list => list.items.length === 0) && roots.length === 0) {
         return
       }

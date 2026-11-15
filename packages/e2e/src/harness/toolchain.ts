@@ -22,13 +22,19 @@ export async function preparePulumiCli(directory: string): Promise<string> {
   const bin = join(directory, "home/.pulumi/bin")
   await mkdir(bin, { recursive: true })
   const link = join(bin, "pulumi")
+
   try {
     await symlink(executable, link)
   } catch (error) {
-    if (!(error instanceof Error) || !("code" in error) || error.code !== "EEXIST" ||
-      await realpath(link) !== await realpath(executable)) {
+    if (
+      !(error instanceof Error) ||
+      !("code" in error) ||
+      error.code !== "EEXIST" ||
+      (await realpath(link)) !== (await realpath(executable))
+    ) {
       throw error
     }
   }
+
   return dirname(executable)
 }

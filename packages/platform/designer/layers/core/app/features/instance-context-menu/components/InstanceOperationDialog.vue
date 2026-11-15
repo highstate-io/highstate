@@ -296,6 +296,7 @@ const operate = async () => {
       }
 
       const catalog = libraryStore.catalog
+
       if (
         catalog?.snapshotId !== review.librarySnapshotId ||
         (catalog.overlay.revision ?? null) !== review.localOverlayRevision
