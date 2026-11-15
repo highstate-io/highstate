@@ -7,13 +7,13 @@ import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import type { Value } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
+import type { JsonObject, Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file io/highstate/v1/secret.proto.
  */
 export const file_io_highstate_v1_secret: GenFile = /*@__PURE__*/
-  fileDesc("Chxpby9oaWdoc3RhdGUvdjEvc2VjcmV0LnByb3RvEg9pby5oaWdoc3RhdGUudjEiSgoXR2V0U2VjcmV0Q29udGVudFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIkgKGEdldFNlY3JldENvbnRlbnRSZXNwb25zZRIsCgdjb250ZW50GAEgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlQgPgQQIyeAoNU2VjcmV0U2VydmljZRJnChBHZXRTZWNyZXRDb250ZW50EiguaW8uaGlnaHN0YXRlLnYxLkdldFNlY3JldENvbnRlbnRSZXF1ZXN0GikuaW8uaGlnaHN0YXRlLnYxLkdldFNlY3JldENvbnRlbnRSZXNwb25zZWIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_struct]);
+  fileDesc("Chxpby9oaWdoc3RhdGUvdjEvc2VjcmV0LnByb3RvEg9pby5oaWdoc3RhdGUudjEiSgoXR2V0U2VjcmV0Q29udGVudFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIkgKGEdldFNlY3JldENvbnRlbnRSZXNwb25zZRIsCgdjb250ZW50GAEgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlQgPgQQIi0AEKEkxpc3RTZWNyZXRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFQoIc3RhdGVfaWQYAiABKAlIAIgBARIfChJzZXJ2aWNlX2FjY291bnRfaWQYAyABKAlIAYgBARITCgZzZWFyY2gYBCABKAlIAogBARIRCglwYWdlX3NpemUYBSABKAUSEgoKcGFnZV90b2tlbhgGIAEoCUILCglfc3RhdGVfaWRCFQoTX3NlcnZpY2VfYWNjb3VudF9pZEIJCgdfc2VhcmNoIlgKE0xpc3RTZWNyZXRzUmVzcG9uc2USKAoHc2VjcmV0cxgBIAMoCzIXLmlvLmhpZ2hzdGF0ZS52MS5TZWNyZXQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIkMKEEdldFNlY3JldFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIjwKEUdldFNlY3JldFJlc3BvbnNlEicKBnNlY3JldBgBIAEoCzIXLmlvLmhpZ2hzdGF0ZS52MS5TZWNyZXQi3AEKBlNlY3JldBIKCgJpZBgBIAEoCRIkCgRtZXRhGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhEKBG5hbWUYAyABKAlIAIgBARIYCgtzeXN0ZW1fbmFtZRgEIAEoCUgBiAEBEhUKCHN0YXRlX2lkGAUgASgJSAKIAQESHwoSc2VydmljZV9hY2NvdW50X2lkGAYgASgJSAOIAQFCBwoFX25hbWVCDgoMX3N5c3RlbV9uYW1lQgsKCV9zdGF0ZV9pZEIVChNfc2VydmljZV9hY2NvdW50X2lkIksKGUdldEluc3RhbmNlU2VjcmV0c1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhUKCHN0YXRlX2lkGAIgASgJQgPgQQIiRgoaR2V0SW5zdGFuY2VTZWNyZXRzUmVzcG9uc2USKAoHc2VjcmV0cxgBIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QifQocVXBkYXRlSW5zdGFuY2VTZWNyZXRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFQoIc3RhdGVfaWQYAiABKAlCA+BBAhItCgdzZWNyZXRzGAMgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEID4EECIh8KHVVwZGF0ZUluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlMo0ECg1TZWNyZXRTZXJ2aWNlElgKC0xpc3RTZWNyZXRzEiMuaW8uaGlnaHN0YXRlLnYxLkxpc3RTZWNyZXRzUmVxdWVzdBokLmlvLmhpZ2hzdGF0ZS52MS5MaXN0U2VjcmV0c1Jlc3BvbnNlElIKCUdldFNlY3JldBIhLmlvLmhpZ2hzdGF0ZS52MS5HZXRTZWNyZXRSZXF1ZXN0GiIuaW8uaGlnaHN0YXRlLnYxLkdldFNlY3JldFJlc3BvbnNlEmcKEEdldFNlY3JldENvbnRlbnQSKC5pby5oaWdoc3RhdGUudjEuR2V0U2VjcmV0Q29udGVudFJlcXVlc3QaKS5pby5oaWdoc3RhdGUudjEuR2V0U2VjcmV0Q29udGVudFJlc3BvbnNlEm0KEkdldEluc3RhbmNlU2VjcmV0cxIqLmlvLmhpZ2hzdGF0ZS52MS5HZXRJbnN0YW5jZVNlY3JldHNSZXF1ZXN0GisuaW8uaGlnaHN0YXRlLnYxLkdldEluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlEnYKFVVwZGF0ZUluc3RhbmNlU2VjcmV0cxItLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVJbnN0YW5jZVNlY3JldHNSZXF1ZXN0Gi4uaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZUluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_struct]);
 
 /**
  * GetSecretContentRequest requests dynamic content for one authorized secret.
@@ -65,11 +65,319 @@ export const GetSecretContentResponseSchema: GenMessage<GetSecretContentResponse
   messageDesc(file_io_highstate_v1_secret, 1);
 
 /**
+ * ListSecretsRequest selects authorized metadata in a project.
+ *
+ * @generated from message io.highstate.v1.ListSecretsRequest
+ */
+export type ListSecretsRequest = Message<"io.highstate.v1.ListSecretsRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * Optional instance state filter.
+   *
+   * @generated from field: optional string state_id = 2;
+   */
+  stateId?: string | undefined;
+
+  /**
+   * Optional owning service account filter.
+   *
+   * @generated from field: optional string service_account_id = 3;
+   */
+  serviceAccountId?: string | undefined;
+
+  /**
+   * Search by title or secret name.
+   *
+   * @generated from field: optional string search = 4;
+   */
+  search?: string | undefined;
+
+  /**
+   * Requested page size; zero uses the default.
+   *
+   * @generated from field: int32 page_size = 5;
+   */
+  pageSize: number;
+
+  /**
+   * Opaque continuation token.
+   *
+   * @generated from field: string page_token = 6;
+   */
+  pageToken: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.ListSecretsRequest.
+ * Use `create(ListSecretsRequestSchema)` to create a new message.
+ */
+export const ListSecretsRequestSchema: GenMessage<ListSecretsRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 2);
+
+/**
+ * ListSecretsResponse contains metadata only, never secret values.
+ *
+ * @generated from message io.highstate.v1.ListSecretsResponse
+ */
+export type ListSecretsResponse = Message<"io.highstate.v1.ListSecretsResponse"> & {
+  /**
+   * Authorized metadata records.
+   *
+   * @generated from field: repeated io.highstate.v1.Secret secrets = 1;
+   */
+  secrets: Secret[];
+
+  /**
+   * Continuation token, empty on the final page.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.ListSecretsResponse.
+ * Use `create(ListSecretsResponseSchema)` to create a new message.
+ */
+export const ListSecretsResponseSchema: GenMessage<ListSecretsResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 3);
+
+/**
+ * GetSecretResponse contains metadata only.
+ *
+ * @generated from message io.highstate.v1.GetSecretRequest
+ */
+export type GetSecretRequest = Message<"io.highstate.v1.GetSecretRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The stable secret ID.
+   *
+   * @generated from field: string secret_id = 2;
+   */
+  secretId: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetSecretRequest.
+ * Use `create(GetSecretRequestSchema)` to create a new message.
+ */
+export const GetSecretRequestSchema: GenMessage<GetSecretRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 4);
+
+/**
+ * GetSecretResponse contains metadata only.
+ *
+ * @generated from message io.highstate.v1.GetSecretResponse
+ */
+export type GetSecretResponse = Message<"io.highstate.v1.GetSecretResponse"> & {
+  /**
+   * The secret metadata.
+   *
+   * @generated from field: io.highstate.v1.Secret secret = 1;
+   */
+  secret?: Secret | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetSecretResponse.
+ * Use `create(GetSecretResponseSchema)` to create a new message.
+ */
+export const GetSecretResponseSchema: GenMessage<GetSecretResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 5);
+
+/**
+ * Secret describes a stored secret without exposing its content.
+ *
+ * @generated from message io.highstate.v1.Secret
+ */
+export type Secret = Message<"io.highstate.v1.Secret"> & {
+  /**
+   * The stable secret ID.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * Human-readable display metadata.
+   *
+   * @generated from field: google.protobuf.Value meta = 2;
+   */
+  meta?: Value | undefined;
+
+  /**
+   * The component-owned secret name, when present.
+   *
+   * @generated from field: optional string name = 3;
+   */
+  name?: string | undefined;
+
+  /**
+   * The system-owned secret name, when present.
+   *
+   * @generated from field: optional string system_name = 4;
+   */
+  systemName?: string | undefined;
+
+  /**
+   * The owning instance state ID, when present.
+   *
+   * @generated from field: optional string state_id = 5;
+   */
+  stateId?: string | undefined;
+
+  /**
+   * The owning service account ID, when present.
+   *
+   * @generated from field: optional string service_account_id = 6;
+   */
+  serviceAccountId?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.Secret.
+ * Use `create(SecretSchema)` to create a new message.
+ */
+export const SecretSchema: GenMessage<Secret> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 6);
+
+/**
+ * GetInstanceSecretsRequest selects a unit instance by stable state ID.
+ *
+ * @generated from message io.highstate.v1.GetInstanceSecretsRequest
+ */
+export type GetInstanceSecretsRequest = Message<"io.highstate.v1.GetInstanceSecretsRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The stable state ID.
+   *
+   * @generated from field: string state_id = 2;
+   */
+  stateId: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetInstanceSecretsRequest.
+ * Use `create(GetInstanceSecretsRequestSchema)` to create a new message.
+ */
+export const GetInstanceSecretsRequestSchema: GenMessage<GetInstanceSecretsRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 7);
+
+/**
+ * GetInstanceSecretsResponse contains named JSON secret values.
+ *
+ * @generated from message io.highstate.v1.GetInstanceSecretsResponse
+ */
+export type GetInstanceSecretsResponse = Message<"io.highstate.v1.GetInstanceSecretsResponse"> & {
+  /**
+   * The secret values by name.
+   *
+   * @generated from field: google.protobuf.Struct secrets = 1;
+   */
+  secrets?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.GetInstanceSecretsResponse.
+ * Use `create(GetInstanceSecretsResponseSchema)` to create a new message.
+ */
+export const GetInstanceSecretsResponseSchema: GenMessage<GetInstanceSecretsResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 8);
+
+/**
+ * UpdateInstanceSecretsRequest patches named unit secret values.
+ *
+ * @generated from message io.highstate.v1.UpdateInstanceSecretsRequest
+ */
+export type UpdateInstanceSecretsRequest = Message<"io.highstate.v1.UpdateInstanceSecretsRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The stable state ID.
+   *
+   * @generated from field: string state_id = 2;
+   */
+  stateId: string;
+
+  /**
+   * Supplied values replace matching names; omitted names are preserved.
+   *
+   * @generated from field: google.protobuf.Struct secrets = 3;
+   */
+  secrets?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateInstanceSecretsRequest.
+ * Use `create(UpdateInstanceSecretsRequestSchema)` to create a new message.
+ */
+export const UpdateInstanceSecretsRequestSchema: GenMessage<UpdateInstanceSecretsRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 9);
+
+/**
+ * UpdateInstanceSecretsResponse acknowledges the update without echoing secrets.
+ *
+ * @generated from message io.highstate.v1.UpdateInstanceSecretsResponse
+ */
+export type UpdateInstanceSecretsResponse = Message<"io.highstate.v1.UpdateInstanceSecretsResponse"> & {
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateInstanceSecretsResponse.
+ * Use `create(UpdateInstanceSecretsResponseSchema)` to create a new message.
+ */
+export const UpdateInstanceSecretsResponseSchema: GenMessage<UpdateInstanceSecretsResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 10);
+
+/**
  * SecretService provides explicitly authorized access to dynamic secret content.
  *
  * @generated from service io.highstate.v1.SecretService
  */
 export const SecretService: GenService<{
+  /**
+   * Lists authorized secret metadata without values.
+   *
+   * @generated from rpc io.highstate.v1.SecretService.ListSecrets
+   */
+  listSecrets: {
+    methodKind: "unary";
+    input: typeof ListSecretsRequestSchema;
+    output: typeof ListSecretsResponseSchema;
+  },
+  /**
+   * Gets authorized metadata without the secret value.
+   *
+   * @generated from rpc io.highstate.v1.SecretService.GetSecret
+   */
+  getSecret: {
+    methodKind: "unary";
+    input: typeof GetSecretRequestSchema;
+    output: typeof GetSecretResponseSchema;
+  },
   /**
    * Gets the dynamic content of one authorized secret.
    *
@@ -79,6 +387,26 @@ export const SecretService: GenService<{
     methodKind: "unary";
     input: typeof GetSecretContentRequestSchema;
     output: typeof GetSecretContentResponseSchema;
+  },
+  /**
+   * Gets all named secret values for one unit instance.
+   *
+   * @generated from rpc io.highstate.v1.SecretService.GetInstanceSecrets
+   */
+  getInstanceSecrets: {
+    methodKind: "unary";
+    input: typeof GetInstanceSecretsRequestSchema;
+    output: typeof GetInstanceSecretsResponseSchema;
+  },
+  /**
+   * Updates supplied unit secrets while preserving omitted names.
+   *
+   * @generated from rpc io.highstate.v1.SecretService.UpdateInstanceSecrets
+   */
+  updateInstanceSecrets: {
+    methodKind: "unary";
+    input: typeof UpdateInstanceSecretsRequestSchema;
+    output: typeof UpdateInstanceSecretsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_io_highstate_v1_secret, 0);
