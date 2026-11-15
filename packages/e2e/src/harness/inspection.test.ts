@@ -13,6 +13,7 @@ test("keeps the existing server alive for an external browser until inspection e
   const inspecting = inspectDesigner(
     {
       url: "http://127.0.0.1:12345",
+      workerSocketPath: join(directory, "worker.sock"),
       directory,
       mode: "development",
       logs: () => "",

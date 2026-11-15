@@ -15,9 +15,17 @@ for (const command of [
     suite === "cli" ? "@highstate/cli:build" : "@highstate/designer:build",
   ],
   ...(["all", "cli"].includes(suite) ? [[process.execPath, "packages/e2e/src/cli/smoke.ts"]] : []),
-  ...(["all", "api"].includes(suite) ? [[process.execPath, "packages/e2e/src/api/smoke.ts"]] : []),
+  ...(["all", "api"].includes(suite)
+    ? [
+        [process.execPath, "packages/e2e/src/api/smoke.ts"],
+        [process.execPath, "packages/e2e/src/api/isolation.ts"],
+      ]
+    : []),
   ...(["all", "browser"].includes(suite)
-    ? [[process.execPath, "packages/e2e/src/browser/smoke.ts"]]
+    ? [
+        [process.execPath, "packages/e2e/src/browser/smoke.ts"],
+        [process.execPath, "packages/e2e/src/browser/access.ts"],
+      ]
     : []),
 ]) {
   const child = Bun.spawn(command, { cwd: root, stdout: "inherit", stderr: "inherit" })

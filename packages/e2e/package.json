@@ -9,6 +9,7 @@
     "test:cli": "bun src/run.ts cli",
     "test:browser": "bun src/run.ts browser",
     "inspect": "bun src/inspect.ts",
+    "inspect:auth": "bun src/inspect-auth.ts",
     "typecheck": "tsc --noEmit"
   },
   "nx": {
@@ -16,6 +17,7 @@
     "targets": { "test:e2e": { "cache": false } }
   },
   "dependencies": {
+    "@highstate/backend": "workspace:*",
     "@msgpack/msgpack": "^3.1.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "age-encryption": "^0.2.4"
@@ -24,6 +26,7 @@
     "@playwright/test": "1.64.1",
     "@types/node": "^24",
     "bun-types": "^1.3.13",
+    "openid-client": "^6.8.1",
     "typescript": "^5.9.3",
     "vitest": "catalog:"
   }

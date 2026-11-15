@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
+import { lstat, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { createServer } from "node:net"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
@@ -6,6 +6,13 @@ import { encode } from "@msgpack/msgpack"
 import { preparePulumiCli } from "./toolchain"
 
 export const root = resolve(import.meta.dir, "../../../..")
+
+export type DesignerLaunchContext = {
+  url: string
+  eventsPort: number
+  workerSocketPath: string
+  directory: string
+}
 
 async function freePort(): Promise<number> {
   const server = createServer()
@@ -32,12 +39,18 @@ async function freePort(): Promise<number> {
  */
 export async function startDesigner(
   options: {
-    env?: Record<string, string>
+    env?:
+      | Record<string, string>
+      | ((
+          context: DesignerLaunchContext,
+        ) => Record<string, string> | Promise<Record<string, string>>)
     directory?: string
     mode?: "production" | "development"
   } = {},
 ) {
   const directory = options.directory ?? (await mkdtemp(join(tmpdir(), "highstate-e2e-")))
+  // runtime sockets must not be scanned by the codebase's library watcher
+  const workerSocketPath = join(directory, ".highstate", "worker.sock")
   let child: ReturnType<typeof Bun.spawn> | undefined
   let output = ""
 
@@ -84,6 +97,11 @@ export async function startDesigner(
 
     const url = `http://127.0.0.1:${port}`
 
+    const extraEnv =
+      typeof options.env === "function"
+        ? await options.env({ url, eventsPort, workerSocketPath, directory })
+        : options.env
+
     const env = Object.fromEntries(
       Object.entries(process.env).filter(
         ([key]) =>
@@ -114,11 +132,11 @@ export async function startDesigner(
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES: "@highstate/e2e-library",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_STARTUP: "false",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_CHANGES: "false",
-          HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH: join(directory, "worker.sock"),
           NITRO_HOST: "127.0.0.1",
           NITRO_PORT: String(port),
           NUXT_PUBLIC_EVENTS_PORT: String(eventsPort),
-          ...options.env,
+          ...extraEnv,
+          HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH: workerSocketPath,
         },
         stdout: "pipe",
         stderr: "pipe",
@@ -146,11 +164,20 @@ export async function startDesigner(
       }
 
       try {
-        const response = await fetch(`${url}/api/state.getBackendState`, {
-          signal: AbortSignal.timeout(1000),
-        })
+        const response = await fetch(
+          `${url}${extraEnv?.HIGHSTATE_AUTH_MODE === "hosted" ? "/api/auth/config" : "/api/state.getBackendState"}`,
+          {
+            signal: AbortSignal.timeout(1000),
+          },
+        )
 
-        if (response.ok) {
+        if (
+          response.ok &&
+          (await lstat(workerSocketPath).then(
+            stat => stat.isSocket(),
+            () => false,
+          ))
+        ) {
           break
         }
       } catch {}
@@ -165,6 +192,7 @@ export async function startDesigner(
     return {
       url,
       directory,
+      workerSocketPath,
       mode: options.mode ?? "production",
       logs: () => output,
       async stop() {
@@ -181,6 +209,7 @@ export async function startDesigner(
 
         await child?.exited
         await logs
+        await rm(workerSocketPath, { force: true })
 
         if (!options.directory) {
           await rm(directory, { recursive: true, force: true })
@@ -190,6 +219,7 @@ export async function startDesigner(
   } catch (error) {
     child?.kill("SIGKILL")
     await child?.exited
+    await rm(workerSocketPath, { force: true })
 
     if (!options.directory) {
       await rm(directory, { recursive: true, force: true })

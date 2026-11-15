@@ -6,6 +6,7 @@ export async function designerCall<T>(
   procedure: string,
   input: unknown,
   mutation = false,
+  headers: HeadersInit = {},
 ): Promise<T> {
   const encoded = JSON.stringify({ json: input })
 
@@ -13,7 +14,7 @@ export async function designerCall<T>(
     `${url}/api/${procedure}${mutation ? "" : `?input=${encodeURIComponent(encoded)}`}`,
     {
       method: mutation ? "POST" : "GET",
-      headers: { "content-type": "application/json" },
+      headers: { ...Object.fromEntries(new Headers(headers)), "content-type": "application/json" },
       body: mutation ? encoded : undefined,
       signal: AbortSignal.timeout(180_000),
     },

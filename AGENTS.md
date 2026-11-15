@@ -3,7 +3,6 @@
 Some simple rules to follow:
 
 - Before engineering tasks, read `dev-docs/engineering/README.md` and the related guides it links.
-- Follow the permission-aware interface requirements in `dev-docs/engineering/designer-development.md` for every Designer access rejection.
 - Use source code and executable tests as the authority for implemented behavior.
 - Use `packages/platform/docs` as the authority for public terminology, supported workflows, and user-facing
   compatibility promises.

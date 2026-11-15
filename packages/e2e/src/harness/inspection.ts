@@ -14,6 +14,7 @@ export async function inspectDesigner(
     url: designer.url,
     directory: designer.directory,
     mode: designer.mode,
+    workerSocketPath: designer.workerSocketPath,
     projectIds,
   }
 

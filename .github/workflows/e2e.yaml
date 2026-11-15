@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   browser:
-    name: Production API, CLI, and browser
+    name: API, CLI, and browser
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -39,7 +39,7 @@ jobs:
         uses: pulumi/actions@v6
         with:
           pulumi-version: 3.232.0
-      - name: Build and verify production API, CLI, and browser
+      - name: Build and verify API, CLI, and browser
         run: bun run --bun --filter @highstate/e2e test:e2e
       - name: Upload sanitized test evidence
         if: always()
