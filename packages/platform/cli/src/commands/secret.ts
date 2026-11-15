@@ -80,11 +80,13 @@ export class SecretUpdateCommand extends RemoteCommand {
     const document = await readDocument(this.file)
     const content = fromJson(ValueSchema, document as JsonValue)
     const { clients, target } = await this.remote()
+
     await clients.secret.updateSecretContent({
       projectId: target.projectId,
       secretId: this.id,
       content,
     })
+
     this.print({ updated: true }, "Secret updated")
   }
 }
