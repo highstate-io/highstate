@@ -5,8 +5,8 @@ describe("selectAffectedImageTargets", () => {
   test("ignores changes unrelated to images", () => {
     expect(
       selectAffectedImageTargets(
-        ["packages/platform/designer/app.vue"],
-        new Set(["@highstate/designer"]),
+        ["packages/platform/docs/content/index.md"],
+        new Set(["@highstate/docs"]),
       ),
     ).toEqual([])
   })
@@ -36,6 +36,7 @@ describe("selectAffectedImageTargets", () => {
       "core-worker-k8s-monitor",
       "core-worker-k8s-dashboard",
       "apps-exetrouter",
+      "highstate",
     ])
   })
 
@@ -49,5 +50,19 @@ describe("selectAffectedImageTargets", () => {
     expect(
       selectAffectedImageTargets(["docker/core/worker.k8s-monitor.dockerfile"], new Set()),
     ).toEqual(["core-worker-k8s-monitor"])
+  })
+
+  test("rebuilds Highstate for Designer and dependency changes", () => {
+    expect(selectAffectedImageTargets([], new Set(["@highstate/designer"]))).toEqual(["highstate"])
+  })
+
+  test("rebuilds Highstate when its image inputs change", () => {
+    for (const path of [
+      "docker/highstate.dockerfile",
+      "docker/highstate-entrypoint.sh",
+      ".dockerignore",
+    ]) {
+      expect(selectAffectedImageTargets([path], new Set())).toEqual(["highstate"])
+    }
   })
 })

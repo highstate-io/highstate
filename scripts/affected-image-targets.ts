@@ -11,7 +11,7 @@ const terminalTargets = [
 ] as const
 
 const workerTargets = ["core-worker-k8s-monitor", "core-worker-k8s-dashboard"] as const
-const allTargets = [...terminalTargets, ...workerTargets, "apps-exetrouter"]
+const allTargets = [...terminalTargets, ...workerTargets, "apps-exetrouter", "highstate"]
 
 const terminalDependents: Record<string, string[]> = {
   "core-terminal-base": [...terminalTargets],
@@ -28,6 +28,14 @@ export function selectAffectedImageTargets(
   const targets = new Set<string>()
 
   for (const path of changedFiles) {
+    if (
+      ["docker/highstate.dockerfile", "docker/highstate-entrypoint.sh", ".dockerignore"].includes(
+        path,
+      )
+    ) {
+      targets.add("highstate")
+    }
+
     if (path.startsWith("docker/apps/exetrouter/")) {
       targets.add("apps-exetrouter")
     }
@@ -59,6 +67,10 @@ export function selectAffectedImageTargets(
 
   if (affectedProjects.has("@highstate/k8s.monitor-worker")) {
     targets.add("core-worker-k8s-monitor")
+  }
+
+  if (affectedProjects.has("@highstate/designer")) {
+    targets.add("highstate")
   }
 
   if (affectedProjects.has("@highstate/k8s.dashboard-worker")) {
