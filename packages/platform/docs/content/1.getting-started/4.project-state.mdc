@@ -24,7 +24,8 @@ switch components, and experiment quickly before committing to a production appr
 The core component of the Highstate experience is the visual designer.
 It gives you a drag-and-drop canvas where you can assemble components and connect them with data flows.
 
-Under the hood everything runs locally today: the designer launches the backend beside it and keeps each project in its own encrypted SQLite database.
+Under the hood, the backend runs inside the designer, either locally or in a self-hosted deployment.
+Each project keeps its own encrypted SQLite database; self-hosted deployments can store backend metadata in PostgreSQL.
 
 All components are powered by Pulumi, so you can use any Pulumi or even Terraform provider to manage infrastructure.
 TypeScript provide full end-to-end type safety from the designer to the Pulumi program.
@@ -40,9 +41,9 @@ The last one is very unstable, though.
 We ship no enterprise support, no audit trail, and no SLA beyond what you build yourself.
 Just like any MIT licensed project, you use it at your own risk.
 
-For now, there is no hosted backend.
-The local designer and public API use different authentication paths, and the authorization model is still
-evolving.
+There is no managed hosting service.
+Self-hosted Designer supports OAuth/OIDC sign-in with separate backend and project roles for human users.
+The public API uses service accounts and API keys, and the authorization model is still evolving.
 
 The bugs are real: some of them are small annoyances, but others can corrupt your project state or even lock you out of it.
 The tests are poor, and the documentation is not complete.

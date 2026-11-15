@@ -106,6 +106,19 @@ These require permission to update the role and, when granting permissions beyon
 Subjects must already be known to the backend; project binding copies their display records into the project.
 Existing role editing and service-account/API-key authorization retain their own contracts.
 
+### Managing known users
+
+Data & Settings exposes **Backend Users** and a project-scoped **Users** page.
+Both show the backend's known human identities, including users who have never opened the selected project.
+Selecting a user shows their public identity metadata and direct role bindings in the selected realm.
+Assigning a first project role copies the known user's display record into that project.
+
+Directory and profile reads require `user.list` and `user.get`, respectively, in the selected realm.
+The binding view also requires `role-binding.list` and `role.list`; role visibility follows scoped role-list grants.
+Assign and Remove use the existing human-binding mutations and their role-update/escalation checks.
+Disabled controls explain missing permissions on hover, and identity, binding, and permission changes update automatically.
+Group-derived access and deployment-configured administrator grants are not edited by the user binding controls.
+
 Domain handlers and business services authorize the resources being accessed.
 Collection reads and project event streams filter their results using the caller's grants, including recursive
 instance scopes.

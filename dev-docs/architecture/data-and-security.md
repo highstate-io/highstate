@@ -76,6 +76,9 @@ realm.
 The designer defaults to a trusted-local user model.
 Hosted Designer authenticates human identities with OAuth/OIDC and durable opaque browser sessions,
 then resolves user and group role grants independently in the backend and project realms.
+Known human identities belong to the backend directory.
+Authorized project administrators can browse that directory to assign a user's first project role without
+requiring prior project participation; this does not merge authorization realms or grant project access by itself.
 Hosted mode never falls back to operating-system identity, and authentication alone grants no business permissions.
 Deployment-configured administrator identities receive grants during realm initialization.
 Revoking those grants permanently requires removing the deployment configuration and the persisted bindings.

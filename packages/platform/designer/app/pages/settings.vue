@@ -309,7 +309,8 @@ watch(selectedProjectId, async projectId => {
                   <Suspense v-if="currentRoute.params.projectId">
                     <ProjectTabWrapper
                       :project-id="String(currentRoute.params.projectId)"
-                      :key="String(currentRoute.params.projectId)"
+                      :initialize-stores="!['settings.users', 'settings.user-details'].includes(String(currentRoute.name))"
+                      :key="`${currentRoute.params.projectId}/${['settings.users', 'settings.user-details'].includes(String(currentRoute.name)) ? 'users' : 'resources'}`"
                     >
                       <component :is="Component" :params="currentRoute.params" />
                     </ProjectTabWrapper>

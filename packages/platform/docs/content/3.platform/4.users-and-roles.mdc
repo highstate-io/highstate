@@ -1,0 +1,34 @@
+---
+title: Users and roles
+description: View known users and manage their backend and project access.
+navigation:
+  icon: i-mdi-account-group
+---
+
+## Known users
+
+A user becomes known to Highstate after signing in or using local Designer.
+Being known does not grant access to projects or backend resources.
+Access comes from role bindings in the appropriate realm.
+
+**Data & Settings → Backend Users** lists known human identities and their authentication source.
+After selecting a project, **Users** shows the same directory, including people who have not opened that project yet.
+This lets you assign someone's first project role without asking them to enter the project first.
+The directory requires permission to list users in the selected realm.
+
+## Managing a user's access
+
+Select a user to view their identity details and direct role bindings.
+Choose **Assign** beside a role to grant it, or **Remove** to revoke its direct binding.
+Backend bindings affect backend access; project bindings affect only the selected project.
+Project access management requires an unlocked project.
+
+Viewing bindings requires permission to read users, roles, and role bindings in that realm.
+Changing a binding requires permission to update the target role.
+If the role grants permissions beyond your own, you also need escalation permission.
+Unavailable controls stay disabled and explain the missing permission when you hover over them.
+User, binding, and permission changes appear automatically without a refresh button.
+
+These controls manage direct user bindings, not access inherited from identity-provider groups.
+Deployment-configured administrator grants are also managed separately and can be restored during initialization.
+Removing a direct binding does not remove access granted through those other paths.

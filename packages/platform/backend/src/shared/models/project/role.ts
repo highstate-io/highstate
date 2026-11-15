@@ -63,6 +63,14 @@ export type ProjectPermissionGroupDefinition = {
 
 export const projectPermissionGroups = [
   {
+    title: "Users",
+    permissions: [
+      { name: "user.list", title: "List known users", risk: "low" },
+      { name: "user.get", title: "View known users", risk: "low" },
+    ],
+    supportedRestrictions: [],
+  },
+  {
     title: "Instance models",
     permissions: [
       {

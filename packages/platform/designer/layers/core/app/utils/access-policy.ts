@@ -1,6 +1,10 @@
 import type { AccessRequirement } from "./access-control"
 
 const settingsPermissions: Record<string, AccessRequirement["permission"]> = {
+  "backend-users": "user.list",
+  "backend-user-details": "user.get",
+  users: "user.list",
+  "user-details": "user.get",
   "project-list": "project.list",
   "backend-service-accounts": "service-account.list",
   "backend-api-keys": "api-key.list",
