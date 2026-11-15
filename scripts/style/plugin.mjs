@@ -485,10 +485,19 @@ const rules = {
             continue
           }
 
-          const comments = source.getCommentsBefore(current)
+          const precedingComments = source.getCommentsBefore(current)
+
+          const comments = precedingComments.filter(
+            comment => comment.loc.start.line > previous.loc.end.line,
+          )
+
           const start = comments[0] ?? current
 
-          if (start.loc.start.line - previous.loc.end.line > 1) {
+          const trailing = precedingComments
+            .filter(comment => comment.loc.start.line <= previous.loc.end.line)
+            .at(-1)
+
+          if (start.loc.start.line - (trailing?.loc.end.line ?? previous.loc.end.line) > 1) {
             continue
           }
 
@@ -496,7 +505,11 @@ const rules = {
             context,
             current,
             "Separate class methods and CLI metadata with a blank line",
-            fixer => fixer.insertTextBefore(start, "\n"),
+            fixer =>
+              fixer.replaceTextRange(
+                [trailing?.range[1] ?? previous.range[1], start.range[0]],
+                `\n\n${" ".repeat(start.loc.start.column)}`,
+              ),
           )
         }
       },
@@ -531,7 +544,16 @@ const rules = {
               beforePrevious.loc.end.line + 1 === previous.loc.start.line
             )
 
-          const comments = source.getCommentsBefore(current)
+          const precedingComments = source.getCommentsBefore(current)
+
+          const comments = precedingComments.filter(
+            comment => comment.loc.start.line > previous.loc.end.line,
+          )
+
+          const trailing = precedingComments
+            .filter(comment => comment.loc.start.line <= previous.loc.end.line)
+            .at(-1)
+
           const start = comments[0] ?? current
           const last = source.getLastToken(previous)
 
@@ -540,13 +562,13 @@ const rules = {
               ? source.getTokenBefore(last).loc.end.line
               : previous.loc.end.line
 
-          const gap = start.loc.start.line - previousEnd
+          const gap = start.loc.start.line - (trailing?.loc.end.line ?? previousEnd)
 
           // Comments can explain either side of a guard; do not move them across statements.
           if (checked && !comments.length && gap > 1) {
             report(context, current, "Keep the assignment adjacent to its checking guard", fixer =>
               fixer.replaceTextRange(
-                [previous.range[1], current.range[0]],
+                [trailing?.range[1] ?? previous.range[1], current.range[0]],
                 `\n${" ".repeat(current.loc.start.column)}`,
               ),
             )
@@ -555,7 +577,11 @@ const rules = {
               context,
               current,
               "Separate guards, loops and multiline calls with a blank line",
-              fixer => fixer.insertTextBefore(start, "\n"),
+              fixer =>
+                fixer.replaceTextRange(
+                  [trailing?.range[1] ?? previous.range[1], start.range[0]],
+                  `\n\n${" ".repeat(start.loc.start.column)}`,
+                ),
             )
           }
         }

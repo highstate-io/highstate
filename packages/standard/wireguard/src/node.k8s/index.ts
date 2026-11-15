@@ -55,9 +55,8 @@ const occupiedPorts = existingWorkloads.flatMap(workload =>
 )
 
 const containerPort = getNextAvailablePort(occupiedPorts, 51820)
-const priority = (100000 - containerPort) % 100
-
 // each next interface gets lower priority
+const priority = (100000 - containerPort) % 100
 
 const namespace = Namespace.createOrPatch(appName, {
   cluster: inputs.k8sCluster,

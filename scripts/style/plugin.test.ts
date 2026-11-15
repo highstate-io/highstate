@@ -19,6 +19,38 @@ function check(name: string, code: string, fix = false) {
 }
 
 describe("style diagnostics", () => {
+  it("preserves trailing comments when removing space before a single-line guard", () => {
+    const input = `const value = lookup() // retain this explanation
+
+if (!value) {
+  return
+}`
+
+    expect(check("statement-spacing", input, true).output).toBe(input.replace("\n\nif", "\nif"))
+  })
+
+  it("keeps a trailing comment attached when spacing the following multiline declaration", () => {
+    const input = `const priority = (100000 - containerPort) % 100 // each next interface gets lower priority
+const namespace = Namespace.createOrPatch(appName, {
+  cluster,
+})`
+
+    const expected = input.replace("\nconst namespace", "\n\nconst namespace")
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it("keeps a trailing class-member comment attached when spacing methods", () => {
+    const input = `class Store {
+  value = 1 // initial value
+  get() { return this.value }
+}`
+
+    const expected = input.replace("\n  get()", "\n\n  get()")
+    expect(check("member-spacing", input, true).output).toBe(expected)
+    expect(check("member-spacing", expected).messages).toEqual([])
+  })
+
   it("separates a single const from a multiline guard condition", () => {
     const input = `const previousPage = pages.value[pageIndex - 1]
 if (
