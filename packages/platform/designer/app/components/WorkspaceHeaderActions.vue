@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IDockviewHeaderActionsProps } from "dockview-vue"
+import type accountHandler from "../../server/api/account.get"
 import { LayoutResetButton } from "#layers/core/app/features/main-menu"
 
 const { params } = defineProps<{ params: IDockviewHeaderActionsProps }>()
@@ -7,7 +8,8 @@ const workspace = useWorkspaceStore()
 const access = useAccess()
 const showAccount = ref(false)
 const accountOpen = ref(false)
-const { data: account, refresh } = useFetch("/api/account")
+type Account = Awaited<ReturnType<typeof accountHandler>>
+const { data: account, refresh } = useFetch<Account | null>("/api/account", { default: () => null })
 
 function updateGroup() {
   showAccount.value = params.group.model.panels.some(
