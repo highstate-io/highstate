@@ -12,6 +12,8 @@ const passwordField = useTemplateRef("passwordField")
 const password = ref<string>("")
 const error = ref<string | null>(null)
 const loading = ref(false)
+const keyringLoading = ref(false)
+const { $client } = useNuxtApp()
 
 const stateStore = await useProjectStateStore.async(projectId)
 const workspaceStore = useWorkspaceStore()
@@ -53,7 +55,7 @@ const tryPassKeyUnlock = async () => {
       return
     }
 
-    if (passkeys.length === 0 && unlockSuite.value?.hasPasskey) {
+    if (unlockSuite.value?.hasPasskey) {
       const decrypter = new Decrypter()
       decrypter.addIdentity(new webauthn.WebAuthnIdentity())
 
@@ -114,6 +116,29 @@ const tryPasswordUnlock = async () => {
 }
 
 const rules = computed(() => [(v: string) => !!v || "Password is required"])
+
+const tryKeyringUnlock = async () => {
+  keyringLoading.value = true
+  error.value = null
+
+  try {
+    const methods = unlockSuite.value?.keyrings ?? []
+
+    for (const { recipient } of methods) {
+      try {
+        await $client.state.unlockProjectWithKeyring.mutate({ projectId, recipient })
+        return
+      } catch (err) {
+        globalLogger.debug({ error: err }, "failed to unlock with system keyring recipient")
+      }
+    }
+
+    error.value =
+      "The system keyring is locked, unavailable, or belongs to another backend. Retry after unlocking it, or use another method."
+  } finally {
+    keyringLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -165,13 +190,28 @@ const rules = computed(() => [(v: string) => !!v || "Password is required"])
       <VCardActions>
         <VSpacer />
         <VBtn
+          v-if="unlockSuite?.keyrings?.length"
+          class="unlock-method-button"
+          color="secondary"
+          :loading="keyringLoading"
+          :disabled="keyringLoading"
+          aria-label="Unlock with keyring"
+          @click="tryKeyringUnlock"
+        >
+          <VIcon>mdi-safe</VIcon>
+          <VTooltip activator="parent" location="bottom">Unlock with keyring</VTooltip>
+        </VBtn>
+        <VBtn
           v-if="unlockState.type === 'locked' && unlockSuite?.hasPasskey"
+          class="unlock-method-button"
           color="secondary"
           :loading="passKeyInProgress"
           :disabled="passKeyInProgress"
+          aria-label="Unlock with passkey"
           @click="tryPassKeyUnlock"
         >
           <VIcon>mdi-fingerprint</VIcon>
+          <VTooltip activator="parent" location="bottom">Unlock with passkey</VTooltip>
         </VBtn>
         <VBtn color="primary" :loading="loading" :disabled="loading" @click="tryPasswordUnlock">
           <VIcon class="mr-2">mdi-lock-open</VIcon>
@@ -199,5 +239,10 @@ const rules = computed(() => [(v: string) => !!v || "Password is required"])
   width: 600px;
   display: block;
   margin: 0 auto;
+}
+
+.unlock-method-button {
+  min-width: 40px;
+  padding-inline: 8px;
 }
 </style>

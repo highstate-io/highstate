@@ -52,7 +52,7 @@ const handleCreate = async () => {
     emit("created")
   } catch (err) {
     console.error("Failed to create unlock method:", err)
-    error.value = "Some error occurred"
+    error.value = err instanceof Error ? err.message : "Failed to create unlock method"
   } finally {
     loading.value = false
   }

@@ -19,6 +19,30 @@ function check(name: string, code: string, fix = false) {
 }
 
 describe("style diagnostics", () => {
+  it("rejects static imports after code, including hoisted mock declarations", () => {
+    const result = check(
+      "imports-first",
+      `import { vi } from "vitest";
+const mocks = vi.hoisted(() => ({}));
+import { Service } from "./service";`,
+    )
+
+    expect(result.messages).toHaveLength(1)
+    expect(result.messages[0]?.line).toBe(3)
+  })
+
+  it("allows directives and grouped imports before code", () => {
+    const result = check(
+      "imports-first",
+      `"use strict";
+import type { Options } from "./options";
+import { Service } from "./service";
+const service = new Service();`,
+    )
+
+    expect(result.messages).toEqual([])
+  })
+
   it.each(["\n", "\n\n"])("separates multiline awaited calls from guards (%j)", gap => {
     const declaration = `async function find(database, apiKeyId) {
   const apiKey = await database.apiKey.findUnique({

@@ -272,6 +272,26 @@ export const stateRouter = router({
       )
     }),
 
+  getBackendState: backendProcedure.query(async ({ ctx }) => {
+    return { capabilities: await ctx.projectUnlockService.getBackendCapabilities() }
+  }),
+
+  lockProject: backendProcedure
+    .input(z.object({ projectId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.projectUnlockService.lockProject(ctx.requestContext, input.projectId)
+    }),
+
+  unlockProjectWithKeyring: backendProcedure
+    .input(z.object({ projectId: z.string(), recipient: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.projectUnlockService.unlockProjectWithKeyring(
+        ctx.requestContext,
+        input.projectId,
+        input.recipient,
+      )
+    }),
+
   unlockProject: backendProcedure
     .input(
       z.object({

@@ -66,6 +66,19 @@ export const projectUnlockSuiteSchema = z.object({
   hasPasskey: z.boolean(),
 
   /**
+   * Self-contained unlock identities encrypted to the system keyring's wrapping identity.
+   */
+  keyrings: z
+    .array(
+      z.object({
+        recipient: z.string(),
+        encryptedIdentity: z.string(),
+        autoUnlock: z.boolean().default(false),
+      }),
+    )
+    .default([]),
+
+  /**
    * The passkey identities linked to their encrypted AGE identities.
    *
    * Existing unlock suites may not contain these references.

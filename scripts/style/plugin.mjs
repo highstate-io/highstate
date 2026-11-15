@@ -114,6 +114,21 @@ function messageStyle(context, node, uppercase) {
 }
 
 const rules = {
+  "imports-first": rule("Keep static imports before executable code", context => ({
+    Program(node) {
+      let sawCode = false
+
+      for (const statement of node.body) {
+        if (statement.type === "ImportDeclaration") {
+          if (sawCode) {
+            report(context, statement, "Place static imports before other module statements")
+          }
+        } else if (statement.type !== "ExpressionStatement" || !statement.directive) {
+          sawCode = true
+        }
+      }
+    },
+  })),
   "switch-mappers": rule(
     "Use switch for multiple mapping cases on the same value",
     context => {

@@ -17,7 +17,8 @@
       "default": "./dist/shared/index.js"
     },
     "./library-worker": "./dist/library/worker/main.js",
-    "./package-resolution-worker": "./dist/library/package-resolution-worker.js"
+    "./package-resolution-worker": "./dist/library/package-resolution-worker.js",
+    "./project-keyring-helper": "./dist/business/project-keyring-helper.js"
   },
   "publishConfig": {
     "access": "public"

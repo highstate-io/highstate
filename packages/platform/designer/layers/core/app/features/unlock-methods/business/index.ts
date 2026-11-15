@@ -33,24 +33,40 @@ export async function createPasswordUnlockMethod(
 
 export async function createPasskeyUnlockMethod(
   meta: UnlockMethodMeta,
-  project: { id: string; name: string },
+  _project: { id: string; name: string },
 ): Promise<UnlockMethodInput> {
   if (!meta.title) {
     throw new Error("Display name is required for passkey unlock method")
   }
 
-  const identity = await webauthn.createCredential({
-    keyName: `[${project.id}] ${project.name} | ${meta.title}`,
-  })
+  const encryptIdentity = async (credential?: string) => {
+    const encrypter = new Encrypter()
 
-  const encrypter = new Encrypter()
-  encrypter.addRecipient(new webauthn.WebAuthnRecipient({ identity }))
-  const unlockMethod = await createUnlockMethod(meta, encrypter)
+    encrypter.addRecipient(
+      new webauthn.WebAuthnRecipient(credential ? { identity: credential } : undefined),
+    )
+
+    return await createUnlockMethod(meta, encrypter)
+  }
+
+  let unlockMethod: Awaited<ReturnType<typeof createUnlockMethod>>
+
+  try {
+    unlockMethod = await encryptIdentity()
+  } catch (error) {
+    // webAuthn uses NotAllowedError for missing credentials, cancellation, and timeout
+    // Enrollment is attempted only once; unsupported PRF and other failures must not create credentials.
+    if (!(error instanceof Error) || error.name !== "NotAllowedError") {
+      throw error
+    }
+
+    const credential = await webauthn.createCredential({ keyName: "Highstate" })
+    unlockMethod = await encryptIdentity(credential)
+  }
 
   return {
     type: "passkey",
     ...unlockMethod,
-    passkeyIdentity: identity,
   }
 }
 
@@ -60,6 +76,7 @@ export type UnlockMethodFormData = {
   description: string
   password: string
   confirmPassword: string
+  autoUnlock?: boolean
 }
 
 export function createUnlockMethodFromForm(
@@ -77,6 +94,13 @@ export function createUnlockMethodFromForm(
 
   if (formData.type === "passkey") {
     return createPasskeyUnlockMethod(meta, project)
+  }
+
+  if (formData.type === "keyring") {
+    return Promise.resolve({
+      type: "keyring",
+      meta: { ...meta, autoUnlock: formData.autoUnlock ?? false },
+    })
   }
 
   throw new Error(`Unsupported unlock method type: ${formData.type}`)

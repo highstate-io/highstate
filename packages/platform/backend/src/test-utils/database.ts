@@ -50,6 +50,11 @@ export class TestDatabaseManager implements DatabaseManager {
     return this.forProject(projectId)
   }
 
+  async closeProject(projectId: string): Promise<void> {
+    const database = await this.projectDatabases.get(projectId)
+    await database?.$disconnect()
+  }
+
   forProject(projectId: string): Promise<ProjectDatabase> {
     const existingDb = this.projectDatabases.get(projectId)
     if (existingDb) {
