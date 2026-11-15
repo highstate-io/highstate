@@ -92,15 +92,15 @@ watch(
       >
         <VCardText class="pa-4">
           <div class="d-flex align-center ga-3 mb-4">
-            <VAvatar size="32" rounded="sm" color="surface-variant">
+            <VAvatar size="52" rounded="sm" color="surface-variant">
               <VImg
                 v-if="account.avatarUrl"
                 :src="account.avatarUrl"
                 alt="Your avatar"
                 eager
                 cover
-                width="32"
-                height="32"
+                width="52"
+                height="52"
               />
               <VIcon v-else>mdi-account</VIcon>
             </VAvatar>
