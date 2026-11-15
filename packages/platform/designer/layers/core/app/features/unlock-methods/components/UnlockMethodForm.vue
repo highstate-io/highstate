@@ -233,7 +233,7 @@ defineExpose({
       </VBtn>
       <VBtn value="keyring" class="flex-grow-1">
         <VIcon :icon="getTypeIcon('keyring')" class="mr-2" />
-        System keyring
+        Keyring
       </VBtn>
     </VBtnToggle>
 
