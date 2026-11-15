@@ -4,6 +4,7 @@ import type { AccessRequirement } from "../../../utils/access-control"
 import DetailInfoCard from "./DetailInfoCard.vue"
 import DetailPageLayout from "./DetailPageLayout.vue"
 import IdTableCell from "./IdTableCell.vue"
+import RelatedDataPanel from "./RelatedDataPanel.vue"
 import SettingsPageHeader from "./SettingsPageHeader.vue"
 import TimeTableCell from "./TimeTableCell.vue"
 
@@ -184,84 +185,89 @@ const details = [
         >
         <template #item.createdAt><TimeTableCell :value="user.createdAt" /></template>
       </DetailInfoCard>
-      <h3>Direct role bindings</h3>
-      <p class="text-medium-emphasis">
-        These bindings apply only to this realm. Identity-provider group grants and
-        deployment-configured administrator grants are managed separately.
-      </p>
-      <AccessBoundary :requirements="bindingRequirements" title="Role bindings unavailable">
-        <AccessNotice
-          v-if="bindingFailure"
-          :message="bindingFailure"
-          title="Role bindings unavailable"
-        />
-        <div class="binding-form mb-6">
-          <VSelect
-            v-model="selectedRoleIds"
-            :items="availableRoles"
-            item-title="meta.title"
-            item-value="id"
-            :item-props="role => ({ disabled: !access.status(editRequirements(role)).allowed })"
-            label="Roles"
-            multiple
-            chips
-            closable-chips
-            density="compact"
-            variant="outlined"
-            hide-details
-            :disabled="(loading && !roles.length) || !!saving"
-          >
-            <template #item="{ props, item }">
-              <VListItem v-bind="props" v-access="editRequirements(item.raw)">
-                <template #prepend>
-                  <VCheckboxBtn
-                    :model-value="selectedRoleIds.includes(item.raw.id)"
-                    :ripple="false"
-                    tabindex="-1"
-                  />
-                </template>
-              </VListItem>
-            </template>
-          </VSelect>
-          <VBtn
-            v-access="addRequirements"
-            color="primary"
-            class="binding-action"
-            :disabled="loading || !!saving || !selectedRoles.length"
-            :loading="!!saving"
-            @click="addBindings"
-            >Add</VBtn
-          >
-        </div>
-        <VTable>
-          <thead>
-            <tr>
-              <th>Role</th>
-              <th class="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="role in boundRoles" :key="role.id">
-              <td>{{ role.meta.title }}</td>
-              <td class="text-right">
+      <VExpansionPanels :elevation="0">
+        <RelatedDataPanel title="Roles" icon="mdi-shield-account" :count="boundRoles.length">
+          <div class="pa-4">
+            <p class="text-medium-emphasis mb-4">
+              These bindings apply only to this realm. Identity-provider group grants and
+              deployment-configured administrator grants are managed separately.
+            </p>
+            <AccessBoundary :requirements="bindingRequirements" title="Role bindings unavailable">
+              <AccessNotice
+                v-if="bindingFailure"
+                :message="bindingFailure"
+                title="Role bindings unavailable"
+              />
+              <div class="binding-form mb-6">
+                <VSelect
+                  v-model="selectedRoleIds"
+                  :items="availableRoles"
+                  item-title="meta.title"
+                  item-value="id"
+                  :item-props="role => ({ disabled: !access.status(editRequirements(role)).allowed })"
+                  label="Roles"
+                  multiple
+                  chips
+                  closable-chips
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  :disabled="(loading && !roles.length) || !!saving"
+                >
+                  <template #item="{ props, item }">
+                    <VListItem v-bind="props" v-access="editRequirements(item.raw)">
+                      <template #prepend>
+                        <VCheckboxBtn
+                          :model-value="selectedRoleIds.includes(item.raw.id)"
+                          :ripple="false"
+                          tabindex="-1"
+                        />
+                      </template>
+                    </VListItem>
+                  </template>
+                </VSelect>
                 <VBtn
-                  v-access="editRequirements(role)"
-                  icon="mdi-delete-outline"
-                  variant="text"
-                  size="small"
-                  :disabled="!!saving"
-                  :loading="saving === role.id"
-                  :aria-label="`Remove ${role.meta.title}`"
-                  @click="changeBinding(role)"
-                />
-              </td>
-            </tr>
-            <tr v-if="!loading && !boundRoles.length">
-              <td colspan="2" class="text-center text-medium-emphasis py-4">No roles</td>
-            </tr>
-          </tbody>
-        </VTable>
-      </AccessBoundary>
+                  v-access="addRequirements"
+                  color="primary"
+                  class="binding-action"
+                  :disabled="loading || !!saving || !selectedRoles.length"
+                  :loading="!!saving"
+                  @click="addBindings"
+                  >Add</VBtn
+                >
+              </div>
+              <VTable>
+                <thead>
+                  <tr>
+                    <th>Role</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="role in boundRoles" :key="role.id">
+                    <td>{{ role.meta.title }}</td>
+                    <td class="text-right">
+                      <VBtn
+                        v-access="editRequirements(role)"
+                        icon="mdi-delete-outline"
+                        variant="text"
+                        size="small"
+                        :disabled="!!saving"
+                        :loading="saving === role.id"
+                        :aria-label="`Remove ${role.meta.title}`"
+                        @click="changeBinding(role)"
+                      />
+                    </td>
+                  </tr>
+                  <tr v-if="!loading && !boundRoles.length">
+                    <td colspan="2" class="text-center text-medium-emphasis py-4">No roles</td>
+                  </tr>
+                </tbody>
+              </VTable>
+            </AccessBoundary>
+          </div>
+        </RelatedDataPanel>
+      </VExpansionPanels>
     </DetailPageLayout>
   </div>
 </template>
