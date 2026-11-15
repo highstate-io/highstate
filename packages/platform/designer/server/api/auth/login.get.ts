@@ -11,7 +11,12 @@ import { getLoginClient } from "../../utils/oauth-client"
 
 export default defineEventHandler(async event => {
   const config = getHostedAuthConfig()
-  const provider = config.providers.find(provider => provider.id === getQuery(event).provider)
+  const providerId = getQuery(event).provider
+
+  const provider =
+    providerId === undefined
+      ? config.providers[0]
+      : config.providers.find(provider => provider.id === providerId)
 
   if (!provider) {
     throw createError({ statusCode: 400, statusMessage: "Unknown login provider" })

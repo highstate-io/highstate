@@ -675,8 +675,10 @@ try {
     "revoking a hosted session stops protected interaction and offers sign-in",
     async () => {
       const account = await reader.page.context().newPage()
-      await account.goto(`${designer!.url}/login`)
+      await account.goto(designer!.url)
+      await account.getByRole("button", { name: "Account: E2E Reader" }).click()
       await account.getByRole("button", { name: "Sign out", exact: true }).click()
+      await expect(account.getByRole("heading", { name: "Choose test identity" })).toBeVisible()
 
       await expect(
         reader.page.getByRole("link", { name: "Sign in again", exact: true }),
@@ -685,10 +687,14 @@ try {
       await expect(reader.page.locator(".dockview-container")).toHaveCount(0)
       await expect(reader.page.locator(".access-rejection-banner")).toHaveCount(0)
       await expect(reader.page.locator(".session-expired-panel .access-notice-panel")).toBeVisible()
+
       await expect(
         reader.page.getByRole("link", { name: "Sign in again", exact: true }),
       ).toHaveClass(/v-btn/)
+
       await capture(reader, "session-revoked")
+      await reader.page.getByRole("link", { name: "Sign in again", exact: true }).click()
+      await expect(reader.page.getByRole("heading", { name: "Choose test identity" })).toBeVisible()
     },
   )
 

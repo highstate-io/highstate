@@ -131,7 +131,9 @@ instance's scope.
 
 ## Browser and panel access
 
-`/login` lists configured providers and has a POST sign-out form.
+`/login` redirects directly into authentication with the first configured provider, without an intermediate page.
+`/api/auth/login?provider=<id>` starts authentication with an explicitly selected provider.
+The account popover contains the POST sign-out action; expired sessions show a full-window sign-in state.
 The Designer Account link opens this page.
 Login uses authorization code flow, S256 PKCE, browser-bound one-use state, and an OIDC nonce.
 The maintained `openid-client` library validates responses, issuer, audience, timestamps, and ID-token signatures.

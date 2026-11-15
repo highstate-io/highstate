@@ -15,8 +15,7 @@ export class DesignerBrowser {
   ) {}
 
   async login(identity: OidcUser) {
-    await this.page.goto(`${this.url}/login`)
-    await this.page.getByRole("link", { name: "Continue with E2E OIDC" }).click()
+    await this.page.goto(this.url)
     await this.page.getByRole("button", { name: oidcUsers[identity].name, exact: true }).click()
     await expect(this.page.locator(".dv-tab").first()).toBeVisible({ timeout: 60_000 })
   }
