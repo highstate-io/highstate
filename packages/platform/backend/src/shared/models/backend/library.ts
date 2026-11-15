@@ -1,12 +1,4 @@
-import { type ComponentModel, type EntityModel, z } from "@highstate/contract"
-
-export const librarySpecSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("host"),
-  }),
-])
-
-export type LibrarySpec = z.infer<typeof librarySpecSchema>
+import type { ComponentModel, EntityModel } from "@highstate/contract"
 
 export type LibraryModel = {
   components: Record<string, ComponentModel>

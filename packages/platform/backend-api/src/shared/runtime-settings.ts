@@ -54,10 +54,6 @@ export function toContainerRuntime(value: ContainerRuntimeOutput) {
                   caBundleConfigured: spec.tls.caBundleConfigured,
                   clientCertificateConfigured: spec.tls.clientCertificateConfigured,
                   clientKeyConfigured: spec.tls.clientKeyConfigured,
-                  configured:
-                    spec.tls.caBundleConfigured &&
-                    spec.tls.clientCertificateConfigured &&
-                    spec.tls.clientKeyConfigured,
                 },
               },
             }

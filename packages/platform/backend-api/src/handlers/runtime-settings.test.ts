@@ -159,7 +159,13 @@ describe("runtime settings transport", () => {
 
     expect(response.runtime?.spec?.runtime).toMatchObject({
       case: "docker",
-      value: { tls: { configured: true, clientKeyConfigured: true } },
+      value: {
+        tls: {
+          caBundleConfigured: true,
+          clientCertificateConfigured: true,
+          clientKeyConfigured: true,
+        },
+      },
     })
 
     const selected = response.runtime?.spec?.runtime

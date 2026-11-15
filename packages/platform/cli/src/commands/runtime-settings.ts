@@ -342,7 +342,6 @@ export class RuntimeGetCommand extends SettingsGetCommand {
 
 export class RuntimePutCommand extends SettingsPutCommand {
   static paths = [
-    ["runtime", "put"],
     ["runtime", "create"],
     ["runtime", "update"],
   ]
@@ -411,11 +410,12 @@ export class RuntimeCheckCommand extends RemoteCommand {
 
   static usage = Command.Usage({
     category: "Backend API",
-    description: "Checks runtime readiness and optionally probes workload connectivity.",
+    description:
+      "Checks runtime readiness; --probe requires authenticated workload connectivity evidence.",
   })
 
   id = Option.String({ required: true })
-  probe = Option.Boolean("--probe,--probe-runtime-api", false)
+  probe = Option.Boolean("--probe", false)
 
   async execute(): Promise<number> {
     const { clients } = await this.remote(false)
@@ -454,7 +454,6 @@ export class PulumiStateBackendGetCommand extends SettingsGetCommand {
 
 export class PulumiStateBackendPutCommand extends CredentialPutCommand {
   static paths = [
-    ["pulumi-state-backend", "put"],
     ["pulumi-state-backend", "create"],
     ["pulumi-state-backend", "update"],
   ]
@@ -512,7 +511,6 @@ export class NpmRegistryCredentialGetCommand extends SettingsGetCommand {
 
 export class NpmRegistryCredentialPutCommand extends CredentialPutCommand {
   static paths = [
-    ["npm-registry-credential", "put"],
     ["npm-registry-credential", "create"],
     ["npm-registry-credential", "update"],
   ]
@@ -561,7 +559,6 @@ export class ContainerRegistryCredentialGetCommand extends SettingsGetCommand {
 
 export class ContainerRegistryCredentialPutCommand extends CredentialPutCommand {
   static paths = [
-    ["container-registry-credential", "put"],
     ["container-registry-credential", "create"],
     ["container-registry-credential", "update"],
   ]

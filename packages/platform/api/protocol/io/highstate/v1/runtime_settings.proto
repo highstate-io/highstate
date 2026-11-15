@@ -93,9 +93,6 @@ message DockerEngineTlsConfig {
   // The private key for the client certificate.
   optional bytes client_key = 3 [(google.api.field_behavior) = INPUT_ONLY];
 
-  // Whether complete TLS client configuration is already stored.
-  bool configured = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // Clears the stored CA bundle; omission of ca_bundle otherwise preserves it.
   bool clear_ca_bundle = 5 [(google.api.field_behavior) = INPUT_ONLY];
 
@@ -373,52 +370,20 @@ message DeleteContainerRegistryCredentialRequest {
 // DeleteContainerRegistryCredentialResponse reports successful removal.
 message DeleteContainerRegistryCredentialResponse {}
 
-// ContainerRuntimeCapability identifies one capability verified for a configured container runtime.
-enum ContainerRuntimeCapability {
-  // The capability was not specified or is not recognized.
-  CONTAINER_RUNTIME_CAPABILITY_UNSPECIFIED = 0;
-
-  // The runtime can build OCI images.
-  CONTAINER_RUNTIME_CAPABILITY_IMAGE_BUILD = 1;
-
-  // The runtime can retain images without pushing them.
-  CONTAINER_RUNTIME_CAPABILITY_LOCAL_IMAGE_STORE = 2;
-
-  // The runtime can push and pull images through the configured repository.
-  CONTAINER_RUNTIME_CAPABILITY_REGISTRY = 3;
-
-  // The runtime supports interactive attachment.
-  CONTAINER_RUNTIME_CAPABILITY_ATTACH = 4;
-
-  // The runtime supports command execution in running workloads.
-  CONTAINER_RUNTIME_CAPABILITY_EXEC = 5;
-
-  // The runtime provides workload networking and DNS.
-  CONTAINER_RUNTIME_CAPABILITY_NETWORKING = 6;
-
-  // The runtime supports persistent workload volumes.
-  CONTAINER_RUNTIME_CAPABILITY_PERSISTENT_VOLUMES = 7;
-
-  // The runtime can mount local development library sources.
-  CONTAINER_RUNTIME_CAPABILITY_LOCAL_LIBRARY_OVERLAY = 8;
-}
-
-// CheckContainerRuntimeRequest requests connectivity, permission, and capability preflight.
+// CheckContainerRuntimeRequest requests connectivity and permission preflight.
 message CheckContainerRuntimeRequest {
   // The configured runtime to check.
   string container_runtime_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // Whether to launch a probe workload to verify workload-to-backend connectivity.
+  // Require authenticated workload-to-backend connectivity evidence in the preflight results.
+  // This does not control whether the backend runs its configured workload probe.
   bool probe_runtime_api = 2;
 }
 
-// CheckContainerRuntimeResponse reports verified capabilities and actionable failures.
+// CheckContainerRuntimeResponse reports readiness checks and actionable failures.
 message CheckContainerRuntimeResponse {
   // Whether every requirement for the configured runtime passed.
   bool ready = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Capabilities verified by the preflight.
-  repeated ContainerRuntimeCapability capabilities = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Individual preflight checks.
   repeated ContainerRuntimeCheck checks = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -447,7 +412,7 @@ service RuntimeSettingsService {
   // Removes an unused container runtime.
   rpc DeleteContainerRuntime(DeleteContainerRuntimeRequest) returns (DeleteContainerRuntimeResponse);
 
-  // Checks runtime connectivity, permissions, workload reachability, and supported capabilities.
+  // Checks runtime connectivity, permissions, and workload reachability.
   rpc CheckContainerRuntime(CheckContainerRuntimeRequest) returns (CheckContainerRuntimeResponse);
 
   // Lists configured Pulumi state backends.

@@ -11,14 +11,6 @@ declare global {
   namespace PrismaJson {
     type BackendUnlockMethodMeta = shared.BackendUnlockMethodMeta
 
-    type LegacyProjectExecutionConfig = {
-      libraryId: string
-      pulumiBackendId: string
-      librarySpec: { type: string }
-      libraryMeta: contract.CommonObjectMeta
-      pulumiBackendSpec: { type: string }
-      pulumiBackendMeta: contract.CommonObjectMeta
-    }
     type PulumiStateBackendSpec = shared.PulumiStateBackendSpec
     type ContainerRuntimeSpec = shared.ContainerRuntimeSpec
     type ProjectModelStorageSpec = shared.ProjectModelStorageSpec

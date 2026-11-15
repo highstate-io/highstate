@@ -1391,7 +1391,13 @@ export type $RuntimeWorkloadPayload<ExtArgs extends runtime.Types.Extensions.Int
      */
     ownerId: string
     /**
-     * The runtime-native root resource handle used for inspection and reconciliation.
+     * The adapter-returned handle of the workload's root native resource: a Docker container ID or a
+     * Kubernetes "pod/<name>", "job/<name>" or "deployment/<name>" in the configured runtime namespace.
+     * Used for direct inspection, logs, terminal attachment and stopping or replacing the native workload.
+     * Null before placement or after a native workload is cleared for replacement; reconciliation can
+     * recover it by discovering resources labeled with this workload ID and current lease generation.
+     * This is an opaque, runtime-scoped locator, not the logical workload identity or proof of ownership.
+     * Ownership labels remain authoritative for reconciliation and cleanup of root and child resources.
      */
     nativeResourceId: string | null
     /**

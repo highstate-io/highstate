@@ -193,9 +193,6 @@ message LibraryCatalogSource {
   // The exact npm package version for a packaged source.
   optional string package_version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The package-version record for a packaged source.
-  optional string library_package_version_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // The immutable snapshot containing this packaged definition.
   optional string library_snapshot_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
@@ -224,9 +221,9 @@ message SelectedLibraryPackage {
   string version = 2;
 }
 
-// LibraryPackageVersion describes an evaluated exact package version.
+// LibraryPackageVersion describes an exact package version or registry metadata for an unresolved lookup.
 message LibraryPackageVersion {
-  // The stable package-version ID.
+  // The stable package-version ID, populated for evaluated desired snapshot members.
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The npm package name.
@@ -235,17 +232,15 @@ message LibraryPackageVersion {
   // The exact npm package version.
   string version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The registry from which the package was resolved.
+  // The registry from which an evaluated desired snapshot member was resolved.
   string registry_url = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The registry-provided package integrity value.
+  // The registry-provided integrity value for an evaluated desired snapshot member.
   string package_integrity = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Cached npm package metadata.
   google.protobuf.Struct package_metadata = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The time when this package version was evaluated.
-  google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // LibrarySnapshot describes one immutable packaged library environment.
@@ -262,8 +257,6 @@ message LibrarySnapshot {
   // Runtime and package-format compatibility requirements.
   google.protobuf.Struct compatibility = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The time when the snapshot was created.
-  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // LibrarySnapshotVersion identifies one direct package version in a snapshot.
@@ -518,13 +511,13 @@ message ListLibraryPackageVersionsResponse {
   repeated string versions = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// GetLibraryPackageVersionRequest requests one evaluated package-version record.
+// GetLibraryPackageVersionRequest looks up a desired snapshot member or exact registry version metadata.
 message GetLibraryPackageVersionRequest {
   // The project ID.
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The stable package-version ID of a desired snapshot member; alternatively supply package_name and version.
-  string library_package_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string library_package_version_id = 2;
 
   // The package name, when looking up an exact version instead of a snapshot member ID.
   optional string package_name = 3;
@@ -533,9 +526,10 @@ message GetLibraryPackageVersionRequest {
   optional string version = 4;
 }
 
-// GetLibraryPackageVersionResponse returns one evaluated package version.
+// GetLibraryPackageVersionResponse returns a snapshot member or metadata fetched from the registry.
 message GetLibraryPackageVersionResponse {
-  // The canonical package-version record.
+  // ID lookup returns an evaluated desired snapshot member. Name/version lookup returns registry metadata
+  // and does not guarantee a persisted ID, registry URL or package integrity value.
   LibraryPackageVersion package_version = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

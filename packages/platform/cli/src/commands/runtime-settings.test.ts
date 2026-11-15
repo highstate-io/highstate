@@ -262,7 +262,7 @@ describe("registered runtime settings commands", () => {
   it.each(resources)("rejects blind writes and missing IDs for $path", async resource => {
     const path = await file(JSON.stringify({ ...resource.document, id: resource.id, revision }))
 
-    await run(resource.path, "put", "--file", path)
+    await run(resource.path, "update", "--file", path)
     expect(stderr).toContain("--expected-revision")
     expect(client[resource.put]).not.toHaveBeenCalled()
     stderr = ""
@@ -273,6 +273,17 @@ describe("registered runtime settings commands", () => {
     expect(JSON.parse(stderr).error.message).toBe('Setting "missing" not found')
     expect(await run(resource.path, "delete", resource.id)).toBe(1)
     expect(client[resource.delete]).not.toHaveBeenCalled()
+  })
+
+  it.each(resources)("rejects the removed put alias for $path without an RPC", async resource => {
+    const path = await file(JSON.stringify(resource.document))
+    expect(await run(resource.path, "put", "--file", path)).toBe(1)
+    expect(client[resource.put]).not.toHaveBeenCalled()
+  })
+
+  it("rejects the removed probe alias without an RPC", async () => {
+    expect(await run("runtime", "check", "runtime-1", "--probe-runtime-api")).toBe(1)
+    expect(client.checkContainerRuntime).not.toHaveBeenCalled()
   })
 
   it.each([
@@ -292,7 +303,7 @@ describe("registered runtime settings commands", () => {
     await run("pulumi-state-backend", "update", "--file", path)
     expect(stderr).toContain("Update requires a setting ID")
     await writeFile(path, "id: backend-1\nmeta: {title: State}\nurl: s3://state\n")
-    await run("pulumi-state-backend", "put", "other-id", "--file", path)
+    await run("pulumi-state-backend", "update", "other-id", "--file", path)
     expect(stderr).toContain("Document ID does not match")
     expect(client.putPulumiStateBackend).not.toHaveBeenCalled()
   })
@@ -310,7 +321,7 @@ describe("registered runtime settings commands", () => {
       }),
     )
 
-    await run("npm-registry-credential", "put", "--file", path, "--expected-revision", revision)
+    await run("npm-registry-credential", "update", "--file", path, "--expected-revision", revision)
     expect(client.putNpmRegistryCredential).toHaveBeenCalledOnce()
     expect(client.putNpmRegistryCredential.mock.calls[0]![0].credential.credentials).toBeUndefined()
   })
@@ -322,7 +333,7 @@ describe("registered runtime settings commands", () => {
     expect(
       await run(
         "container-registry-credential",
-        "put",
+        "create",
         "--file",
         path,
         "--credentials-file",
@@ -349,7 +360,7 @@ describe("registered runtime settings commands", () => {
       )
 
     expect(
-      await run("pulumi-state-backend", "put", "--file", "-", "--expected-revision", revision),
+      await run("pulumi-state-backend", "update", "--file", "-", "--expected-revision", revision),
     ).toBe(0)
 
     expect(text).toHaveBeenCalledOnce()
@@ -372,7 +383,7 @@ describe("registered runtime settings commands", () => {
     vi.spyOn(Bun.stdin, "text").mockResolvedValue("meta: {title: Npm}")
 
     expect(
-      await run("npm-registry-credential", "put", "--file", path, "--credentials-file", "-"),
+      await run("npm-registry-credential", "create", "--file", path, "--credentials-file", "-"),
     ).toBe(0)
 
     expect(client.putNpmRegistryCredential).toHaveBeenCalledWith({
@@ -381,7 +392,7 @@ describe("registered runtime settings commands", () => {
     })
 
     client.putNpmRegistryCredential.mockClear()
-    await run("npm-registry-credential", "put", "--file", "-", "--credentials-file", "-")
+    await run("npm-registry-credential", "create", "--file", "-", "--credentials-file", "-")
     expect(stderr).toContain("Stdin may only be used for one input")
     expect(client.putNpmRegistryCredential).not.toHaveBeenCalled()
   })
@@ -392,7 +403,7 @@ describe("registered runtime settings commands", () => {
 
     await run(
       "pulumi-state-backend",
-      "put",
+      "update",
       "--file",
       path,
       "--credentials-file",
@@ -429,7 +440,7 @@ describe("registered runtime settings commands", () => {
 
     await run(
       "runtime",
-      "put",
+      "update",
       "--file",
       path,
       "--expected-revision",
@@ -486,7 +497,7 @@ describe("registered runtime settings commands", () => {
 
     await run(
       "runtime",
-      "put",
+      "create",
       "--file",
       path,
       "--kubeconfig-file",
@@ -519,7 +530,7 @@ describe("registered runtime settings commands", () => {
 
   it("does not echo malformed secret document values in parse errors", async () => {
     const path = await file('{"credentials":"DO-NOT-ECHO-THIS!"}')
-    await run("npm-registry-credential", "put", "--file", path)
+    await run("npm-registry-credential", "create", "--file", path)
     expect(stderr).toContain("Invalid settings document")
     expect(stdout + stderr).not.toContain("DO-NOT-ECHO-THIS")
     expect(client.putNpmRegistryCredential).not.toHaveBeenCalled()

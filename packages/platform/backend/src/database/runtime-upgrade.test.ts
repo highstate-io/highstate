@@ -52,7 +52,7 @@ async function migrate(client: MigrationClient, kind: "backend" | "project", old
   await migrateDatabase(client, migrations, 0, async () => {}, logger)
 }
 
-test("upgrades populated backend databases without losing project links, keys, or host identifiers", async () => {
+test("upgrades populated backend databases with default placement without losing project links or keys", async () => {
   const client = await openDatabase("backend")
   await migrate(client, "backend", true)
   await client.$executeRawUnsafe(`INSERT INTO "ProjectSpace" (id, meta) VALUES ('space', '{}')`)
@@ -103,12 +103,6 @@ test("upgrades populated backend databases without losing project links, keys, o
     encryptedMasterKey: "encrypted-master",
     encryptedPrivateKey: "encrypted-private",
     publicKey: "public-key",
-    legacyExecutionConfig: {
-      libraryId: "old-library",
-      pulumiBackendId: "old-pulumi",
-      librarySpec: { type: "host" },
-      pulumiBackendSpec: { type: "host" },
-    },
   })
 
   expect(await backend.projectImportPort.findMany()).toMatchObject([
@@ -119,7 +113,16 @@ test("upgrades populated backend databases without losing project links, keys, o
     await backend.pulumiStateBackend.findUniqueOrThrow({
       where: { id: project.pulumiStateBackendId },
     }),
-  ).toMatchObject({ spec: { url: "legacy:host" } })
+  ).toMatchObject({ systemName: "local", spec: { url: "file://~" } })
+
+  expect(await backend.pulumiStateBackend.count()).toBe(1)
+  expect(
+    await client.$queryRawUnsafe(
+      `SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('Library', 'PulumiBackend')`,
+    ),
+  ).toEqual([])
+  const columns = await client.$queryRawUnsafe<{ name: string }[]>(`PRAGMA table_info("Project")`)
+  expect(columns.map(column => column.name)).not.toContain("legacyExecutionConfig")
 
   expect(versions).toEqual([5])
   expect(await client.$queryRawUnsafe("PRAGMA foreign_key_check")).toEqual([])

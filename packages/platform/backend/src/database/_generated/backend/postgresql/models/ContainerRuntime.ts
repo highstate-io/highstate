@@ -1076,6 +1076,8 @@ export type $ContainerRuntimePayload<ExtArgs extends runtime.Types.Extensions.In
     meta:PrismaJson.CommonObjectMeta
     /**
      * The Docker or Kubernetes runtime specification.
+     * Stored Docker TLS material and Kubernetes kubeconfig are ASCII-armored AGE ciphertext encrypted
+     * to the backend's AGE recipient, decryptable with the backend AGE private identity rather than a project key.
      * 
      * [ContainerRuntimeSpec]
      */

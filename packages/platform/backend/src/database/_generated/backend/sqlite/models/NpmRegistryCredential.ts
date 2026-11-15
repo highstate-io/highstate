@@ -625,7 +625,8 @@ export type $NpmRegistryCredentialPayload<ExtArgs extends runtime.Types.Extensio
      */
     registryUrl: string
     /**
-     * The encrypted registry authentication material.
+     * Registry authentication serialized as JSON, encrypted to the backend's AGE recipient and stored
+     * as ASCII-armored AGE ciphertext. Decryption requires the backend AGE private identity, not a project key.
      */
     encryptedCredentials: string
     /**

@@ -264,10 +264,9 @@ Secret credential fields are write-only.
 
 ## Migration
 
-Registered SQLite migrations replace the old backend library and Pulumi links with runtime and state-backend
-references while preserving legacy execution configuration.
-Host Pulumi state becomes a `legacy:host` marker; migration does not relocate state or make that marker a
-usable container state URL.
+Registered SQLite migrations remove the old default backend library and Pulumi settings and assign projects
+to the new default runtime and state backend. The old settings are not retained as archived configuration.
+Migration does not relocate host Pulumi state into runtime storage.
 
 Project migrations create library storage, invalidate old evaluation caches, and preserve deployed state,
 operation history, and logs with null historical package provenance.

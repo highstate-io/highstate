@@ -14,7 +14,8 @@ model NpmRegistryCredential {
     /// The npm-compatible registry URL.
     registryUrl String
 
-    /// The encrypted registry authentication material.
+    /// Registry authentication serialized as JSON, encrypted to the backend's AGE recipient and stored
+    /// as ASCII-armored AGE ciphertext. Decryption requires the backend AGE private identity, not a project key.
     encryptedCredentials String
 
     /// An opaque CUIDv2 token used only for optimistic concurrency.
@@ -43,7 +44,8 @@ model ContainerRegistryCredential {
     /// The normalized registry URL used in image names.
     registryUrl String @unique
 
-    /// The encrypted registry authentication material.
+    /// Registry authentication serialized as JSON, encrypted to the backend's AGE recipient and stored
+    /// as ASCII-armored AGE ciphertext. Decryption requires the backend AGE private identity, not a project key.
     encryptedCredentials String
 
     /// An opaque CUIDv2 token used only for optimistic concurrency.

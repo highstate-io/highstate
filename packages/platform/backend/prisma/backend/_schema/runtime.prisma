@@ -12,6 +12,8 @@ model ContainerRuntime {
     meta Json
 
     /// The Docker or Kubernetes runtime specification.
+    /// Stored Docker TLS material and Kubernetes kubeconfig are ASCII-armored AGE ciphertext encrypted
+    /// to the backend's AGE recipient, decryptable with the backend AGE private identity rather than a project key.
     ///
     /// [ContainerRuntimeSpec]
     spec Json
@@ -153,7 +155,13 @@ model RuntimeWorkload {
     /// The domain object that owns the workload, such as an operation, terminal, worker version, or image build.
     ownerId String
 
-    /// The runtime-native root resource handle used for inspection and reconciliation.
+    /// The adapter-returned handle of the workload's root native resource: a Docker container ID or a
+    /// Kubernetes "pod/<name>", "job/<name>" or "deployment/<name>" in the configured runtime namespace.
+    /// Used for direct inspection, logs, terminal attachment and stopping or replacing the native workload.
+    /// Null before placement or after a native workload is cleared for replacement; reconciliation can
+    /// recover it by discovering resources labeled with this workload ID and current lease generation.
+    /// This is an opaque, runtime-scoped locator, not the logical workload identity or proof of ownership.
+    /// Ownership labels remain authoritative for reconciliation and cleanup of root and child resources.
     nativeResourceId String?
 
     /// The lifecycle target requested by the backend.

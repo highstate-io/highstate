@@ -527,6 +527,8 @@ export type $PulumiStateBackendPayload<ExtArgs extends runtime.Types.Extensions.
     meta:PrismaJson.CommonObjectMeta
     /**
      * The state backend specification, including its URL and encrypted authentication configuration.
+     * Credentials inside the specification are ASCII-armored AGE ciphertext encrypted to the backend's
+     * AGE recipient; the backend AGE private identity, not a project key, is required for decryption.
      * 
      * [PulumiStateBackendSpec]
      */

@@ -76,6 +76,7 @@ cleanup after success, failure, timeout, or cancellation.
 Cleanup failures also fail the check.
 The `--probe` option requires an authenticated probe result, including when connecting to a separately assembled
 backend; a missing probe provider is an error.
+It does not switch probing on or off: the backend runs its configured preflight checks either way.
 A successful connectivity check does not establish that every build, attach, storage, and networking path works.
 
 ### Creating and Updating Settings
@@ -128,6 +129,9 @@ Their `--credentials-file` option supplies a JSON credential document: a Pulumi 
 an npm `token` object, or a container registry `username` and `password` object.
 Associate credential IDs with the runtime that needs them.
 Npm credentials select a package scope; container credentials select a registry host, optionally with a port.
+
+Runtime credentials are stored as ASCII-armored AGE ciphertext encrypted to the backend's AGE recipient.
+They require the backend's AGE private identity for decryption, independently of project encryption keys.
 
 ### Changing Project Placement
 
@@ -255,8 +259,8 @@ Unknown historical provenance remains unknown, and those refresh and destroy pat
 executable environment.
 Preserve that workspace and its implementation dependencies until those deployments have moved to known
 snapshot provenance or have been destroyed.
-Existing host Pulumi configuration is preserved as `legacy:host`; this marker is not a usable container state
-URL and does not copy host state into a runtime volume.
+The old default library and host Pulumi settings are removed, and projects receive the new default runtime
+and state backend. Migration does not archive those settings or copy host state into a runtime volume.
 Configure the intended state backend and arrange state transfer separately before packaged execution.
 
 Old saved operation plans must be regenerated.

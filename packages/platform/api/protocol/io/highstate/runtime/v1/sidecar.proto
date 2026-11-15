@@ -125,33 +125,3 @@ message CreateSidecarResponse {
   // RuntimeSidecarStartOutput.ports: reachable endpoints keyed by declared port name.
   map<string, SidecarPortMapping> ports = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
-
-// SidecarEvent reports a lifecycle transition for one sidecar.
-message SidecarEvent {
-  // The runtime-assigned sidecar workload ID.
-  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The current lifecycle state.
-  SidecarState state = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // A human-readable lifecycle or health message.
-  optional string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// SidecarState identifies one sidecar lifecycle state.
-enum SidecarState {
-  // The state was not specified or is not recognized.
-  SIDECAR_STATE_UNSPECIFIED = 0;
-
-  // The sidecar is starting.
-  SIDECAR_STATE_STARTING = 1;
-
-  // The sidecar is healthy and ready.
-  SIDECAR_STATE_READY = 2;
-
-  // The sidecar stopped.
-  SIDECAR_STATE_STOPPED = 3;
-
-  // The sidecar failed or became unhealthy.
-  SIDECAR_STATE_FAILED = 4;
-}

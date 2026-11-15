@@ -2,8 +2,8 @@
 // @generated from file io/highstate/runtime/v1/sidecar.proto (package io.highstate.runtime.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../../google/api/field_behavior_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/runtime/v1/sidecar.proto.
  */
 export const file_io_highstate_runtime_v1_sidecar: GenFile = /*@__PURE__*/
-  fileDesc("CiVpby9oaWdoc3RhdGUvcnVudGltZS92MS9zaWRlY2FyLnByb3RvEhdpby5oaWdoc3RhdGUucnVudGltZS52MSLFBAoUQ3JlYXRlU2lkZWNhclJlcXVlc3QSFQoIZG5zX25hbWUYASABKAlCA+BBAhISCgVpbWFnZRgCIAEoCUID4EECEg8KB2NvbW1hbmQYAyADKAkSUwoLZW52aXJvbm1lbnQYBCADKAsyPi5pby5oaWdoc3RhdGUucnVudGltZS52MS5DcmVhdGVTaWRlY2FyUmVxdWVzdC5FbnZpcm9ubWVudEVudHJ5EmUKEnNlY3JldF9lbnZpcm9ubWVudBgFIAMoCzJELmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLkNyZWF0ZVNpZGVjYXJSZXF1ZXN0LlNlY3JldEVudmlyb25tZW50RW50cnlCA+BBBBIzCgVwb3J0cxgGIAMoCzIkLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLlNpZGVjYXJQb3J0EgwKBGFyZ3MYByADKAkSMwoFZmlsZXMYCCADKAsyJC5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyRmlsZRJBCglyZWFkaW5lc3MYCSABKAsyKS5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyUmVhZGluZXNzSACIAQEaMgoQRW52aXJvbm1lbnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjgKFlNlY3JldEVudmlyb25tZW50RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIMCgpfcmVhZGluZXNzIl0KC1NpZGVjYXJGaWxlEgwKBHBhdGgYASABKAkSFAoHY29udGVudBgCIAEoCUID4EEEEg4KBnNlY3JldBgDIAEoCBIRCgRtb2RlGAQgASgNSACIAQFCBwoFX21vZGUiMwoLU2lkZWNhclBvcnQSDAoEbmFtZRgBIAEoCRIWCg5jb250YWluZXJfcG9ydBgCIAEoDSLUAQoQU2lkZWNhclJlYWRpbmVzcxI7CgN0Y3AYASABKAsyLC5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyVGNwUmVhZGluZXNzSAASPQoEaHR0cBgCIAEoCzItLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLlNpZGVjYXJIdHRwUmVhZGluZXNzSAASOwoDbG9nGAMgASgLMiwuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuU2lkZWNhckxvZ1JlYWRpbmVzc0gAQgcKBWNoZWNrIlUKE1NpZGVjYXJUY3BSZWFkaW5lc3MSDAoEcG9ydBgBIAEoCRIcCg90aW1lb3V0X3NlY29uZHMYAiABKA1IAIgBAUISChBfdGltZW91dF9zZWNvbmRzInYKFFNpZGVjYXJIdHRwUmVhZGluZXNzEgwKBHBvcnQYASABKAkSDAoEcGF0aBgCIAEoCRIQCghzdGF0dXNlcxgDIAMoDRIcCg90aW1lb3V0X3NlY29uZHMYBCABKA1IAIgBAUISChBfdGltZW91dF9zZWNvbmRzIlgKE1NpZGVjYXJMb2dSZWFkaW5lc3MSDwoHcGF0dGVybhgBIAEoCRIcCg90aW1lb3V0X3NlY29uZHMYAiABKA1IAIgBAUISChBfdGltZW91dF9zZWNvbmRzIjAKElNpZGVjYXJQb3J0TWFwcGluZxIMCgRob3N0GAEgASgJEgwKBHBvcnQYAiABKA0i9gEKFUNyZWF0ZVNpZGVjYXJSZXNwb25zZRIgChNzaWRlY2FyX3dvcmtsb2FkX2lkGAEgASgJQgPgQQMSEQoEaG9zdBgCIAEoCUID4EEDEk0KBXBvcnRzGAMgAygLMjkuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuQ3JlYXRlU2lkZWNhclJlc3BvbnNlLlBvcnRzRW50cnlCA+BBAxpZCgpQb3J0c0VudHJ5EgsKA2tleRgBIAEoCRI6CgV2YWx1ZRgCIAEoCzIrLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLlNpZGVjYXJQb3J0TWFwcGluZzoCOAEikgEKDFNpZGVjYXJFdmVudBIgChNzaWRlY2FyX3dvcmtsb2FkX2lkGAEgASgJQgPgQQMSOQoFc3RhdGUYAiABKA4yJS5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyU3RhdGVCA+BBAxIZCgdtZXNzYWdlGAMgASgJQgPgQQNIAIgBAUIKCghfbWVzc2FnZSqXAQoMU2lkZWNhclN0YXRlEh0KGVNJREVDQVJfU1RBVEVfVU5TUEVDSUZJRUQQABIaChZTSURFQ0FSX1NUQVRFX1NUQVJUSU5HEAESFwoTU0lERUNBUl9TVEFURV9SRUFEWRACEhkKFVNJREVDQVJfU1RBVEVfU1RPUFBFRBADEhgKFFNJREVDQVJfU1RBVEVfRkFJTEVEEARiBnByb3RvMw", [file_google_api_field_behavior]);
+  fileDesc("CiVpby9oaWdoc3RhdGUvcnVudGltZS92MS9zaWRlY2FyLnByb3RvEhdpby5oaWdoc3RhdGUucnVudGltZS52MSLFBAoUQ3JlYXRlU2lkZWNhclJlcXVlc3QSFQoIZG5zX25hbWUYASABKAlCA+BBAhISCgVpbWFnZRgCIAEoCUID4EECEg8KB2NvbW1hbmQYAyADKAkSUwoLZW52aXJvbm1lbnQYBCADKAsyPi5pby5oaWdoc3RhdGUucnVudGltZS52MS5DcmVhdGVTaWRlY2FyUmVxdWVzdC5FbnZpcm9ubWVudEVudHJ5EmUKEnNlY3JldF9lbnZpcm9ubWVudBgFIAMoCzJELmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLkNyZWF0ZVNpZGVjYXJSZXF1ZXN0LlNlY3JldEVudmlyb25tZW50RW50cnlCA+BBBBIzCgVwb3J0cxgGIAMoCzIkLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLlNpZGVjYXJQb3J0EgwKBGFyZ3MYByADKAkSMwoFZmlsZXMYCCADKAsyJC5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyRmlsZRJBCglyZWFkaW5lc3MYCSABKAsyKS5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyUmVhZGluZXNzSACIAQEaMgoQRW52aXJvbm1lbnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGjgKFlNlY3JldEVudmlyb25tZW50RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIMCgpfcmVhZGluZXNzIl0KC1NpZGVjYXJGaWxlEgwKBHBhdGgYASABKAkSFAoHY29udGVudBgCIAEoCUID4EEEEg4KBnNlY3JldBgDIAEoCBIRCgRtb2RlGAQgASgNSACIAQFCBwoFX21vZGUiMwoLU2lkZWNhclBvcnQSDAoEbmFtZRgBIAEoCRIWCg5jb250YWluZXJfcG9ydBgCIAEoDSLUAQoQU2lkZWNhclJlYWRpbmVzcxI7CgN0Y3AYASABKAsyLC5pby5oaWdoc3RhdGUucnVudGltZS52MS5TaWRlY2FyVGNwUmVhZGluZXNzSAASPQoEaHR0cBgCIAEoCzItLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLlNpZGVjYXJIdHRwUmVhZGluZXNzSAASOwoDbG9nGAMgASgLMiwuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuU2lkZWNhckxvZ1JlYWRpbmVzc0gAQgcKBWNoZWNrIlUKE1NpZGVjYXJUY3BSZWFkaW5lc3MSDAoEcG9ydBgBIAEoCRIcCg90aW1lb3V0X3NlY29uZHMYAiABKA1IAIgBAUISChBfdGltZW91dF9zZWNvbmRzInYKFFNpZGVjYXJIdHRwUmVhZGluZXNzEgwKBHBvcnQYASABKAkSDAoEcGF0aBgCIAEoCRIQCghzdGF0dXNlcxgDIAMoDRIcCg90aW1lb3V0X3NlY29uZHMYBCABKA1IAIgBAUISChBfdGltZW91dF9zZWNvbmRzIlgKE1NpZGVjYXJMb2dSZWFkaW5lc3MSDwoHcGF0dGVybhgBIAEoCRIcCg90aW1lb3V0X3NlY29uZHMYAiABKA1IAIgBAUISChBfdGltZW91dF9zZWNvbmRzIjAKElNpZGVjYXJQb3J0TWFwcGluZxIMCgRob3N0GAEgASgJEgwKBHBvcnQYAiABKA0i9gEKFUNyZWF0ZVNpZGVjYXJSZXNwb25zZRIgChNzaWRlY2FyX3dvcmtsb2FkX2lkGAEgASgJQgPgQQMSEQoEaG9zdBgCIAEoCUID4EEDEk0KBXBvcnRzGAMgAygLMjkuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuQ3JlYXRlU2lkZWNhclJlc3BvbnNlLlBvcnRzRW50cnlCA+BBAxpZCgpQb3J0c0VudHJ5EgsKA2tleRgBIAEoCRI6CgV2YWx1ZRgCIAEoCzIrLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLlNpZGVjYXJQb3J0TWFwcGluZzoCOAFiBnByb3RvMw", [file_google_api_field_behavior]);
 
 /**
  * CreateSidecarRequest asks the backend to place one sidecar in the operation environment.
@@ -365,87 +365,4 @@ export type CreateSidecarResponse = Message<"io.highstate.runtime.v1.CreateSidec
  */
 export const CreateSidecarResponseSchema: GenMessage<CreateSidecarResponse> = /*@__PURE__*/
   messageDesc(file_io_highstate_runtime_v1_sidecar, 8);
-
-/**
- * SidecarEvent reports a lifecycle transition for one sidecar.
- *
- * @generated from message io.highstate.runtime.v1.SidecarEvent
- */
-export type SidecarEvent = Message<"io.highstate.runtime.v1.SidecarEvent"> & {
-  /**
-   * The runtime-assigned sidecar workload ID.
-   *
-   * @generated from field: string sidecar_workload_id = 1;
-   */
-  sidecarWorkloadId: string;
-
-  /**
-   * The current lifecycle state.
-   *
-   * @generated from field: io.highstate.runtime.v1.SidecarState state = 2;
-   */
-  state: SidecarState;
-
-  /**
-   * A human-readable lifecycle or health message.
-   *
-   * @generated from field: optional string message = 3;
-   */
-  message?: string | undefined;
-};
-
-/**
- * Describes the message io.highstate.runtime.v1.SidecarEvent.
- * Use `create(SidecarEventSchema)` to create a new message.
- */
-export const SidecarEventSchema: GenMessage<SidecarEvent> = /*@__PURE__*/
-  messageDesc(file_io_highstate_runtime_v1_sidecar, 9);
-
-/**
- * SidecarState identifies one sidecar lifecycle state.
- *
- * @generated from enum io.highstate.runtime.v1.SidecarState
- */
-export enum SidecarState {
-  /**
-   * The state was not specified or is not recognized.
-   *
-   * @generated from enum value: SIDECAR_STATE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * The sidecar is starting.
-   *
-   * @generated from enum value: SIDECAR_STATE_STARTING = 1;
-   */
-  STARTING = 1,
-
-  /**
-   * The sidecar is healthy and ready.
-   *
-   * @generated from enum value: SIDECAR_STATE_READY = 2;
-   */
-  READY = 2,
-
-  /**
-   * The sidecar stopped.
-   *
-   * @generated from enum value: SIDECAR_STATE_STOPPED = 3;
-   */
-  STOPPED = 3,
-
-  /**
-   * The sidecar failed or became unhealthy.
-   *
-   * @generated from enum value: SIDECAR_STATE_FAILED = 4;
-   */
-  FAILED = 4,
-}
-
-/**
- * Describes the enum io.highstate.runtime.v1.SidecarState.
- */
-export const SidecarStateSchema: GenEnum<SidecarState> = /*@__PURE__*/
-  enumDesc(file_io_highstate_runtime_v1_sidecar, 0);
 

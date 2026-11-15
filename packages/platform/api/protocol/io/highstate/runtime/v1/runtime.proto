@@ -83,9 +83,6 @@ message ConnectResponse {
     // The result of sidecar creation.
     CreateSidecarResponse create_sidecar_response = 40;
 
-    // A sidecar lifecycle event.
-    SidecarEvent sidecar_event = 41;
-
     // A worker control event from the backend.
     WorkerControl worker_control = 50;
 

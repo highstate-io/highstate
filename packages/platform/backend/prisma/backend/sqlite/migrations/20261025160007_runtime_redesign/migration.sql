@@ -1,4 +1,4 @@
--- Legacy host execution configuration is retained per project before removing the old tables.
+-- Replace the old default host execution settings with the new default runtime and state backend.
 -- The registered data migration assigns final CUIDv2 identities and concurrency tokens before commit.
 
 -- CreateTable
@@ -72,11 +72,6 @@ INSERT INTO "ContainerRuntime" ("id", "systemName", "meta", "spec", "revision", 
 ('local', 'local', '{"title":"Local Docker","description":"Runs project workloads on the local Docker engine."}',
  '{"type":"docker","local":true,"engineEndpoint":"unix:///var/run/docker.sock","runtimeApiUrl":"https://host.docker.internal:3000"}', '', CURRENT_TIMESTAMP);
 
--- The old host login may point at any Pulumi backend. Do not silently redirect its stacks to new storage.
--- The explicit legacy URL requires operator selection of the original state URL before container execution.
-INSERT INTO "PulumiStateBackend" ("id", "meta", "spec", "revision", "updatedAt")
-SELECT "id", "meta", json_object('url', 'legacy:host'), '', CURRENT_TIMESTAMP FROM "PulumiBackend";
-
 INSERT INTO "PulumiStateBackend" ("id", "systemName", "meta", "spec", "revision", "updatedAt") VALUES
 ('local', 'local', '{"title":"Local Pulumi State","description":"Stores Pulumi state in the runtime persistent local state directory."}',
  '{"url":"file://~"}', '', CURRENT_TIMESTAMP);
@@ -148,7 +143,6 @@ CREATE TABLE "new_Project" (
     "modelStorageId" TEXT NOT NULL,
     "containerRuntimeId" TEXT NOT NULL,
     "pulumiStateBackendId" TEXT NOT NULL,
-    "legacyExecutionConfig" JSONB,
     "encryptedMasterKey" TEXT NOT NULL,
     "encryptedPrivateKey" TEXT,
     "publicKey" TEXT,
@@ -161,10 +155,9 @@ CREATE TABLE "new_Project" (
     CONSTRAINT "Project_containerRuntimeId_fkey" FOREIGN KEY ("containerRuntimeId") REFERENCES "ContainerRuntime" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Project_pulumiStateBackendId_fkey" FOREIGN KEY ("pulumiStateBackendId") REFERENCES "PulumiStateBackend" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_Project" ("createdAt", "databaseVersion", "encryptedMasterKey", "encryptedPrivateKey", "id", "meta", "modelStorageId", "name", "publicKey", "spaceId", "unlockSuite", "updatedAt", "containerRuntimeId", "pulumiStateBackendId", "legacyExecutionConfig")
-SELECT p."createdAt", p."databaseVersion", p."encryptedMasterKey", p."encryptedPrivateKey", p."id", p."meta", p."modelStorageId", p."name", p."publicKey", p."spaceId", p."unlockSuite", p."updatedAt", 'local', p."pulumiBackendId",
-json_object('libraryId', p."libraryId", 'pulumiBackendId', p."pulumiBackendId", 'librarySpec', json(l."spec"), 'libraryMeta', json(l."meta"), 'pulumiBackendSpec', json(b."spec"), 'pulumiBackendMeta', json(b."meta"))
-FROM "Project" p JOIN "Library" l ON l."id" = p."libraryId" JOIN "PulumiBackend" b ON b."id" = p."pulumiBackendId";
+INSERT INTO "new_Project" ("createdAt", "databaseVersion", "encryptedMasterKey", "encryptedPrivateKey", "id", "meta", "modelStorageId", "name", "publicKey", "spaceId", "unlockSuite", "updatedAt", "containerRuntimeId", "pulumiStateBackendId")
+SELECT "createdAt", "databaseVersion", "encryptedMasterKey", "encryptedPrivateKey", "id", "meta", "modelStorageId", "name", "publicKey", "spaceId", "unlockSuite", "updatedAt", 'local', 'local'
+FROM "Project";
 DROP TABLE "Project";
 ALTER TABLE "new_Project" RENAME TO "Project";
 DROP TABLE "Library";

@@ -1,7 +1,6 @@
 export * from "./authorization"
 export * from "./library"
 export * from "./project"
-export * from "./pulumi"
 export * from "./role"
 export * from "./runtime"
 export * from "./runtime-settings"

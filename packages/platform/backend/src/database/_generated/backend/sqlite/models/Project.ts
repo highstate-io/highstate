@@ -74,7 +74,6 @@ export type ProjectCountAggregateOutputType = {
   modelStorageId: number
   containerRuntimeId: number
   pulumiStateBackendId: number
-  legacyExecutionConfig: number
   encryptedMasterKey: number
   encryptedPrivateKey: number
   publicKey: number
@@ -132,7 +131,6 @@ export type ProjectCountAggregateInputType = {
   modelStorageId?: true
   containerRuntimeId?: true
   pulumiStateBackendId?: true
-  legacyExecutionConfig?: true
   encryptedMasterKey?: true
   encryptedPrivateKey?: true
   publicKey?: true
@@ -237,7 +235,6 @@ export type ProjectGroupByOutputType = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig:PrismaJson.LegacyProjectExecutionConfig | null
   encryptedMasterKey: string
   encryptedPrivateKey: string | null
   publicKey: string | null
@@ -278,7 +275,6 @@ export type ProjectWhereInput = {
   modelStorageId?: Prisma.StringFilter<"Project"> | string
   containerRuntimeId?: Prisma.StringFilter<"Project"> | string
   pulumiStateBackendId?: Prisma.StringFilter<"Project"> | string
-  legacyExecutionConfig?: Prisma.JsonNullableFilter<"Project">
   encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -305,7 +301,6 @@ export type ProjectOrderByWithRelationInput = {
   modelStorageId?: Prisma.SortOrder
   containerRuntimeId?: Prisma.SortOrder
   pulumiStateBackendId?: Prisma.SortOrder
-  legacyExecutionConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   publicKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -336,7 +331,6 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   modelStorageId?: Prisma.StringFilter<"Project"> | string
   containerRuntimeId?: Prisma.StringFilter<"Project"> | string
   pulumiStateBackendId?: Prisma.StringFilter<"Project"> | string
-  legacyExecutionConfig?: Prisma.JsonNullableFilter<"Project">
   encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -363,7 +357,6 @@ export type ProjectOrderByWithAggregationInput = {
   modelStorageId?: Prisma.SortOrder
   containerRuntimeId?: Prisma.SortOrder
   pulumiStateBackendId?: Prisma.SortOrder
-  legacyExecutionConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   publicKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -389,7 +382,6 @@ export type ProjectScalarWhereWithAggregatesInput = {
   modelStorageId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   containerRuntimeId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   pulumiStateBackendId?: Prisma.StringWithAggregatesFilter<"Project"> | string
-  legacyExecutionConfig?: Prisma.JsonNullableWithAggregatesFilter<"Project">
   encryptedMasterKey?: Prisma.StringWithAggregatesFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -403,7 +395,6 @@ export type ProjectCreateInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -430,7 +421,6 @@ export type ProjectUncheckedCreateInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -449,7 +439,6 @@ export type ProjectUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -476,7 +465,6 @@ export type ProjectUncheckedUpdateInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -499,7 +487,6 @@ export type ProjectCreateManyInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -513,7 +500,6 @@ export type ProjectUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -531,7 +517,6 @@ export type ProjectUncheckedUpdateManyInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,7 +544,6 @@ export type ProjectCountOrderByAggregateInput = {
   modelStorageId?: Prisma.SortOrder
   containerRuntimeId?: Prisma.SortOrder
   pulumiStateBackendId?: Prisma.SortOrder
-  legacyExecutionConfig?: Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrder
   publicKey?: Prisma.SortOrder
@@ -859,7 +843,6 @@ export type ProjectCreateWithoutImportPortsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -885,7 +868,6 @@ export type ProjectUncheckedCreateWithoutImportPortsInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -908,7 +890,6 @@ export type ProjectCreateWithoutExportPortsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -934,7 +915,6 @@ export type ProjectUncheckedCreateWithoutExportPortsInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -968,7 +948,6 @@ export type ProjectUpdateWithoutImportPortsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -994,7 +973,6 @@ export type ProjectUncheckedUpdateWithoutImportPortsInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1023,7 +1001,6 @@ export type ProjectUpdateWithoutExportPortsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1049,7 +1026,6 @@ export type ProjectUncheckedUpdateWithoutExportPortsInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1067,7 +1043,6 @@ export type ProjectCreateWithoutLibrarySnapshotImagesInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1093,7 +1068,6 @@ export type ProjectUncheckedCreateWithoutLibrarySnapshotImagesInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1127,7 +1101,6 @@ export type ProjectUpdateWithoutLibrarySnapshotImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1153,7 +1126,6 @@ export type ProjectUncheckedUpdateWithoutLibrarySnapshotImagesInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1171,7 +1143,6 @@ export type ProjectCreateWithoutSpaceInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1196,7 +1167,6 @@ export type ProjectUncheckedCreateWithoutSpaceInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1247,7 +1217,6 @@ export type ProjectScalarWhereInput = {
   modelStorageId?: Prisma.StringFilter<"Project"> | string
   containerRuntimeId?: Prisma.StringFilter<"Project"> | string
   pulumiStateBackendId?: Prisma.StringFilter<"Project"> | string
-  legacyExecutionConfig?: Prisma.JsonNullableFilter<"Project">
   encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -1261,7 +1230,6 @@ export type ProjectCreateWithoutModelStorageInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1286,7 +1254,6 @@ export type ProjectUncheckedCreateWithoutModelStorageInput = {
   spaceId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1330,7 +1297,6 @@ export type ProjectCreateWithoutPulumiStateBackendInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1355,7 +1321,6 @@ export type ProjectUncheckedCreateWithoutPulumiStateBackendInput = {
   spaceId: string
   modelStorageId: string
   containerRuntimeId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1399,7 +1364,6 @@ export type ProjectCreateWithoutContainerRuntimeInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1424,7 +1388,6 @@ export type ProjectUncheckedCreateWithoutContainerRuntimeInput = {
   spaceId: string
   modelStorageId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1468,7 +1431,6 @@ export type ProjectCreateWithoutRuntimeWorkloadsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1494,7 +1456,6 @@ export type ProjectUncheckedCreateWithoutRuntimeWorkloadsInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1528,7 +1489,6 @@ export type ProjectUpdateWithoutRuntimeWorkloadsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1554,7 +1514,6 @@ export type ProjectUncheckedUpdateWithoutRuntimeWorkloadsInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1572,7 +1531,6 @@ export type ProjectCreateWithoutBackendServiceAccountBindingsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1598,7 +1556,6 @@ export type ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1632,7 +1589,6 @@ export type ProjectUpdateWithoutBackendServiceAccountBindingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1658,7 +1614,6 @@ export type ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1679,7 +1634,6 @@ export type ProjectCreateManySpaceInput = {
   modelStorageId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1693,7 +1647,6 @@ export type ProjectUpdateWithoutSpaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1718,7 +1671,6 @@ export type ProjectUncheckedUpdateWithoutSpaceInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1740,7 +1692,6 @@ export type ProjectUncheckedUpdateManyWithoutSpaceInput = {
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1757,7 +1708,6 @@ export type ProjectCreateManyModelStorageInput = {
   spaceId: string
   containerRuntimeId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1771,7 +1721,6 @@ export type ProjectUpdateWithoutModelStorageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1796,7 +1745,6 @@ export type ProjectUncheckedUpdateWithoutModelStorageInput = {
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1818,7 +1766,6 @@ export type ProjectUncheckedUpdateManyWithoutModelStorageInput = {
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1835,7 +1782,6 @@ export type ProjectCreateManyPulumiStateBackendInput = {
   spaceId: string
   modelStorageId: string
   containerRuntimeId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1849,7 +1795,6 @@ export type ProjectUpdateWithoutPulumiStateBackendInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1874,7 +1819,6 @@ export type ProjectUncheckedUpdateWithoutPulumiStateBackendInput = {
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1896,7 +1840,6 @@ export type ProjectUncheckedUpdateManyWithoutPulumiStateBackendInput = {
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1913,7 +1856,6 @@ export type ProjectCreateManyContainerRuntimeInput = {
   spaceId: string
   modelStorageId: string
   pulumiStateBackendId: string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1927,7 +1869,6 @@ export type ProjectUpdateWithoutContainerRuntimeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1952,7 +1893,6 @@ export type ProjectUncheckedUpdateWithoutContainerRuntimeInput = {
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1974,7 +1914,6 @@ export type ProjectUncheckedUpdateManyWithoutContainerRuntimeInput = {
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
   pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2059,7 +1998,6 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   modelStorageId?: boolean
   containerRuntimeId?: boolean
   pulumiStateBackendId?: boolean
-  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -2087,7 +2025,6 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   modelStorageId?: boolean
   containerRuntimeId?: boolean
   pulumiStateBackendId?: boolean
-  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -2109,7 +2046,6 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   modelStorageId?: boolean
   containerRuntimeId?: boolean
   pulumiStateBackendId?: boolean
-  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -2131,7 +2067,6 @@ export type ProjectSelectScalar = {
   modelStorageId?: boolean
   containerRuntimeId?: boolean
   pulumiStateBackendId?: boolean
-  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -2141,7 +2076,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "name" | "spaceId" | "modelStorageId" | "containerRuntimeId" | "pulumiStateBackendId" | "legacyExecutionConfig" | "encryptedMasterKey" | "encryptedPrivateKey" | "publicKey" | "unlockSuite" | "databaseVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "name" | "spaceId" | "modelStorageId" | "containerRuntimeId" | "pulumiStateBackendId" | "encryptedMasterKey" | "encryptedPrivateKey" | "publicKey" | "unlockSuite" | "databaseVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
@@ -2238,13 +2173,6 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * The ID of the Pulumi state backend used by this project.
      */
     pulumiStateBackendId: string
-    /**
-     * Original execution identifiers and host configuration retained during the runtime upgrade.
-     * These are historical configuration, not references to backend library or runner records.
-     * 
-     * [LegacyProjectExecutionConfig]
-     */
-    legacyExecutionConfig:PrismaJson.LegacyProjectExecutionConfig | null
     /**
      * Encrypted project master key in AGE format.
      */
@@ -2715,7 +2643,6 @@ export interface ProjectFieldRefs {
   readonly modelStorageId: Prisma.FieldRef<"Project", 'String'>
   readonly containerRuntimeId: Prisma.FieldRef<"Project", 'String'>
   readonly pulumiStateBackendId: Prisma.FieldRef<"Project", 'String'>
-  readonly legacyExecutionConfig: Prisma.FieldRef<"Project", 'Json'>
   readonly encryptedMasterKey: Prisma.FieldRef<"Project", 'String'>
   readonly encryptedPrivateKey: Prisma.FieldRef<"Project", 'String'>
   readonly publicKey: Prisma.FieldRef<"Project", 'String'>

@@ -127,8 +127,6 @@ message RuntimeError {
   // A human-readable error description.
   string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Structured error details when available.
-  optional google.protobuf.Struct details = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // CancelRequest requests termination of the envelope's action; the backend fans operation cancellation out to actions.

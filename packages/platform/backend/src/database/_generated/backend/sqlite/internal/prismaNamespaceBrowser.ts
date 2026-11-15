@@ -160,7 +160,6 @@ export const ProjectScalarFieldEnum = {
   modelStorageId: 'modelStorageId',
   containerRuntimeId: 'containerRuntimeId',
   pulumiStateBackendId: 'pulumiStateBackendId',
-  legacyExecutionConfig: 'legacyExecutionConfig',
   encryptedMasterKey: 'encryptedMasterKey',
   encryptedPrivateKey: 'encryptedPrivateKey',
   publicKey: 'publicKey',

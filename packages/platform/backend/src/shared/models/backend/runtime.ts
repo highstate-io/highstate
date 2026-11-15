@@ -11,13 +11,27 @@ export type ContainerRuntimeSpec = {
       engineEndpoint: string
       local: boolean
       tls?: {
+        /**
+         * The CA bundle as ASCII-armored AGE ciphertext encrypted to the backend AGE recipient.
+         */
         encryptedCaBundle?: string
+
+        /**
+         * The client certificate as ASCII-armored AGE ciphertext encrypted to the backend AGE recipient.
+         */
         encryptedClientCertificate?: string
+
+        /**
+         * The client key as ASCII-armored AGE ciphertext encrypted to the backend AGE recipient.
+         */
         encryptedClientKey?: string
       }
     }
   | {
       type: "kubernetes"
+      /**
+       * The kubeconfig as ASCII-armored AGE ciphertext encrypted to the backend AGE recipient.
+       */
       encryptedKubeconfig?: string
       context?: string
       namespace: string
@@ -31,5 +45,8 @@ export type ContainerRuntimeSpec = {
  */
 export type PulumiStateBackendSpec = {
   url: string
+  /**
+   * Authentication text as ASCII-armored AGE ciphertext encrypted to the backend AGE recipient.
+   */
   encryptedCredentials?: string
 }
