@@ -1,7 +1,7 @@
 import type { HighstateClients } from "../shared/remote"
 import { Cli } from "clipanion"
 import { describe, expect, it, vi } from "vitest"
-import { collectStatus, StatusCommand } from "./status"
+import { collectStatus, formatStatus, StatusCommand } from "./status"
 
 const moduleUrl = import.meta.url
 
@@ -92,6 +92,8 @@ describe("status", () => {
     expect(status.backend.state).toBe("ready")
     expect(status.project.state).toBe("ready")
     expect(status.next_actions).toEqual([])
+    expect(formatStatus(status)).not.toContain("Next actions:")
+    expect(formatStatus(status)).toContain("State: ready")
   })
 
   it("does not attempt project authentication while a selected project is locked", async () => {

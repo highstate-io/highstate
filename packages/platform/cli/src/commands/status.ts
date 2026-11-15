@@ -40,8 +40,13 @@ export class StatusCommand extends RemoteCommand {
       moduleUrl: import.meta.url,
     })
 
-    this.print(status, humanDetails(status))
+    this.print(status, formatStatus(status))
   }
+}
+
+export function formatStatus(status: Status): string {
+  const { next_actions, ...details } = status
+  return humanDetails(next_actions.length > 0 ? status : details)
 }
 
 export async function collectStatus(options: {
