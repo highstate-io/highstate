@@ -58,18 +58,14 @@ const valid = ref(false)
 const passwordVisible = ref(false)
 const { $client } = useNuxtApp()
 const keyringAvailable = ref<boolean>()
-const checkingKeyring = ref(false)
 
 const checkKeyring = async () => {
-  checkingKeyring.value = true
   keyringAvailable.value = undefined
 
   try {
     keyringAvailable.value = (await $client.state.checkProjectKeyring.query()).available
   } catch {
     keyringAvailable.value = false
-  } finally {
-    checkingKeyring.value = false
   }
 }
 
@@ -353,8 +349,6 @@ defineExpose({
       <VCheckbox
         v-model="form.autoUnlock"
         label="Automatically unlock on backend startup"
-        hint="Trust this backend to unlock this project without clicking Unlock whenever its system keyring is accessible."
-        persistent-hint
         class="mb-4"
       />
       <VAlert type="info" density="compact" class="mb-4">
@@ -367,9 +361,6 @@ defineExpose({
         The backend's system keyring is locked or unavailable. Unlock or configure its secret
         service, then retry.
       </VAlert>
-      <VBtn :loading="checkingKeyring" variant="tonal" class="mb-4" @click="checkKeyring"
-        >Check keyring access</VBtn
-      >
     </template>
 
     <VAlert type="warning" density="compact" class="mt-4">
