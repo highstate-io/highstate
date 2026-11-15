@@ -31,7 +31,7 @@ RUN curl -fsSL https://get.pulumi.com | sh -s -- --version "$PULUMI_VERSION" --i
 RUN arch="${TARGETARCH:-$(dpkg --print-architecture)}" && curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${arch}/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 RUN bun --version && node --version && pulumi_bin=/opt/pulumi/bin/pulumi && "$pulumi_bin" version \
     && docker --version && kubectl version --client && restic version && rclone version && pg_dump --version \
-    && unshare --version && mount --version && test -s packages/platform/designer/.output/server/index.mjs
+    && unshare --version && mount --version && flock --version && test -s packages/platform/designer/.output/server/index.mjs
 ENV PATH="/opt/pulumi/bin:${PATH}" \
     NODE_ENV=production \
     NITRO_HOST=0.0.0.0 \

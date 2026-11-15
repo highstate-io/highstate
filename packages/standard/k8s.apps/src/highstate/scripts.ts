@@ -59,6 +59,13 @@ replicas=$(kubectl -n "$NAMESPACE" get deployment "$DEPLOYMENT" -o jsonpath='{.s
 test "$replicas" = 0
 pods=$(kubectl -n "$NAMESPACE" get pods -l "app.kubernetes.io/name=$DEPLOYMENT" -o name)
 test -z "$pods"
+# The runtime creates this inode before opening any persistent application state.
+# Linux local filesystems support exclusive flock on this read-only descriptor.
+exec 9</data/.highstate-owner.lock
+if ! flock --exclusive --nonblock 9; then
+  printf '%s\\n' 'Highstate data is already owned by another runtime or offline backup' >&2
+  exit 73
+fi
 restic snapshots >/dev/null
 mkdir -p /backup/recovery
 cp -R /recovery/. /backup/recovery/

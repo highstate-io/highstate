@@ -7,8 +7,8 @@ One backend owns this data at a time.
 
 ## Requirements
 
-- Kubernetes 1.29 or newer with native sidecars enabled and CSI `ReadWriteOncePod` support.
-- A storage class that supports `ReadWriteOncePod`, or an existing PVC with that access mode.
+- Kubernetes 1.29 or newer with native sidecars enabled.
+- A storage class or existing PVC supporting `ReadWriteOncePod` (the default), or explicitly selected `ReadWriteOnce` storage with reliable Linux advisory `flock` support, such as local-path storage on a local filesystem.
   With an existing PVC, the unit uses that PVC's namespace, which must already permit privileged pods.
 - A dedicated PostgreSQL database and password-authenticated connection.
   The image installs PostgreSQL client 18 from PGDG by default.
@@ -60,14 +60,20 @@ Connect these inputs:
 | `accessPoint` | HTTPS route |
 | `postgresql` | Dedicated backend database |
 | `loginProviders` | One or more runtime login capabilities |
-| `volume` | Optional existing `ReadWriteOncePod` PVC |
+| `volume` | Optional existing PVC matching `storageAccessMode` |
 | `resticRepo` | Optional rclone-backed Restic repository |
 
 Set `fqdn`, `image`, `dockerImage`, and at least one of `initialAdminUserIds` or `initialAdminGroupIds`.
 Register `https://<fqdn>/api/auth/callback` as the login client's redirect URI.
 `appName` defaults to `highstate`; it determines the namespace and deployment name.
 When `volume` is connected, its existing namespace replaces the namespace derived from `appName`.
-`storageSize` defaults to `20Gi`; `storageClassName` selects the CSI storage class.
+`storageSize` defaults to `20Gi`; `storageClassName` selects the storage class.
+`storageAccessMode` defaults to `ReadWriteOncePod`; use `ReadWriteOnce` explicitly for non-CSI local storage.
+The runtime and offline backup acquire the same nonblocking exclusive filesystem lock before accessing persistent state.
+The runtime retains its lock across application startup until the process exits; a conflicting owner fails closed.
+The persistent `.highstate-owner.lock` file must never be removed or replaced while either owner runs.
+Network filesystems without reliable advisory locking are not supported by the `ReadWriteOnce` option.
+This is single-owner operation, not active-active deployment or node-failure fencing.
 Set `maintenance=true` to deploy with zero replicas for recovery.
 
 Admin IDs are Highstate's stable identity IDs, not email addresses or provider display names.
@@ -133,7 +139,8 @@ Pause external reconcilers that would change deployment replicas during maintena
 The generated `<appName>-offline-backup` CronJob is suspended and serves only as a Job template.
 Do not unsuspend it or create Jobs directly from it.
 Its pod checks the maintenance lock, zero replicas, and absence of runtime pods before reading data.
-The CSI exclusive-pod mount prevents a replacement runtime from mounting the PVC during capture.
+The shared filesystem ownership lock prevents a replacement runtime from accessing the PVC during capture.
+With `ReadWriteOncePod`, CSI additionally prevents overlapping pod mounts.
 
 Initialize the Restic repository once before the first backup.
 In an independent tools container with kubectl access, export the generated backup Secret to files:
@@ -159,7 +166,8 @@ sh backup.sh
 The coordinator acquires a namespace maintenance lock, scales the deployment to zero, waits for all runtime
 pods to disappear after the Deployment controller observes scale-down, creates a backup Job, and resumes only
 after successful completion and Job pod removal.
-The exclusive-pod PVC prevents either pod from starting until CSI has released its previous mount.
+The filesystem ownership lock excludes overlapping runtime and backup access, even with `ReadWriteOnce`.
+With `ReadWriteOncePod`, the PVC also blocks either pod until CSI releases its previous mount.
 The maintenance lock stays held through the resumed rollout.
 The before-destroy trigger uses the same coordinator and leaves replicas at zero.
 It requires kubectl on the independent bootstrap runtime and uses a temporary secret kubeconfig.

@@ -59,6 +59,46 @@ esac
 }
 
 describe("coordinated offline backup", () => {
+  it("refuses capture when a runtime holds the filesystem lock despite stale pod observations", async () => {
+    const { path, env, log } = await fixture()
+    const data = join(path, "data")
+    await mkdir(data)
+    const lock = join(data, ".highstate-owner.lock")
+
+    const owner = Bun.spawn(
+      [
+        "flock",
+        "--exclusive",
+        "--nonblock",
+        lock,
+        process.execPath,
+        new URL("./ownership-holder.fixture.ts", import.meta.url).pathname,
+      ],
+      { stdin: "pipe", stdout: "pipe", stderr: "pipe" },
+    )
+
+    try {
+      const reader = owner.stdout.getReader()
+      const ready = await reader.read()
+      expect(new TextDecoder().decode(ready.value)).toContain("owner ready")
+      reader.releaseLock()
+      const scriptPath = join(path, "offline.sh")
+      await writeFile(scriptPath, offlineBackupScript.replaceAll("/data/", `${data}/`))
+
+      const result = spawnSync("sh", [scriptPath], {
+        env: { ...env, REPLICAS: "0" },
+        encoding: "utf8",
+      })
+
+      expect(result.status).toBe(73)
+      expect(result.stderr).toContain("already owned")
+      expect(await readFile(log, "utf8")).not.toContain("restic")
+    } finally {
+      owner.stdin.end()
+      await owner.exited
+    }
+  })
+
   it("stops all runtime pods before creating the job and waits for unmount before resuming", async () => {
     const { env, log } = await fixture()
     const result = spawnSync("sh", ["-c", coordinateBackupScript], { env, encoding: "utf8" })
@@ -175,6 +215,7 @@ describe("coordinated offline backup", () => {
     const data = join(path, "data")
     const recovery = join(path, "recovery")
     await mkdir(data)
+    await writeFile(join(data, ".highstate-owner.lock"), "")
     await mkdir(recovery)
 
     for (const file of [
@@ -219,7 +260,7 @@ fi
     await chmod(join(path, "restic"), 0o755)
 
     const script = offlineBackupScript.replace(
-      /(^|[\s"=])\/(backup|recovery|data)/g,
+      /(^|[\s"=<>])\/(backup|recovery|data)/g,
       (_, prefix: string, directory: string) => `${prefix}${join(path, directory)}`,
     )
 

@@ -59,6 +59,8 @@ held by the backend process.
 These choices make the process a coordination boundary and prevent safe active-active ownership of one
 project.
 One backend can load multiple projects, but only one backend may actively own a particular project.
+The packaged Kubernetes runtime and its offline backup share a persistent-filesystem ownership lock.
+Storage access modes alone do not replace that runtime ownership boundary.
 
 Generated database clients, federation identifiers, and adapter interfaces do not establish a supported
 distributed deployment.

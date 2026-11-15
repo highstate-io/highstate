@@ -29,8 +29,9 @@ if [ "$1" = ps ]; then printf '%s' "\${STALE_CONTAINERS:-}"; fi
 printf '%s\\n' sleep >> "$CALL_LOG"
 `,
     bun: `#!/bin/sh
-if [ "$1" = -e ]; then exec "${process.execPath}" "$@"; fi
+case "$1" in */docker/highstate-admins.ts) shift; exec "${process.execPath}" "$ADMIN_HELPER" "$@" ;; esac
 printf '%s\\n' "$PWD" "$HOME" "$PULUMI_HOME" "$HIGHSTATE_AUTH_PROVIDERS_FILE" "$HIGHSTATE_AUTH_ADMIN_USER_IDS" "$HIGHSTATE_AUTH_ADMIN_GROUP_IDS" "$*" >> "$CALL_LOG"
+if [ "\${HOLD_OWNER:-false}" = true ]; then exec "${process.execPath}" "$OWNER_HELPER"; fi
 `,
   }
 
@@ -55,14 +56,50 @@ printf '%s\\n' "$PWD" "$HOME" "$PULUMI_HOME" "$HIGHSTATE_AUTH_PROVIDERS_FILE" "$
     ...process.env,
     PATH: `${bin}:${process.env.PATH}`,
     CALL_LOG: log,
+    ADMIN_HELPER: new URL("../../../../../docker/highstate-admins.ts", import.meta.url).pathname,
+    OWNER_HELPER: new URL("./ownership-holder.fixture.ts", import.meta.url).pathname,
     HIGHSTATE_AUTH_PROVIDERS_FILE: join(path, "providers.json"),
     HIGHSTATE_AUTH_INITIAL_ADMINS_PATH: admins,
   }
 
-  return { path, log, admins, script, env }
+  const scriptPath = join(path, "entrypoint.sh")
+  await writeFile(scriptPath, script)
+  return { path, log, admins, script, scriptPath, env }
 }
 
 describe("production entrypoint", () => {
+  it("holds ownership across exec into Bun and releases it after the runtime exits", async () => {
+    const { path, scriptPath, env } = await setup()
+
+    const owner = Bun.spawn(["sh", scriptPath], {
+      env: { ...env, HOLD_OWNER: "true" },
+      stdin: "pipe",
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+
+    try {
+      const reader = owner.stdout.getReader()
+      const ready = await reader.read()
+      expect(new TextDecoder().decode(ready.value)).toContain("owner ready")
+      reader.releaseLock()
+
+      const contender = spawnSync("sh", [scriptPath], {
+        env: { ...env, CALL_LOG: join(path, "contender-calls") },
+        encoding: "utf8",
+      })
+
+      expect(contender.status).toBe(73)
+      expect(contender.stderr).toContain("already owned")
+      await expect(readFile(join(path, "contender-calls"), "utf8")).rejects.toThrow()
+    } finally {
+      owner.stdin.end()
+      await owner.exited
+    }
+
+    expect(spawnSync("sh", [scriptPath], { env }).status).toBe(0)
+  })
+
   it("starts Nitro after Docker readiness with persistent paths and translated hosted auth configuration", async () => {
     const { path, log, script, env } = await setup()
     const result = spawnSync("sh", ["-c", script], { env, encoding: "utf8" })

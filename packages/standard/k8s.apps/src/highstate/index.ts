@@ -54,14 +54,14 @@ const volume = await PersistentVolumeClaim.createOrGet(
     existing: inputs.volume,
     size: args.storageSize,
     storageClassName: args.storageClassName,
-    accessModes: ["ReadWriteOncePod"],
+    accessModes: [args.storageAccessMode],
   },
   { retainOnDelete: true },
 )
 
-if (inputs.volume && !(await toPromise(volume.spec.accessModes)).includes("ReadWriteOncePod")) {
+if (inputs.volume && !(await toPromise(volume.spec.accessModes)).includes(args.storageAccessMode)) {
   throw new Error(
-    "Highstate requires a ReadWriteOncePod PVC to enforce exclusive runtime and backup ownership",
+    `Highstate requires a PVC with the configured "${args.storageAccessMode}" access mode`,
   )
 }
 

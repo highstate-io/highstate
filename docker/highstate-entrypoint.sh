@@ -1,6 +1,14 @@
 #!/bin/sh
 set -eu
 
+# Never remove or replace this inode: runtime and offline backup share its lock.
+mkdir -p /data
+exec 9>>/data/.highstate-owner.lock
+if ! flock --exclusive --nonblock 9; then
+  printf '%s\n' 'Highstate data is already owned by another runtime or offline backup' >&2
+  exit 73
+fi
+
 # Bind-mount sources must have identical absolute paths in Highstate and dockerd.
 mkdir -p /data/workspace /data/home /data/pulumi /data/cache /run/user/0
 mkdir -p /data/home/.pulumi
@@ -19,8 +27,8 @@ fi
 ln -sfn /opt/highstate/node_modules /data/workspace/node_modules
 cd /data/workspace
 : "${HIGHSTATE_AUTH_PROVIDERS_FILE:?}"
-HIGHSTATE_AUTH_ADMIN_USER_IDS="$(bun -e 'const c = await Bun.file(process.env.HIGHSTATE_AUTH_INITIAL_ADMINS_PATH).json(); if (!Array.isArray(c.userIds)) throw new Error("Missing userIds"); console.log(JSON.stringify(c.userIds))')"
-HIGHSTATE_AUTH_ADMIN_GROUP_IDS="$(bun -e 'const c = await Bun.file(process.env.HIGHSTATE_AUTH_INITIAL_ADMINS_PATH).json(); if (!Array.isArray(c.groupIds)) throw new Error("Missing groupIds"); console.log(JSON.stringify(c.groupIds))')"
+HIGHSTATE_AUTH_ADMIN_USER_IDS="$(bun /opt/highstate/docker/highstate-admins.ts userIds)"
+HIGHSTATE_AUTH_ADMIN_GROUP_IDS="$(bun /opt/highstate/docker/highstate-admins.ts groupIds)"
 export HIGHSTATE_AUTH_ADMIN_USER_IDS HIGHSTATE_AUTH_ADMIN_GROUP_IDS
 
 attempt=0

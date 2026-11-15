@@ -19,6 +19,10 @@ export const highstate = defineUnit({
     dockerImage: pinnedImage,
     storageSize: z.string().default("20Gi"),
     storageClassName: z.string().optional(),
+    /**
+     * ReadWriteOnce requires a filesystem with reliable advisory flock support.
+     */
+    storageAccessMode: z.enum(["ReadWriteOncePod", "ReadWriteOnce"]).default("ReadWriteOncePod"),
     initialAdminUserIds: z.array(z.string().min(1)).default([]),
     initialAdminGroupIds: z.array(z.string().min(1)).default([]),
     /**
