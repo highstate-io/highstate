@@ -35,6 +35,17 @@ jobs:
         run: bun run ci:prepare
       - name: Install Chromium
         run: bun run --cwd packages/e2e --bun playwright install --with-deps chromium
+      - name: Allow Chromium sandbox user namespaces
+        run: |
+          sudo tee /etc/apparmor.d/highstate-e2e-chromium > /dev/null <<'EOF'
+          abi <abi/4.0>,
+          include <tunables/global>
+
+          profile highstate-e2e-chromium /home/runner/.cache/ms-playwright/**/chrome-headless-shell flags=(unconfined) {
+            userns,
+          }
+          EOF
+          sudo apparmor_parser -r /etc/apparmor.d/highstate-e2e-chromium
       - name: Install Pulumi CLI
         uses: pulumi/actions@v6
         with:
