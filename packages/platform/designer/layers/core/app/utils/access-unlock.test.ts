@@ -43,6 +43,20 @@ test("clears denied project state and reconnects automatically when access retur
   scope.stop()
 })
 
+test("preserves unlocked content when permission polls return unchanged access", async () => {
+  const status = ref({ allowed: true, reason: "" })
+  vi.stubGlobal("useAccess", () => ({ status: () => status.value }))
+  const scope = effectScope()
+  const state = scope.run(() => useProjectUnlockState("project"))!
+  subscribe.mock.calls[0]![1].onData({ type: "unlocked" })
+  status.value = { allowed: true, reason: "" }
+  await nextTick()
+  expect(subscribe).toHaveBeenCalledOnce()
+  expect(unsubscribe).not.toHaveBeenCalled()
+  expect(state.unlockState.value).toEqual({ type: "unlocked" })
+  scope.stop()
+})
+
 test("reads unlock state without initializing protected model or worker stores", () => {
   const scope = effectScope()
   const state = scope.run(() => useProjectUnlockState("project"))!

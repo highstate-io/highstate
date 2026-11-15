@@ -45,15 +45,19 @@ export function useProjectUnlockState(projectId: string) {
   }
 
   watch(
-    () => access.status(requirement),
-    status => {
+    [
+      () => access.status(requirement).allowed,
+      () => access.status(requirement).pending,
+      () => access.status(requirement).reason,
+    ],
+    ([allowed, pending, reason]) => {
       stop()
       unlockState.value = undefined
 
-      if (status.allowed) {
+      if (allowed) {
         connect()
-      } else if (!status.pending) {
-        failure.value = Object.assign(new Error(status.reason), { statusCode: 403 })
+      } else if (!pending) {
+        failure.value = Object.assign(new Error(reason), { statusCode: 403 })
       }
     },
     { immediate: true },
