@@ -65,7 +65,7 @@ watch(
           :aria-label="account && access.authenticated.value ? `Account: ${account.username}` : 'Sign in'"
         >
           <template #prepend>
-            <VAvatar size="22" rounded="sm">
+            <VAvatar size="22" rounded="sm" color="surface-variant">
               <VImg
                 v-if="account?.avatarUrl && access.authenticated.value"
                 :src="account.avatarUrl"
@@ -104,11 +104,12 @@ watch(
               />
               <VIcon v-else>mdi-account</VIcon>
             </VAvatar>
-            <h2 class="text-h6">Your account</h2>
+            <div class="account-identity">
+              <h2 class="text-h6">{{ account.title }}</h2>
+              <div class="text-body-2 text-medium-emphasis">{{ account.username }}</div>
+            </div>
           </div>
           <VList bg-color="transparent" density="compact" class="pa-0">
-            <VListItem class="px-0" title="Name" :subtitle="account.title" />
-            <VListItem class="px-0" title="Username" :subtitle="account.username" />
             <VListItem class="px-0" v-if="account.email" title="Email" :subtitle="account.email" />
             <VListItem
               class="px-0"
@@ -146,5 +147,9 @@ watch(
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.account-identity {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 </style>
