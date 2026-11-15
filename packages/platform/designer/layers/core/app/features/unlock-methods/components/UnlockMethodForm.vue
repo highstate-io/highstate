@@ -339,9 +339,8 @@ defineExpose({
 
     <template v-else-if="form.type === 'passkey'">
       <VAlert type="info" density="compact" class="mb-4">
-        Uses your existing Highstate passkey for this domain. If authentication is unavailable or
-        cancelled, the browser offers passkey setup automatically. No separate setup step or source
-        project is needed. Reuse the same passkey for all projects.
+        Reuses your Highstate passkey for this domain. If none is returned or you cancel, setup
+        opens automatically.
       </VAlert>
     </template>
 
@@ -354,41 +353,34 @@ defineExpose({
         class="mb-4"
       />
       <VAlert type="info" density="compact" class="mb-4">
-        Uses the operating system keyring on the machine running the Highstate backend, not your
-        browser's machine. One encrypted AGE unlock identity is shared by all projects that use this
-        backend's keyring. Unlocking is explicit unless you enable automatic unlocking for this
-        method.
+        Uses the backend machine's OS keyring, not your browser's. Its unlock identity is shared
+        across projects.
       </VAlert>
       <VAlert v-if="keyringAvailable === false" type="error" density="compact" class="mb-4">
-        The backend's system keyring is locked or unavailable. Unlock or configure its secret
-        service, then retry.
+        Keyring unavailable. Unlock or configure the backend's OS secret service.
       </VAlert>
     </template>
 
     <VAlert type="warning" density="compact" class="mt-4">
-      <strong>Access and recovery risks</strong>
+      <strong>Recovery risks</strong>
       <p v-if="form.type === 'password'" class="mt-2">
-        Forgetting this password removes access through this method. Weak or reused passwords can
-        expose encrypted data to offline attacks. Store a strong, unique password safely.
+        A forgotten password cannot be recovered. Use a strong, unique password to resist offline
+        attacks.
       </p>
       <p v-else-if="form.type === 'passkey'" class="mt-2">
-        Losing your authenticator or its synchronization account can remove access to every project
-        using this passkey. Compromise can expose all linked projects. Do not assume your passkey is
-        backed up. Passkeys are tied to a WebAuthn relying party: moving to a different domain may
-        require a new passkey.
+        Loss or compromise of this passkey affects every project using it. Sync is not guaranteed; a
+        different domain may require another passkey.
       </p>
       <p v-else class="mt-2">
-        Reinstalling the backend's OS, deleting its keyring, or moving projects without its identity
-        can remove access to every project using this keyring. Anyone able to use the keyring may
-        unlock those projects. Project backups do not include this secret. Before transfer, add an
-        independent method; after transfer, add the destination backend's keyring.
+        Losing the keyring removes this access; anyone able to use it can unlock linked projects.
+        Project backups exclude its secret. Add another method before an OS reinstall or backend
+        move.
       </p>
       <p class="mt-2">
         <strong v-if="initialSetup"
-          >If you lose your only unlock method, your encrypted project data cannot be recovered.</strong
+          >Losing your only unlock method makes project data unrecoverable.</strong
         >
-        Keep an independent recovery method for each project that does not depend on the same device
-        or account.
+        Keep a recovery method on a separate device or account.
       </p>
     </VAlert>
   </VForm>
