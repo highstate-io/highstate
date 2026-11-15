@@ -2,6 +2,8 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { createServer } from "node:net"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
+import { encode } from "@msgpack/msgpack"
+import { preparePulumiCli } from "./toolchain"
 
 export const root = resolve(import.meta.dir, "../../../..")
 
@@ -26,29 +28,49 @@ async function freePort(): Promise<number> {
 }
 
 /**
- * Starts the built Designer against disposable storage, never an existing server or database.
+ * Starts production or development Designer against disposable storage, never an existing server or database.
  */
 export async function startDesigner(
-  options: { env?: Record<string, string>; directory?: string } = {},
+  options: {
+    env?: Record<string, string>
+    directory?: string
+    mode?: "production" | "development"
+  } = {},
 ) {
-  const directory = options.directory ?? (await mkdtemp(join(tmpdir(), "highstate-browser-")))
+  const directory = options.directory ?? (await mkdtemp(join(tmpdir(), "highstate-e2e-")))
   let child: ReturnType<typeof Bun.spawn> | undefined
   let output = ""
 
   try {
     await mkdir(join(directory, "home"), { recursive: true })
     await mkdir(join(directory, ".highstate"), { recursive: true })
+    const pulumiBin = await preparePulumiCli(directory)
+    const library = join(directory, "node_modules/@highstate/e2e-library")
+    await mkdir(join(library, "dist"), { recursive: true })
+
+    await writeFile(
+      join(library, "package.json"),
+      JSON.stringify({
+        name: "@highstate/e2e-library",
+        private: true,
+      }),
+    )
+
+    await writeFile(
+      join(library, "dist/highstate.library.msgpack"),
+      encode({ components: {}, entities: {} }),
+    )
 
     await writeFile(
       join(directory, "package.json"),
-      JSON.stringify({ name: "highstate-browser-isolated", private: true, workspaces: [] }),
+      JSON.stringify({ name: "highstate-e2e-isolated", private: true, workspaces: [] }),
     )
 
     await writeFile(
       join(directory, "bun.lock"),
       JSON.stringify({
         lockfileVersion: 1,
-        workspaces: { "": { name: "highstate-browser-isolated" } },
+        workspaces: { "": { name: "highstate-e2e-isolated" } },
         packages: {},
       }),
     )
@@ -64,18 +86,24 @@ export async function startDesigner(
 
     const env = Object.fromEntries(
       Object.entries(process.env).filter(
-        ([key]) => !/^(HIGHSTATE_|NUXT_|NITRO_|DATABASE_URL$|DOTENV_|BUN_ENV$|NODE_ENV$)/.test(key),
+        ([key]) =>
+          !/^(HIGHSTATE_|PULUMI_|NUXT_|NITRO_|DATABASE_URL$|DOTENV_|BUN_ENV$|NODE_ENV$)/.test(key),
       ),
     )
 
     child = Bun.spawn(
-      [process.execPath, join(root, "packages/platform/designer/.output/server/index.mjs")],
+      options.mode === "development"
+        ? [process.execPath, "run", "--bun", "--filter", "@highstate/designer", "dev"]
+        : [process.execPath, join(root, "packages/platform/designer/.output/server/index.mjs")],
       {
-        cwd: directory,
+        cwd: options.mode === "development" ? root : directory,
         env: {
           ...env,
-          NODE_ENV: "production",
+          NODE_ENV: options.mode === "development" ? "development" : "production",
+          HIGHSTATE_DESIGNER_NO_REDIRECT: "1",
           HOME: join(directory, "home"),
+          PULUMI_HOME: join(directory, "home/.pulumi"),
+          PATH: `${pulumiBin}:${process.env.PATH ?? ""}`,
           XDG_CONFIG_HOME: join(directory, "home/.config"),
           XDG_CACHE_HOME: join(directory, "home/.cache"),
           HIGHSTATE_CODEBASE_PATH: directory,
@@ -83,7 +111,7 @@ export async function startDesigner(
           HIGHSTATE_ENCRYPTION_ENABLED: "false",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_WORKSPACE_PATH: directory,
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_IMPORT_PATH: join(directory, "package.json"),
-          HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES: "[]",
+          HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES: "@highstate/e2e-library",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_STARTUP: "false",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_CHANGES: "false",
           HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH: join(directory, "worker.sock"),
@@ -114,18 +142,21 @@ export async function startDesigner(
 
     while (true) {
       if (child.exitCode !== null) {
-        throw new Error(`Production Designer exited (${child.exitCode})\n${output}`)
+        throw new Error(`Designer exited (${child.exitCode})\n${output}`)
       }
 
       try {
-        const response = await fetch(url, { signal: AbortSignal.timeout(1000) })
+        const response = await fetch(`${url}/api/state.getBackendState`, {
+          signal: AbortSignal.timeout(1000),
+        })
+
         if (response.ok) {
           break
         }
       } catch {}
 
       if (Date.now() > deadline) {
-        throw new Error(`Production Designer readiness timed out\n${output}`)
+        throw new Error(`Designer readiness timed out\n${output}`)
       }
 
       await Bun.sleep(200)
@@ -133,6 +164,8 @@ export async function startDesigner(
 
     return {
       url,
+      directory,
+      mode: options.mode ?? "production",
       logs: () => output,
       async stop() {
         child?.kill("SIGTERM")

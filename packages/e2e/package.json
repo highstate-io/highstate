@@ -4,12 +4,21 @@
   "type": "module",
   "scripts": {
     "test": "bun run --bun vitest run src/harness",
-    "test:e2e": "bun src/browser/run.ts",
+    "test:e2e": "bun src/run.ts",
+    "test:api": "bun src/run.ts api",
+    "test:cli": "bun src/run.ts cli",
+    "test:browser": "bun src/run.ts browser",
+    "inspect": "bun src/inspect.ts",
     "typecheck": "tsc --noEmit"
   },
   "nx": {
     "tags": ["e2e"],
     "targets": { "test:e2e": { "cache": false } }
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^3.1.2",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "age-encryption": "^0.2.4"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

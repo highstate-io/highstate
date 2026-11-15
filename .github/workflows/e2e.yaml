@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   browser:
-    name: Production Designer browser
+    name: Production API, CLI, and browser
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -35,9 +35,13 @@ jobs:
         run: bun run ci:prepare
       - name: Install Chromium
         run: bun run --cwd packages/e2e --bun playwright install --with-deps chromium
-      - name: Build and verify production Designer
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v6
+        with:
+          pulumi-version: 3.232.0
+      - name: Build and verify production API, CLI, and browser
         run: bun run --bun --filter @highstate/e2e test:e2e
-      - name: Upload sanitized browser evidence
+      - name: Upload sanitized test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:

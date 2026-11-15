@@ -1,0 +1,26 @@
+diff --git a/dist/watcher.js b/dist/watcher.js
+index 9aaf77f1685c3bd5a6229955f4265bd6e4891aa8..37db8f5bb91ee4c3fa8b41127f5f8ff598211b1e 100644
+--- a/dist/watcher.js
++++ b/dist/watcher.js
+@@ -189,7 +189,7 @@ class Watcher extends EventEmitter {
+                 const watcherConfig = { watcher, handler, options, folderPath, filePath };
+                 const watcherHandler = watcherHandlerLast = await this.watcherAdd(watcherConfig, baseWatcherHandler);
+                 const isRoot = this._roots.has(filePath || folderPath);
+-                if (isRoot) {
++                if (isRoot && !filePath) {
+                     const parentOptions = { ...options, ignoreInitial: true, recursive: false }; // Ensuring only the parent folder is being watched
+                     const parentFolderPath = path.dirname(folderPath);
+                     const parentFilePath = folderPath;
+diff --git a/dist/watcher_handler.js b/dist/watcher_handler.js
+index e2d73044a12664f93218af70e4498f11ac2c5382..9faebd8c1e02f3ce1d043b8e0c59004092f32f46 100644
+--- a/dist/watcher_handler.js
++++ b/dist/watcher_handler.js
+@@ -196,7 +196,7 @@ class WatcherHandler {
+     onWatcherChange(event = FSTargetEvent.CHANGE, targetName) {
+         if (this.watcher.isClosed())
+             return;
+-        const targetPath = path.resolve(this.folderPath, targetName || '');
++        const targetPath = !targetName && this.filePath ? this.filePath : path.resolve(this.folderPath, targetName || '');
+         if (this.filePath && targetPath !== this.folderPath && targetPath !== this.filePath)
+             return;
+         if (this.watcher.isIgnored(targetPath, this.options.ignore))

@@ -8,6 +8,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const { $client } = useNuxtApp()
 
   const router = useRouter()
+  let restoringExplicitRoute = false
 
   const persistLayout = useDebounceFn(async () => {
     const layout = dockview.value!.toJSON()
@@ -27,6 +28,10 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     dockview.value = api
 
     dockview.value.onDidActivePanelChange(panel => {
+      if (restoringExplicitRoute) {
+        return
+      }
+
       if (!panel) {
         projectsStore.focusedProjectId = null
         return
@@ -66,10 +71,16 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     const data = layout as SerializedDockview
     if (data?.panels && Object.keys(data.panels).length > 0) {
       try {
-        dockview.value!.fromJSON(data)
-        serializedLayout.value = data
-
         const currentRoute = router.currentRoute.value
+        restoringExplicitRoute = currentRoute.name !== "home"
+
+        try {
+          dockview.value!.fromJSON(data)
+          serializedLayout.value = data
+        } finally {
+          restoringExplicitRoute = false
+        }
+
         if (currentRoute.name !== "home") {
           // rerun panel middleware without adding a duplicate history entry
           await navigateTo({

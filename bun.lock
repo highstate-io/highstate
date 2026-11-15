@@ -28,6 +28,11 @@
     },
     "packages/e2e": {
       "name": "@highstate/e2e",
+      "dependencies": {
+        "@msgpack/msgpack": "^3.1.2",
+        "@paralleldrive/cuid2": "^2.2.2",
+        "age-encryption": "^0.2.4",
+      },
       "devDependencies": {
         "@playwright/test": "1.64.1",
         "@types/node": "^24",
@@ -1275,6 +1280,9 @@
         "typescript": "^5.9.3",
       },
     },
+  },
+  "patchedDependencies": {
+    "watcher@2.3.1": "patches/watcher@2.3.1.patch",
   },
   "catalog": {
     "@bufbuild/buf": "^1.57.0",
