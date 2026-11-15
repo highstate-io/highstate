@@ -26,6 +26,13 @@ state.
 Locking the project or stopping the backend removes access to the process-local key and services that depend on
 it.
 
+Project unlock metadata is self-contained rather than referencing a backend-level identity registry.
+Projects may explicitly reuse a passkey's encrypted AGE identity or the backend host's system-keyring identity
+without sharing project master keys or granting access to other projects automatically.
+Passkey envelopes travel with each project; keyring secrets remain outside project storage.
+Transferring project data does not transfer access to an OS keyring or change a passkey's WebAuthn relying party.
+The project unlock service and its shared models own identity preparation and unlock-suite compatibility.
+
 Public API authorization for project resources depends on project data and therefore requires the project to
 be unlocked.
 An API process without the unlock state and project database cannot act as a stateless replica for those

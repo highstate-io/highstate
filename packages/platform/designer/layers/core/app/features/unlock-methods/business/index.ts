@@ -3,7 +3,38 @@ import type {
   UnlockMethodMeta,
   UnlockMethodType,
 } from "@highstate/backend/shared"
-import { armor, Encrypter, generateIdentity, identityToRecipient, webauthn } from "age-encryption"
+import {
+  armor,
+  Decrypter,
+  Encrypter,
+  generateIdentity,
+  identityToRecipient,
+  webauthn,
+} from "age-encryption"
+
+export type ReusablePasskey = {
+  encryptedIdentity: string
+  passkeyIdentity: string
+}
+
+/**
+ * Authenticates an existing passkey before copying its self-contained identity envelope.
+ */
+export async function reusePasskeyUnlockMethod(
+  meta: UnlockMethodMeta,
+  passkey: ReusablePasskey,
+): Promise<UnlockMethodInput> {
+  const decrypter = new Decrypter()
+  decrypter.addIdentity(new webauthn.WebAuthnIdentity({ identity: passkey.passkeyIdentity }))
+  const identity = await decrypter.decrypt(armor.decode(passkey.encryptedIdentity), "text")
+
+  return {
+    type: "passkey",
+    meta,
+    ...passkey,
+    recipient: await identityToRecipient(identity),
+  }
+}
 
 async function createUnlockMethod(meta: UnlockMethodMeta, encrypter: Encrypter) {
   const identity = await generateIdentity()
@@ -33,14 +64,14 @@ export async function createPasswordUnlockMethod(
 
 export async function createPasskeyUnlockMethod(
   meta: UnlockMethodMeta,
-  project: { id: string; name: string },
+  _project: { id: string; name: string },
 ): Promise<UnlockMethodInput> {
   if (!meta.title) {
     throw new Error("Display name is required for passkey unlock method")
   }
 
   const identity = await webauthn.createCredential({
-    keyName: `[${project.id}] ${project.name} | ${meta.title}`,
+    keyName: `Highstate | ${meta.title}`,
   })
 
   const encrypter = new Encrypter()
@@ -60,6 +91,7 @@ export type UnlockMethodFormData = {
   description: string
   password: string
   confirmPassword: string
+  existingPasskey?: ReusablePasskey
 }
 
 export function createUnlockMethodFromForm(
@@ -76,7 +108,15 @@ export function createUnlockMethodFromForm(
   }
 
   if (formData.type === "passkey") {
+    if (formData.existingPasskey) {
+      return reusePasskeyUnlockMethod(meta, formData.existingPasskey)
+    }
+
     return createPasskeyUnlockMethod(meta, project)
+  }
+
+  if (formData.type === "keyring") {
+    return Promise.resolve({ type: "keyring", meta })
   }
 
   throw new Error(`Unsupported unlock method type: ${formData.type}`)

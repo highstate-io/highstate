@@ -12,6 +12,8 @@ const passwordField = useTemplateRef("passwordField")
 const password = ref<string>("")
 const error = ref<string | null>(null)
 const loading = ref(false)
+const keyringLoading = ref(false)
+const { $client } = useNuxtApp()
 
 const stateStore = await useProjectStateStore.async(projectId)
 const workspaceStore = useWorkspaceStore()
@@ -114,6 +116,29 @@ const tryPasswordUnlock = async () => {
 }
 
 const rules = computed(() => [(v: string) => !!v || "Password is required"])
+
+const tryKeyringUnlock = async () => {
+  keyringLoading.value = true
+  error.value = null
+
+  try {
+    const recipients = unlockSuite.value?.keyringRecipients ?? []
+
+    for (const recipient of recipients) {
+      try {
+        await $client.state.unlockProjectWithKeyring.mutate({ projectId, recipient })
+        return
+      } catch (err) {
+        globalLogger.debug({ error: err }, "failed to unlock with system keyring recipient")
+      }
+    }
+
+    error.value =
+      "The system keyring is locked, unavailable, or belongs to another backend. Retry after unlocking it, or use another method."
+  } finally {
+    keyringLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -164,6 +189,14 @@ const rules = computed(() => [(v: string) => !!v || "Password is required"])
 
       <VCardActions>
         <VSpacer />
+        <VBtn
+          v-if="unlockSuite?.keyringRecipients?.length"
+          :loading="keyringLoading"
+          :disabled="keyringLoading"
+          prepend-icon="mdi-safe"
+          @click="tryKeyringUnlock"
+          >System keyring</VBtn
+        >
         <VBtn
           v-if="unlockState.type === 'locked' && unlockSuite?.hasPasskey"
           color="secondary"

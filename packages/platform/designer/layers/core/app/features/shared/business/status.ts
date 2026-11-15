@@ -76,4 +76,5 @@ export const operationTypeMap: StatusChipMap = {
 export const unlockMethodTypeMap: StatusChipMap = {
   password: { color: "primary", icon: "mdi-key-variant" },
   passkey: { color: "success", icon: "mdi-fingerprint" },
+  keyring: { color: "info", icon: "mdi-safe" },
 }

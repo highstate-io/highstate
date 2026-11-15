@@ -79,7 +79,12 @@ export const test = baseTest.extend<{
             encryptedMasterKey: "",
             encryptedPrivateKey: "",
             publicKey: null,
-            unlockSuite: { encryptedIdentities: [], hasPasskey: false, passkeys: [] },
+            unlockSuite: {
+              encryptedIdentities: [],
+              hasPasskey: false,
+              passkeys: [],
+              keyringRecipients: [],
+            },
           },
         })
       }

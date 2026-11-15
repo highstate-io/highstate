@@ -1,6 +1,6 @@
 import { objectMetaSchema, z } from "@highstate/contract"
 
-export const unlockMethodType = z.enum(["password", "passkey"])
+export const unlockMethodType = z.enum(["password", "passkey", "keyring"])
 
 export const unlockMethodMetaSchema = objectMetaSchema
   .pick({
@@ -10,6 +10,10 @@ export const unlockMethodMetaSchema = objectMetaSchema
   .required({ title: true })
 
 export const unlockMethodInputSchema = z.discriminatedUnion("type", [
+  z.object({
+    meta: unlockMethodMetaSchema,
+    type: z.literal("keyring"),
+  }),
   z.object({
     meta: unlockMethodMetaSchema,
     type: z.literal("password"),

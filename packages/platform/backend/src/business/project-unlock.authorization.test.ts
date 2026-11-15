@@ -25,6 +25,14 @@ describe("ProjectUnlockService authorization", () => {
     ).rejects.toThrow(PermissionDeniedError)
 
     await expect(
+      service.unlockProjectWithKeyring(createBackendRequestContext(), "missing", "recipient"),
+    ).rejects.toThrow(PermissionDeniedError)
+
+    await expect(
+      service.getProjectPasskeys(createBackendRequestContext(), "missing"),
+    ).rejects.toThrow(PermissionDeniedError)
+
+    await expect(
       service.getProjectUnlockState(
         createBackendRequestContext(grantBackendPermission("project.get")),
         "missing",

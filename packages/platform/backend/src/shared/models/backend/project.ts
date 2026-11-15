@@ -66,6 +66,11 @@ export const projectUnlockSuiteSchema = z.object({
   hasPasskey: z.boolean(),
 
   /**
+   * AGE recipients whose identities are stored in an OS keyring, not in the project.
+   */
+  keyringRecipients: z.array(z.string()).default([]),
+
+  /**
    * The passkey identities linked to their encrypted AGE identities.
    *
    * Existing unlock suites may not contain these references.

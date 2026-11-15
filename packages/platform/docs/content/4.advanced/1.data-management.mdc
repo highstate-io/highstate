@@ -104,11 +104,53 @@ The flow looks like this:
 
 Here is the unlock process end to end:
 
-1. The designer receives the project's unlock suite, decrypts one of the AGE-encrypted identities using your password or passkey, and produces a plaintext identity string.
-2. The designer calls the backend with that decrypted identity together with the project ID.
+1. For a password or passkey, the designer receives the project's unlock suite and decrypts one of its AGE-encrypted identities.
+2. The designer sends that identity and the project ID to the backend. For a system keyring method, it instead requests an explicit keyring unlock; the backend loads the attached identity directly from its OS keyring without returning the secret to the browser.
 3. The backend loads the project's `encryptedMasterKey` from `backend.db`, decrypts it with AGE using the provided identity (or uses an empty key when encryption is disabled), and asks the unlock backend to keep the resulting 32-byte key in memory.
 4. The backend publishes the updated unlock state and runs registered unlock tasks that open the project database, trigger any pending migrations, update the stored version, and rehydrate subsystems such as evaluation, workers, and terminals.
 5. The master key remains in memory until you lock the project or stop the backend, so subsequent requests can access the project database without repeating the whole flow.
+
+### Choosing Unlock Methods
+
+You can choose **Password**, **Passkey**, or **System keyring** when creating a project or adding an unlock method in project settings.
+Every project keeps independent master keys and self-contained unlock metadata; there is no shared backend identity record that must accompany it.
+
+- **Password:** protects a project-specific AGE identity. Forgetting the password removes access through this method, while a weak or reused password exposes encrypted data to offline attacks.
+- **Passkey:** protects an AGE identity using WebAuthn. You can reuse the same passkey and AGE identity across projects by choosing **Reuse a passkey from another project**, selecting the source project and passkey, and authenticating it.
+- **System keyring:** uses one AGE identity shared by projects that explicitly attach the backend host's OS keyring. This is the keyring of the machine and OS account running the backend, not necessarily your browser's machine. It is separate from the identity used to encrypt the backend database, and selecting it does not enable automatic unlocking.
+
+The keyring must support reading and writing credentials; Highstate does not fall back to storing this identity in plaintext files.
+The backend database identity environment variables do not replace the project-unlock keyring identity.
+
+::warning
+Keep an independent recovery method for every project.
+If you lose your only working method, encrypted project data cannot be recovered.
+Losing a shared passkey, its synchronization account, or the shared keyring identity affects every project using it.
+Anyone able to use a shared identity may decrypt the keys of projects attached to it.
+Do not assume a passkey is synchronized or backed up.
+::
+
+### Reusing Existing Passkeys
+
+Existing project-specific passkeys continue working without migration.
+To start sharing one, select it from a source project when creating a project or adding an unlock method.
+Highstate authenticates that passkey and copies its encrypted AGE identity into the destination project's unlock metadata.
+It does not generate a replacement identity, modify the source project, or delete existing methods.
+
+You can migrate other projects gradually: unlock each using a working method, add the chosen shared passkey, and verify it works before removing an old method.
+Passkeys from very old unlock suites without credential references are not offered for reuse; they can still unlock their original projects.
+Removing a project's method does not delete the passkey from your authenticator or revoke its use by other projects.
+
+### Moving Projects Between Backends
+
+Self-contained unlock metadata avoids a dependency on an identity registry in the original backend, but it does not make credentials universally available.
+Passkeys remain scoped to their WebAuthn relying party; a different backend domain may require a new passkey.
+The same OS keyring identity is available only where that keyring and OS account are accessible.
+Reinstalling the OS or deleting the keyring entry can remove this access, and project backups do not contain the keyring secret.
+
+Before transferring a project, add a recovery method usable at the destination, such as a strong password.
+After transfer, unlock it with that method and add the destination backend's system keyring or a passkey for its domain.
+Adding the destination method re-encrypts project keys for its recipient without changing the project's master key.
 
 ## Artifacts and Project Models
 

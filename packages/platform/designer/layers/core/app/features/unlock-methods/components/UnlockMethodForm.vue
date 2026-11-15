@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { UnlockMethodType } from "@highstate/backend/shared"
+import type { ReusablePasskey } from "../business"
 import { randomBytes } from "@noble/hashes/utils.js"
 import { secureMask } from "micro-key-producer/password.js"
 import { zxcvbn } from "zxcvbn-typescript"
@@ -19,6 +20,7 @@ type UnlockMethodFormData = {
   description: string
   password: string
   confirmPassword: string
+  existingPasskey?: ReusablePasskey
 }
 
 type Props = {
@@ -31,6 +33,7 @@ type Props = {
   passwordHint?: string
   defaultDisplayName?: string
   defaultDescription?: string
+  initialSetup?: boolean
 }
 
 interface Emits {
@@ -54,6 +57,63 @@ const emit = defineEmits<Emits>()
 
 const valid = ref(false)
 const passwordVisible = ref(false)
+const { $client } = useNuxtApp()
+const projectsStore = useProjectsStore()
+const passkeyMode = ref<"new" | "existing">("new")
+const sourceProjectId = ref<string>()
+const passkeys = ref<ReusablePasskey[]>([])
+const selectedPasskey = ref<ReusablePasskey>()
+const loadingPasskeys = ref(false)
+const passkeyError = ref<string>()
+const keyringAvailable = ref<boolean>()
+const checkingKeyring = ref(false)
+
+const checkKeyring = async () => {
+  checkingKeyring.value = true
+  keyringAvailable.value = undefined
+
+  try {
+    keyringAvailable.value = (await $client.state.checkProjectKeyring.query()).available
+  } catch {
+    keyringAvailable.value = false
+  } finally {
+    checkingKeyring.value = false
+  }
+}
+
+watch(sourceProjectId, async (projectId, _old, onCleanup) => {
+  let active = true
+
+  onCleanup(() => {
+    active = false
+  })
+
+  selectedPasskey.value = undefined
+  passkeys.value = []
+  passkeyError.value = undefined
+  loadingPasskeys.value = !!projectId
+
+  if (!projectId) {
+    return
+  }
+
+  try {
+    const result = await $client.state.getProjectPasskeys.query({ projectId })
+
+    if (active) {
+      passkeys.value = result
+      selectedPasskey.value = result[0]
+    }
+  } catch {
+    if (active) {
+      passkeyError.value = "Could not load passkeys from this project."
+    }
+  } finally {
+    if (active) {
+      loadingPasskeys.value = false
+    }
+  }
+})
 
 const form = reactive<UnlockMethodFormData>({
   type: props.initialType,
@@ -61,6 +121,28 @@ const form = reactive<UnlockMethodFormData>({
   description: "",
   password: "",
   confirmPassword: "",
+})
+
+const methodValid = computed(
+  () =>
+    valid.value &&
+    (form.type === "keyring"
+      ? keyringAvailable.value === true
+      : form.type !== "passkey" || passkeyMode.value === "new" || !!selectedPasskey.value),
+)
+
+watch(
+  () => form.type,
+  type => {
+    if (type === "keyring") {
+      void checkKeyring()
+    }
+  },
+  { immediate: true },
+)
+
+watch([passkeyMode, selectedPasskey], () => {
+  form.existingPasskey = passkeyMode.value === "existing" ? selectedPasskey.value : undefined
 })
 
 const displayNameRules = computed(() => {
@@ -140,6 +222,8 @@ const getTypeIcon = (type: UnlockMethodType) => {
       return "mdi-key-variant"
     case "passkey":
       return "mdi-fingerprint"
+    case "keyring":
+      return "mdi-safe"
     default:
       return "mdi-lock"
   }
@@ -152,10 +236,15 @@ const resetForm = () => {
   form.password = ""
   form.confirmPassword = ""
   passwordVisible.value = false
+  passkeyMode.value = "new"
+  sourceProjectId.value = undefined
+  selectedPasskey.value = undefined
+  form.existingPasskey = undefined
+  keyringAvailable.value = undefined
 }
 
 // watch for changes and emit updates
-watch(valid, newValid => {
+watch(methodValid, newValid => {
   emit("update:valid", newValid)
 })
 
@@ -198,6 +287,10 @@ defineExpose({
       <VBtn value="passkey" class="flex-grow-1">
         <VIcon :icon="getTypeIcon('passkey')" class="mr-2" />
         Passkey
+      </VBtn>
+      <VBtn value="keyring" class="flex-grow-1">
+        <VIcon :icon="getTypeIcon('keyring')" class="mr-2" />
+        System keyring
       </VBtn>
     </VBtnToggle>
 
@@ -302,10 +395,84 @@ defineExpose({
     </template>
 
     <template v-else-if="form.type === 'passkey'">
+      <VSelect
+        v-model="passkeyMode"
+        :items="[{ title: 'Create a new passkey', value: 'new' }, { title: 'Reuse a passkey from another project', value: 'existing' }]"
+        label="Passkey"
+        variant="outlined"
+        density="compact"
+        class="mb-4"
+      />
+      <template v-if="passkeyMode === 'existing'">
+        <VSelect
+          v-model="sourceProjectId"
+          :items="projectsStore.projects"
+          item-title="name"
+          item-value="id"
+          label="Source project"
+          variant="outlined"
+          density="compact"
+          class="mb-4"
+        />
+        <VSelect
+          v-model="selectedPasskey"
+          :items="passkeys.map((passkey, index) => ({ title: `Passkey ${index + 1}`, value: passkey }))"
+          :loading="loadingPasskeys"
+          label="Existing passkey"
+          variant="outlined"
+          density="compact"
+          class="mb-4"
+          no-data-text="No reusable passkey references. Existing methods still work; add a shared passkey after unlocking."
+        />
+        <VAlert v-if="passkeyError" type="error" density="compact" class="mb-4"
+          >{{ passkeyError }}</VAlert
+        >
+      </template>
       <VAlert type="info" density="compact" class="mb-4">
-        You'll be prompted to create a passkey using your device's biometric authentication or
-        security key when you click Create.
+        {{ passkeyMode === 'new' ? "You'll be prompted to create a passkey." : "You'll be prompted to authenticate the existing passkey. Its identity will be reused without changing the source project." }}
       </VAlert>
     </template>
+
+    <template v-else-if="form.type === 'keyring'">
+      <VAlert type="info" density="compact" class="mb-4">
+        Uses the operating system keyring on the machine running the Highstate backend, not your
+        browser's machine. One AGE identity is shared by all projects that use this backend's
+        keyring. Unlocking remains explicit.
+      </VAlert>
+      <VAlert v-if="keyringAvailable === false" type="error" density="compact" class="mb-4">
+        The backend's system keyring is locked or unavailable. Unlock or configure its secret
+        service, then retry.
+      </VAlert>
+      <VBtn :loading="checkingKeyring" variant="tonal" class="mb-4" @click="checkKeyring"
+        >Check keyring access</VBtn
+      >
+    </template>
+
+    <VAlert type="warning" density="compact" class="mt-4">
+      <strong>Access and recovery risks</strong>
+      <p v-if="form.type === 'password'" class="mt-2">
+        Forgetting this password removes access through this method. Weak or reused passwords can
+        expose encrypted data to offline attacks. Store a strong, unique password safely.
+      </p>
+      <p v-else-if="form.type === 'passkey'" class="mt-2">
+        Losing your authenticator or its synchronization account can remove access to every project
+        using this passkey. Compromise can expose all linked projects. Do not assume your passkey is
+        backed up. Passkeys are tied to a WebAuthn relying party: moving to a different domain may
+        require a new passkey.
+      </p>
+      <p v-else class="mt-2">
+        Reinstalling the backend's OS, deleting its keyring, or moving projects without its identity
+        can remove access to every project using this keyring. Anyone able to use the keyring may
+        unlock those projects. Project backups do not include this secret. Before transfer, add an
+        independent method; after transfer, add the destination backend's keyring.
+      </p>
+      <p class="mt-2">
+        <strong v-if="initialSetup"
+          >If you lose your only unlock method, your encrypted project data cannot be recovered.</strong
+        >
+        Keep an independent recovery method for each project that does not depend on the same device
+        or account.
+      </p>
+    </VAlert>
   </VForm>
 </template>

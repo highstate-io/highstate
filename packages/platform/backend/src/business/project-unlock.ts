@@ -13,10 +13,12 @@ import {
   ProjectNotFoundError,
   type ProjectUnlockState,
   type ProjectUnlockSuite,
+  projectUnlockSuiteSchema,
   type UnlockMethodInput,
   type UnlockMethodType,
 } from "../shared"
 import { resolveBackendProjectPermissionTarget } from "./project-authorization"
+import { ProjectKeyring } from "./project-keyring"
 
 interface UnlockTask {
   name: string
@@ -39,6 +41,7 @@ export class ProjectUnlockService {
     private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly config: z.infer<typeof projectUnlockServiceConfig>,
     private readonly logger: Logger,
+    private readonly projectKeyring = new ProjectKeyring(),
   ) {}
 
   private readonly unlockTasks: UnlockTask[] = []
@@ -95,6 +98,71 @@ export class ProjectUnlockService {
   }
 
   /**
+   * Returns portable passkey envelopes after checking access to the source project.
+   */
+  async getProjectPasskeys(context: BackendRequestContext, projectId: string) {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+    requireBackendPermission(context, "project.get", target)
+
+    const project = await this.database.backend.project.findUniqueOrThrow({
+      where: { id: projectId },
+      select: { unlockSuite: true },
+    })
+
+    return projectUnlockSuiteSchema.parse(project.unlockSuite).passkeys
+  }
+
+  /**
+   * Checks whether this backend can read and write its system keyring.
+   */
+  async checkProjectKeyring(): Promise<{ available: boolean }> {
+    try {
+      await this.projectKeyring.checkAvailable()
+      return { available: true }
+    } catch (error) {
+      this.logger.debug({ error }, "project unlock system keyring is unavailable")
+      return { available: false }
+    }
+  }
+
+  /**
+   * Unlocks using an existing keyring identity explicitly attached to this project.
+   */
+  async unlockProjectWithKeyring(
+    context: BackendRequestContext,
+    projectId: string,
+    recipient: string,
+  ): Promise<void> {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+    requireBackendPermission(context, "project.unlock", target)
+
+    const project = await this.database.backend.project.findUniqueOrThrow({
+      where: { id: projectId },
+      select: { unlockSuite: true },
+    })
+
+    const suite = projectUnlockSuiteSchema.parse(project.unlockSuite)
+    if (!suite.keyringRecipients.includes(recipient)) {
+      throw new Error(`System keyring recipient is not attached to project "${projectId}"`)
+    }
+
+    const identity = await this.projectKeyring.getIdentity(recipient)
+    await this.unlockProject(context, projectId, identity)
+  }
+
+  private async prepareUnlockMethod(input: UnlockMethodInput) {
+    if (input.type !== "keyring") {
+      return input
+    }
+
+    return {
+      ...input,
+      recipient: await this.projectKeyring.getOrCreateRecipient(),
+      encryptedIdentity: "",
+    }
+  }
+
+  /**
    * Sets up the project database by creating a master key and unlock suite with the provided unlock method.
    *
    * Creates databases, configures encryption and persists the unlock method inside the project database.
@@ -115,6 +183,8 @@ export class ProjectUnlockService {
       unlockSuite: ProjectUnlockSuite,
     ]
   > {
+    const unlockMethod = await this.prepareUnlockMethod(unlockMethodInput)
+
     // generate a new master key for the project
     const masterKey = randomBytes(32)
     const privateKey = await generateIdentity()
@@ -123,23 +193,23 @@ export class ProjectUnlockService {
     // set the master key to setup the database encryption
     await this.projectUnlockBackend.unlockProject(projectId, masterKey, privateKey)
 
-    const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, [unlockMethodInput])
+    const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, [unlockMethod])
 
     const encryptedPrivateKey = await this.encryptProjectPrivateKey(projectId, privateKey, [
-      unlockMethodInput,
+      unlockMethod,
     ])
 
     const database = await this.database.setupDatabase(projectId)
 
     // persist unlock method (now we can do it since the database is set up and unlocked)
-    const unlockMethod = await database.unlockMethod.create({
-      data: unlockMethodInput,
+    const createdMethod = await database.unlockMethod.create({
+      data: unlockMethod,
       select: { id: true },
     })
 
-    await this.objectRefIndexService.track(projectId, [unlockMethod.id])
+    await this.objectRefIndexService.track(projectId, [createdMethod.id])
 
-    const unlockSuite = ProjectUnlockService.createUnlockSuite([unlockMethodInput])
+    const unlockSuite = ProjectUnlockService.createUnlockSuite([unlockMethod])
 
     return [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite]
   }
@@ -281,6 +351,7 @@ export class ProjectUnlockService {
     projectId: string,
     inputUnlockMethod: UnlockMethodInput,
   ): Promise<void> {
+    const preparedMethod = await this.prepareUnlockMethod(inputUnlockMethod)
     const database = await this.database.forProject(projectId)
 
     let createdUnlockMethodId: string | null = null
@@ -291,7 +362,18 @@ export class ProjectUnlockService {
         select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
       })
 
-      const allUnlockMethods = [...unlockMethods, inputUnlockMethod]
+      // retrying a shared-identity attachment must not create a duplicate or rewrite project keys
+      if (
+        preparedMethod.type !== "password" &&
+        unlockMethods.some(
+          method =>
+            method.type === preparedMethod.type && method.recipient === preparedMethod.recipient,
+        )
+      ) {
+        return
+      }
+
+      const allUnlockMethods = [...unlockMethods, preparedMethod]
 
       // 2. encrypt the project data for all recipients + the new recipient
       const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, allUnlockMethods)
@@ -308,7 +390,7 @@ export class ProjectUnlockService {
 
       // 3. persist the new unlock method
       const created = await tx.unlockMethod.create({
-        data: inputUnlockMethod,
+        data: preparedMethod,
         select: { id: true },
       })
 
@@ -461,11 +543,17 @@ export class ProjectUnlockService {
     unlockMethods: {
       type: UnlockMethodType
       encryptedIdentity: string
+      recipient: string
       passkeyIdentity?: string | null
     }[],
   ): ProjectUnlockSuite {
     return {
-      encryptedIdentities: unlockMethods.map(method => method.encryptedIdentity),
+      encryptedIdentities: unlockMethods
+        .filter(method => method.type !== "keyring")
+        .map(method => method.encryptedIdentity),
+      keyringRecipients: unlockMethods
+        .filter(method => method.type === "keyring")
+        .map(method => method.recipient),
       hasPasskey: unlockMethods.some(method => method.type === "passkey"),
       passkeys: unlockMethods.flatMap(method => {
         if (method.type !== "passkey" || !method.passkeyIdentity) {
