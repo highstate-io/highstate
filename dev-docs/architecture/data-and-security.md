@@ -87,6 +87,7 @@ Stream delivery remains subject to the caller's grants for the lifetime of the s
 
 Code in the backend API authentication layer, designer tRPC context, business services, and authorization
 schemas owns the exact permission checks.
+Designer synchronizes advisory access hints for visible interactions; those hints never authorize a business operation.
 Role and permission inventories remain in those sources rather than architecture documentation.
 
 ## Secret Metadata

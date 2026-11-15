@@ -13,7 +13,16 @@ const deleteDialogVisible = ref(false)
 const roleToDelete = ref<BackendRoleOutput | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
-const restrictionOptions = await roleStore.getRestrictionOptions()
+const { state: restrictionOptions, execute: loadOptions } = useAsyncState(
+  () => roleStore.getRestrictionOptions(),
+  undefined,
+  { immediate: false },
+)
+watch(dialogVisible, visible => {
+  if (visible) {
+    void loadOptions()
+  }
+})
 
 definePageMeta({
   name: "settings.backend-roles",
@@ -69,7 +78,13 @@ void roleStore.items.load()
     description="Manage roles that grant backend-wide permissions to service accounts."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create</VBtn>
+      <VBtn
+        v-access="{ permission: 'role.create' }"
+        color="primary"
+        prepend-icon="mdi-plus"
+        @click="dialogVisible = true"
+        >Create</VBtn
+      >
     </template>
     <template #default="{ height }">
       <BackendRolesTable
@@ -86,6 +101,7 @@ void roleStore.items.load()
   </SettingsListPage>
 
   <BackendRoleDialog
+    v-if="restrictionOptions"
     v-model:visible="dialogVisible"
     :loading="saving"
     :restriction-options="restrictionOptions"
@@ -100,7 +116,13 @@ void roleStore.items.load()
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'role.delete', target: { resourceId: roleToDelete?.id } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

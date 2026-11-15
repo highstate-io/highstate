@@ -2,11 +2,34 @@ import type { TerminalSessionOutput } from "@highstate/backend/shared"
 import type { ILinkHandler, Terminal } from "@xterm/xterm"
 import { AttachAddon } from "@xterm/addon-attach"
 import { type ILinkProviderOptions, WebLinksAddon } from "@xterm/addon-web-links"
+import { accessError } from "../../../utils/access-control"
 
 export function useTerminalSession(projectId: string, sessionId: string) {
   const terminal = shallowRef<Terminal | null>(null)
   const session = shallowRef<TerminalSessionOutput | null>(null)
   const restartClicked = ref(false)
+  const failure = ref<string>()
+  let socket: WebSocket | undefined
+  let unsubscribe: (() => void) | undefined
+
+  const fail = (error: unknown) => {
+    failure.value =
+      accessError(error)?.message ??
+      "Terminal connection unavailable. Check your connection and access."
+
+    if (terminal.value) {
+      terminal.value.options.disableStdin = true
+      terminal.value.reset()
+    }
+
+    socket?.close()
+    unsubscribe?.()
+  }
+
+  onUnmounted(() => {
+    socket?.close()
+    unsubscribe?.()
+  })
 
   const { $client } = useNuxtApp()
   const workspaceStore = useWorkspaceStore()
@@ -59,6 +82,7 @@ export function useTerminalSession(projectId: string, sessionId: string) {
     const { unsubscribe: stopWatchingSession } = $client.terminal.watchSession.subscribe(
       { projectId, sessionId },
       {
+        onError: fail,
         onData(updatedSession) {
           session.value = updatedSession
 
@@ -80,9 +104,15 @@ export function useTerminalSession(projectId: string, sessionId: string) {
       },
     )
 
+    unsubscribe = stopWatchingSession
+
     onUnmounted(stopWatchingSession)
 
-    await until(session).not.toBeNull()
+    await until(() => session.value !== null || failure.value !== undefined).toBe(true)
+
+    if (failure.value) {
+      return
+    }
 
     if (!session.value!.finishedAt) {
       attachTerminal()
@@ -107,6 +137,18 @@ export function useTerminalSession(projectId: string, sessionId: string) {
       `${baseUrl}/api/projects/${projectId}/terminal-sessions/${sessionId}?screenSize=${terminal.value!.cols}x${terminal.value!.rows}`,
     )
 
+    socket = ws
+
+    ws.addEventListener("close", event => {
+      if (event.code === 1008) {
+        fail({ statusCode: 403 })
+      }
+    })
+
+    ws.addEventListener("error", () => {
+      void $client.terminal.getTerminalSession.query({ projectId, sessionId }).catch(fail)
+    })
+
     const attachAddon = new AttachAddon(ws)
     terminal.value!.loadAddon(attachAddon)
 
@@ -114,7 +156,14 @@ export function useTerminalSession(projectId: string, sessionId: string) {
   }
 
   return {
-    initialize,
+    initialize: async (value: Terminal) => {
+      try {
+        await initialize(value)
+      } catch (error) {
+        fail(error)
+      }
+    },
+    failure,
     session,
   }
 }

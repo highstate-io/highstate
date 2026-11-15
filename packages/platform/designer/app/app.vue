@@ -7,6 +7,7 @@ import { CustomTab, GenericPanel } from "#layers/core/app/features/shared"
 
 const initialized = ref(false)
 const workspaceStore = useWorkspaceStore()
+const access = useAccess()
 
 const onReady = (event: DockviewReadyEvent) => {
   workspaceStore.init(event.api)
@@ -30,8 +31,15 @@ defineOptions({
 </script>
 
 <template>
+  <div v-if="access.rejection.value" class="access-rejection-banner">
+    <AccessNotice
+      fallback
+      :title="access.rejection.value.unauthorized ? 'Sign-in required' : 'Access denied'"
+      :message="`${access.rejection.value.message} (${access.rejection.value.path})`"
+    />
+  </div>
   <a href="/login" style="position: fixed; bottom: 0.5rem; right: 0.5rem; z-index: 1000">Account</a>
-  <div :style="{ display: initialized ? 'block' : 'none' }">
+  <div v-if="access.authenticated.value" :style="{ display: initialized ? 'block' : 'none' }">
     <DockviewVue
       class="dockview-container"
       :theme="themeDark"
@@ -52,4 +60,12 @@ defineOptions({
 
 <style>
 @import "dockview-vue/dist/styles/dockview.css";
+.access-rejection-banner {
+  position: fixed;
+  right: 20px;
+  bottom: 36px;
+  z-index: 3000;
+  max-width: 520px;
+  background: #202024;
+}
 </style>

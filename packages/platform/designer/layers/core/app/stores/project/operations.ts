@@ -206,6 +206,7 @@ export const useProjectOperationsStore = defineMultiStore({
       })
 
       return {
+        projectId,
         initialize,
 
         operations,

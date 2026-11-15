@@ -7,6 +7,8 @@ import { sessionTokenFromHeaders } from "../utils/hosted-session"
 export default defineNitroPlugin(async nitro => {
   const config = useRuntimeConfig()
   const { logger } = await getSharedServices()
+  // bun can release upgrade request headers before the WebSocket context is created
+  const sessionTokens = new WeakMap<Request, string | undefined>()
 
   const handler = createBunServeHandler({
     endpoint: "/",
@@ -16,7 +18,7 @@ export default defineNitroPlugin(async nitro => {
 
       return {
         ...services,
-        designerSessionToken: isHostedAuth() ? sessionTokenFromHeaders(req.headers) : undefined,
+        designerSessionToken: isHostedAuth() ? sessionTokens.get(req) : undefined,
       }
     },
     onError: ({ error }: { error: unknown }) => {
@@ -26,6 +28,10 @@ export default defineNitroPlugin(async nitro => {
 
   const server = Bun.serve({
     ...handler,
+    fetch(req, server) {
+      sessionTokens.set(req, isHostedAuth() ? sessionTokenFromHeaders(req.headers) : undefined)
+      return handler.fetch(req, server)
+    },
     hostname: "127.0.0.1",
     port: config.public.eventsPort,
   })

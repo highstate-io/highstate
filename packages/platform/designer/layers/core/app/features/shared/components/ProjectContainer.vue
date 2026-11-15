@@ -14,6 +14,11 @@ const error = ref<string | null>(null)
 const loading = ref(false)
 const keyringLoading = ref(false)
 const { $client } = useNuxtApp()
+const access = useAccess()
+const unlockAccess = computed(() => ({
+  permission: "project.unlock" as const,
+  target: { projectId },
+}))
 
 const stateStore = await useProjectStateStore.async(projectId)
 const workspaceStore = useWorkspaceStore()
@@ -29,6 +34,8 @@ const unlockSuite = computed(() => {
 })
 
 const tryPassKeyUnlock = async () => {
+  access.requireAccess(unlockAccess.value)
+
   if (passKeyInProgress.value) {
     return
   }
@@ -78,6 +85,7 @@ const unlockState = await until(() => stateStore.unlockState).not.toBeUndefined(
 
 if (
   unlockState.type === "locked" &&
+  access.status(unlockAccess.value).allowed &&
   unlockSuite.value?.hasPasskey &&
   workspaceStore.dockview?.activePanel?.params?.projectId === projectId
 ) {
@@ -97,6 +105,7 @@ watch(password, () => {
 })
 
 const tryPasswordUnlock = async () => {
+  access.requireAccess(unlockAccess.value)
   loading.value = true
   await nextTick()
 
@@ -176,6 +185,7 @@ const tryKeyringUnlock = async () => {
         </VCardTitle>
 
         <PasswordField
+          v-access="unlockAccess"
           ref="passwordField"
           v-model="password"
           class="mt-4"
@@ -210,11 +220,18 @@ const tryKeyringUnlock = async () => {
           :disabled="passKeyInProgress"
           aria-label="Unlock with passkey"
           @click="tryPassKeyUnlock"
+          v-access="unlockAccess"
         >
           <VIcon>mdi-fingerprint</VIcon>
           <VTooltip activator="parent" location="bottom">Unlock with passkey</VTooltip>
         </VBtn>
-        <VBtn color="primary" :loading="loading" :disabled="loading" @click="tryPasswordUnlock">
+        <VBtn
+          v-access="unlockAccess"
+          color="primary"
+          :loading="loading"
+          :disabled="loading"
+          @click="tryPasswordUnlock"
+        >
           <VIcon class="mr-2">mdi-lock-open</VIcon>
           Unlock
         </VBtn>

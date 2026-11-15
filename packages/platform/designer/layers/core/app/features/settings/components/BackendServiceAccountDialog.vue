@@ -72,7 +72,14 @@ function save(): void {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="visible = false">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!title.trim()" :loading="loading" @click="save">Save</VBtn>
+        <VBtn
+          v-access="{ permission: 'service-account.manage', target: { resourceId: serviceAccount?.id } }"
+          color="primary"
+          :disabled="!title.trim()"
+          :loading="loading"
+          @click="save"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

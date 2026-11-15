@@ -39,6 +39,14 @@ export const useProjectInstancesStore = defineMultiStore({
 
       const libraryStore = useProjectLibraryStore(projectId)
       const { $client } = useNuxtApp()
+      const access = useAccess()
+
+      const requireEdit = (instanceId?: InstanceId) =>
+        access.requireAccess({
+          permission: "instance-model.update",
+          projectId,
+          target: { instanceId },
+        })
 
       const {
         inputs: inputResolverInputs,
@@ -258,6 +266,8 @@ export const useProjectInstancesStore = defineMultiStore({
         oldName: string,
         newName: string,
       ): Promise<void> => {
+        requireEdit(instance.id)
+
         if (!isEditableExportInstance(instance)) {
           throw new Error(`Instance "${instance.id}" is not an export component`)
         }
@@ -755,6 +765,8 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const patchInstance = async (instance: InstanceModel, keys: (keyof InstanceModelPatch)[]) => {
+        requireEdit(instance.id)
+
         await $client.project.updateInstance.mutate({
           projectId,
           instanceId: instance.id,
@@ -763,6 +775,8 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const patchHub = async (hub: HubModel, keys: (keyof HubModel)[]) => {
+        requireEdit()
+
         await $client.project.updateHub.mutate({
           projectId,
           hubId: hub.id,
@@ -851,6 +865,11 @@ export const useProjectInstancesStore = defineMultiStore({
         patch = true,
       ): Promise<void> => {
         const inputs = instance.inputs ?? {}
+
+        if (patch) {
+          requireEdit(instance.id)
+        }
+
         const inputList = inputs[inputName] ?? []
 
         inputList.push(input)
@@ -873,6 +892,11 @@ export const useProjectInstancesStore = defineMultiStore({
         patch = true,
       ): Promise<void> => {
         const hubInputs = instance.hubInputs ?? {}
+
+        if (patch) {
+          requireEdit(instance.id)
+        }
+
         const inputList = hubInputs[inputName] ?? []
 
         inputList.push(input)
@@ -894,6 +918,11 @@ export const useProjectInstancesStore = defineMultiStore({
         patch = true,
       ): Promise<void> => {
         const injectionInputs = instance.injectionInputs ?? []
+
+        if (patch) {
+          requireEdit(instance.id)
+        }
+
         injectionInputs.push(input)
 
         instance.injectionInputs = injectionInputs
@@ -912,6 +941,11 @@ export const useProjectInstancesStore = defineMultiStore({
         patch = true,
       ): Promise<void> => {
         const inputs = hub.inputs ?? []
+
+        if (patch) {
+          requireEdit()
+        }
+
         inputs.push(input)
 
         hub.inputs = inputs
@@ -930,6 +964,11 @@ export const useProjectInstancesStore = defineMultiStore({
         patch = true,
       ): Promise<void> => {
         const injectionInputs = hub.injectionInputs ?? []
+
+        if (patch) {
+          requireEdit()
+        }
+
         injectionInputs.push(input)
 
         hub.injectionInputs = injectionInputs
@@ -994,6 +1033,10 @@ export const useProjectInstancesStore = defineMultiStore({
         input: InstanceInput,
         patch = true,
       ): Promise<void> => {
+        if (patch) {
+          requireEdit(instance.id)
+        }
+
         const inputs = instance.inputs ?? {}
         let inputList = inputs[inputName] ?? []
 
@@ -1018,6 +1061,10 @@ export const useProjectInstancesStore = defineMultiStore({
         input: HubInput,
         patch = true,
       ): Promise<void> => {
+        if (patch) {
+          requireEdit(instance.id)
+        }
+
         const hubInputs = instance.hubInputs ?? {}
         let inputList = hubInputs[inputName] ?? []
 
@@ -1041,6 +1088,10 @@ export const useProjectInstancesStore = defineMultiStore({
         input: HubInput,
         patch = true,
       ): Promise<void> => {
+        if (patch) {
+          requireEdit(instance.id)
+        }
+
         const injectionInputs = instance.injectionInputs ?? []
         const inputList = injectionInputs.filter(item => item.hubId !== input.hubId)
 
@@ -1059,6 +1110,10 @@ export const useProjectInstancesStore = defineMultiStore({
         input: InstanceInput,
         patch = true,
       ): Promise<void> => {
+        if (patch) {
+          requireEdit()
+        }
+
         const inputs = hub.inputs ?? []
         const inputList = inputs.filter(item => inputKey(item) !== inputKey(input))
 
@@ -1077,6 +1132,10 @@ export const useProjectInstancesStore = defineMultiStore({
         input: HubInput,
         patch = true,
       ): Promise<void> => {
+        if (patch) {
+          requireEdit()
+        }
+
         const injectionInputs = hub.injectionInputs ?? []
         const inputList = injectionInputs.filter(item => item.hubId !== input.hubId)
 
@@ -1210,6 +1269,8 @@ export const useProjectInstancesStore = defineMultiStore({
         newArgs: Record<string, unknown>,
       ) => {
         const instance = instances.get(instanceId)
+        requireEdit(instanceId)
+
         if (!instance) {
           throw new Error(`Instance ${instanceId} not found`)
         }
@@ -1301,6 +1362,10 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const deleteInstance = async (instance: InstanceModel, persistent = true) => {
+        if (persistent) {
+          requireEdit(instance.id)
+        }
+
         for (const otherInstance of instances.values()) {
           if (otherInstance.id === instance.id) {
             continue
@@ -1355,6 +1420,10 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const deleteHub = async (hub: HubModel, persistent = true) => {
+        if (persistent) {
+          requireEdit()
+        }
+
         hubs.delete(hub.id)
         deleteInputResolverInput(`hub:${hub.id}`)
 
@@ -1378,6 +1447,8 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const createManyNodes = async (instances: InstanceModel[], hubs: HubModel[]) => {
+        requireEdit()
+
         await $client.project.createManyNodes.mutate({
           projectId,
           instances,

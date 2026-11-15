@@ -387,7 +387,13 @@ const title = computed(() => {
       <VCardActions>
         <VSpacer />
         <VBtn @click="visible = false">Cancel</VBtn>
-        <VBtn :color="opButtonColor" :loading="loading" :disabled="planLoading" @click="operate">
+        <VBtn
+          v-access="instances.map(instance => ({ permission: 'operation.create' as const, projectId: projectStore.projectId, target: { instanceId: instance.id } }))"
+          :color="opButtonColor"
+          :loading="loading"
+          :disabled="planLoading"
+          @click="operate"
+        >
           {{ opButtonText }}
         </VBtn>
       </VCardActions>

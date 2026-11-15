@@ -105,8 +105,19 @@ async function remove(): Promise<void> {
     >
       <template v-if="!apiKey.managed" #actions>
         <div class="d-flex ga-2">
-          <VBtn variant="outlined" prepend-icon="mdi-pencil" @click="editVisible = true">Edit</VBtn>
-          <VBtn variant="outlined" prepend-icon="mdi-refresh" @click="rotateVisible = true">
+          <VBtn
+            v-access="{ permission: 'api-key.update', projectId: params.projectId, target: { resourceId: params.apiKeyId } }"
+            variant="outlined"
+            prepend-icon="mdi-pencil"
+            @click="editVisible = true"
+            >Edit</VBtn
+          >
+          <VBtn
+            v-access="{ permission: 'api-key.rotate', projectId: params.projectId, target: { resourceId: params.apiKeyId } }"
+            variant="outlined"
+            prepend-icon="mdi-refresh"
+            @click="rotateVisible = true"
+          >
             Rotate
           </VBtn>
           <VBtn
@@ -114,6 +125,7 @@ async function remove(): Promise<void> {
             variant="outlined"
             prepend-icon="mdi-delete"
             @click="deleteVisible = true"
+            v-access="{ permission: 'api-key.delete', projectId: params.projectId, target: { resourceId: params.apiKeyId } }"
           >
             Delete
           </VBtn>
@@ -165,7 +177,13 @@ async function remove(): Promise<void> {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="rotating" @click="rotateVisible = false">Cancel</VBtn>
-        <VBtn color="warning" :loading="rotating" @click="rotate">Rotate</VBtn>
+        <VBtn
+          v-access="{ permission: 'api-key.rotate', projectId: params.projectId, target: { resourceId: params.apiKeyId } }"
+          color="warning"
+          :loading="rotating"
+          @click="rotate"
+          >Rotate</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>
@@ -175,7 +193,13 @@ async function remove(): Promise<void> {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'api-key.delete', projectId: params.projectId, target: { resourceId: params.apiKeyId } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

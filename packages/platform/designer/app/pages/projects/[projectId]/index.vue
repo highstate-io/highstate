@@ -31,6 +31,10 @@ useProjectPanelStore.ensureCreated(params.projectId)
 
 <template>
   <ProjectContainer :project-id="params.projectId" can-unlock>
-    <ProjectCanvas />
+    <AccessBoundary
+      :requirements="[{ permission: 'instance-model.get', projectId: params.projectId, collection: true }]"
+    >
+      <ProjectCanvas />
+    </AccessBoundary>
   </ProjectContainer>
 </template>

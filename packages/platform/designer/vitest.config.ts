@@ -18,5 +18,8 @@ export default defineConfig({
       },
     ],
   },
-  test: { include: ["server/**/*.test.ts"], server: { deps: { inline: ["zod"] } } },
+  test: {
+    include: ["server/**/*.test.ts", "layers/core/app/utils/access-*.test.ts"],
+    server: { deps: { inline: ["zod"] } },
+  },
 })

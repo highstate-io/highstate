@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ProjectContainer } from "#layers/core/app/features/shared"
+import { accessError } from "#layers/core/app/utils/access-control"
 
 definePageMeta({
   name: "unit-panel",
@@ -50,7 +51,11 @@ const launchPanel = async (requestId: number) => {
     }
   } catch (error) {
     if (requestId === launchRequestId) {
-      errorMessage.value = error instanceof Error ? error.message : "Failed to launch panel"
+      launchUrl.value = undefined
+
+      errorMessage.value =
+        accessError(error)?.message ??
+        (error instanceof Error ? error.message : "Failed to launch panel")
     }
   }
 }
@@ -90,7 +95,8 @@ watch(
         },
         onError(error) {
           if (requestId === launchRequestId) {
-            errorMessage.value = error.message
+            launchUrl.value = undefined
+            errorMessage.value = accessError(error)?.message ?? error.message
           }
         },
       },
@@ -107,7 +113,7 @@ onUnmounted(() => unsubscribeAvailability?.())
 <template>
   <ProjectContainer :project-id="params.projectId" can-unlock>
     <div class="panel-frame-container">
-      <VAlert v-if="errorMessage" type="error" :text="errorMessage" />
+      <AccessNotice v-if="errorMessage" :message="errorMessage" title="Panel unavailable" />
       <VProgressCircular v-else-if="!launchUrl" indeterminate />
       <iframe v-else :src="launchUrl" class="panel-frame" title="Unit panel" />
     </div>

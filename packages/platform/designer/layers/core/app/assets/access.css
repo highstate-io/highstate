@@ -1,0 +1,2 @@
+.access-disabled { opacity: 0.45 !important; cursor: not-allowed !important; }
+.access-tooltip { position: fixed; z-index: 100000; max-width: 350px; padding: 12px 16px; background: #323238; color: white; border: 1px solid #70604a; border-radius: 6px; font: 14px/1.5 sans-serif; box-shadow: 0 4px 16px #0008; pointer-events: none; }

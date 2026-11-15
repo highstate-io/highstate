@@ -1,4 +1,8 @@
-import { getHostedAuthConfig, isHostedAuth } from "../../utils/auth-config"
+import {
+  getHostedAuthConfig,
+  isDevelopmentHttpEnabled,
+  isHostedAuth,
+} from "../../utils/auth-config"
 import { authorizePanelSession } from "../../utils/panel-authentication"
 import {
   exchangePanelLaunchTicket,
@@ -32,7 +36,7 @@ export default defineEventHandler(async event => {
 
   setCookie(event, "highstate-panel-session", sessionId, {
     httpOnly: true,
-    secure: isHostedAuth(),
+    secure: isHostedAuth() && !isDevelopmentHttpEnabled(),
     domain: isHostedAuth()
       ? `${panelId}.panels.${new URL(getHostedAuthConfig().publicUrl).hostname}`
       : undefined,

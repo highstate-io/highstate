@@ -44,7 +44,7 @@ async function authenticate(services: Context): Promise<DesignerIdentity> {
   }
 }
 
-const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
   const identity = await authenticate(ctx)
   const revalidate: (() => Promise<void>)[] = []
   const result = await next({ ctx: { ...ctx, identity, revalidate } })
@@ -66,7 +66,7 @@ const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
     return {
       ...result,
       data: protectSessionStream(result.data as AsyncIterable<unknown>, async () => {
-        await authenticateHostedSession(ctx, ctx.designerSessionToken)
+        await authenticate(ctx)
 
         for (const validate of revalidate) {
           await validate()

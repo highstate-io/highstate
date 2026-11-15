@@ -9,7 +9,7 @@ const { title, subtitle, isDeletable } = defineProps<{
   isDeletable: (node: GraphNode) => boolean
 }>()
 
-const { selection, vueFlowStore, deleteNodes } = useCanvasStore()
+const { selection, vueFlowStore, deleteNodes, projectId } = useCanvasStore()
 
 const visible = defineModel<boolean>("visible", { default: false })
 const node = useNode()
@@ -90,6 +90,7 @@ const deleteText = computed(() => {
         icon="mdi-delete"
         color="error"
         @click="deleteNodes(nodesToDelete)"
+        :access="projectId ? nodesToDelete.map(node => ({ permission: 'instance-model.update', projectId, target: { instanceId: node.data.instance?.id } })) : undefined"
       />
     </template>
   </GenericContextMenu>

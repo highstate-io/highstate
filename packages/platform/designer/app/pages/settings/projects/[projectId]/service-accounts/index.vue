@@ -81,7 +81,14 @@ definePageMeta({
     description="Manage the service accounts that provide identities for automated processes and applications."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
+      <VBtn
+        v-access="{ permission: 'service-account.manage', projectId: projectStore.projectId }"
+        color="primary"
+        prepend-icon="mdi-plus"
+        @click="dialogVisible = true"
+      >
+        Create
+      </VBtn>
     </template>
     <template #default="{ height }">
       <ServiceAccountsTable
@@ -109,7 +116,13 @@ definePageMeta({
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'service-account.manage', projectId: projectStore.projectId, target: { resourceId: serviceAccountToDelete?.id } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Terminal } from "@xterm/xterm"
 import { GenericTerminal } from "#layers/core/app/features/terminals"
+import { accessError } from "../../../utils/access-control"
 
 const { operationId, stateId } = defineProps<{
   operationId: string
@@ -11,6 +12,11 @@ const { projectStore } = useProjectStores()
 const { $client } = useNuxtApp()
 
 let terminal: Terminal | null = null
+const failure = ref<string>()
+const fail = (error: unknown) => {
+  terminal?.reset()
+  failure.value = accessError(error)?.message ?? "Logs could not be loaded."
+}
 
 const writeLogEntry = (message: string) => {
   const lines = message.split("\n")
@@ -35,6 +41,7 @@ const { unsubscribe } = $client.logs.watchInstanceLogs.subscribe(
 
       writeLogEntry(message.content)
     },
+    onError: fail,
   },
 )
 
@@ -45,21 +52,26 @@ onUnmounted(unsubscribe)
 const onLoad = async (loadedTerminal: Terminal) => {
   terminal = loadedTerminal
 
-  const logs = await loadAllCollectionItems(query =>
-    $client.logs.getInstanceLogs.query({
-      projectId: projectStore.projectId,
-      stateId,
-      operationId,
-      ...query,
-    }),
-  )
+  try {
+    const logs = await loadAllCollectionItems(query =>
+      $client.logs.getInstanceLogs.query({
+        projectId: projectStore.projectId,
+        stateId,
+        operationId,
+        ...query,
+      }),
+    )
 
-  for (const log of logs) {
-    writeLogEntry(log.content)
+    for (const log of logs) {
+      writeLogEntry(log.content)
+    }
+  } catch (error) {
+    fail(error)
   }
 }
 </script>
 
 <template>
-  <GenericTerminal @load="onLoad" />
+  <AccessNotice v-if="failure" :message="failure" title="Logs unavailable" />
+  <GenericTerminal v-else @load="onLoad" />
 </template>

@@ -63,12 +63,14 @@ const headers = [
         <TableItemAction
           icon="mdi-refresh"
           tooltip="Rotate token"
+          :access="{ permission: 'api-key.rotate', projectId, target: { resourceId: item.id, ownerServiceAccountId: item.serviceAccountId } }"
           :disabled="item.managed"
           @click="$emit('rotate', item)"
         />
         <TableItemAction
           icon="mdi-delete-outline"
           tooltip="Delete API key"
+          :access="{ permission: 'api-key.delete', projectId, target: { resourceId: item.id } }"
           color="error"
           :disabled="item.managed"
           @click="$emit('delete', item)"

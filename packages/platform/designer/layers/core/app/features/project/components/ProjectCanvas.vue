@@ -16,6 +16,10 @@ const canvasStore = useCanvasStore()
 const projectPanelStore = useProjectPanelStore()
 const { projectStore, instancesStore, libraryStore } = useProjectStores()
 const logger = globalLogger.child({ feature: "project-canvas-focus" })
+const access = useAccess()
+const editAccess = computed(() =>
+  access.status({ permission: "instance-model.update", projectId: projectStore.projectId }),
+)
 
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
@@ -108,6 +112,10 @@ watch(
 const onDragOver = (event: DragEvent) => {
   event.preventDefault()
 
+  if (!editAccess.value.allowed) {
+    return
+  }
+
   if (!event.dataTransfer) {
     return
   }
@@ -170,7 +178,7 @@ const onDragOver = (event: DragEvent) => {
     :components="libraryStore.library.components"
     :entities="libraryStore.library.entities"
     :input-resolver-outputs="instancesStore.inputResolverOutputs"
-    editable
+    :editable="editAccess.allowed"
     @dragover="onDragOver"
   >
     <template #node-instance="props">
@@ -186,7 +194,9 @@ const onDragOver = (event: DragEvent) => {
     </template>
 
     <template #panel-bottom-right>
-      <ExtraElementPanel />
+      <div v-access="{ permission: 'instance-model.update', projectId: projectStore.projectId }">
+        <ExtraElementPanel />
+      </div>
     </template>
 
     <template #overlay>

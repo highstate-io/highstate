@@ -82,6 +82,7 @@ const headers = [
       <TableItemAction
         icon="mdi-open-in-new"
         tooltip="Open Panel"
+        :access="{ permission: 'panel.get', projectId, target: { resourceId: item.id, ownerServiceAccountId: item.serviceAccountId ?? undefined } }"
         :disabled="!item.online"
         @click="workspaceStore.openPanel(projectId, item.id)"
       />

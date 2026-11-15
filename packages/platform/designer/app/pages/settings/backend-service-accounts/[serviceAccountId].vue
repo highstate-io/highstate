@@ -72,7 +72,12 @@ async function remove(): Promise<void> {
     >
       <template v-if="!serviceAccount.systemName" #actions>
         <div class="d-flex ga-2">
-          <VBtn variant="outlined" prepend-icon="mdi-pencil" @click="editDialogVisible = true">
+          <VBtn
+            v-access="{ permission: 'service-account.manage', target: { resourceId: params.serviceAccountId } }"
+            variant="outlined"
+            prepend-icon="mdi-pencil"
+            @click="editDialogVisible = true"
+          >
             Edit
           </VBtn>
           <VBtn
@@ -80,6 +85,7 @@ async function remove(): Promise<void> {
             variant="outlined"
             prepend-icon="mdi-delete"
             @click="deleteDialogVisible = true"
+            v-access="{ permission: 'service-account.manage', target: { resourceId: params.serviceAccountId } }"
           >
             Delete
           </VBtn>
@@ -136,7 +142,13 @@ async function remove(): Promise<void> {
       <VCardActions>
         <VSpacer />
         <VBtn variant="text" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'service-account.manage', target: { resourceId: params.serviceAccountId } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

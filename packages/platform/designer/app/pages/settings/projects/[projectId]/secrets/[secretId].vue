@@ -69,7 +69,11 @@ const detailItems = [
       </template>
 
       <template #item.value>
-        <SecretValueField :secret-id="secret.id" :project-id="params.projectId" />
+        <SecretValueField
+          :secret-id="secret.id"
+          :project-id="params.projectId"
+          :owner-service-account-id="secret.serviceAccountId ?? undefined"
+        />
       </template>
 
       <template #item.owner>

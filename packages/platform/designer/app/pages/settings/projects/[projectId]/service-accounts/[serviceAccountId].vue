@@ -124,7 +124,12 @@ void artifacts.load()
     >
       <template v-if="!serviceAccount.systemName" #actions>
         <div class="d-flex ga-2">
-          <VBtn variant="outlined" prepend-icon="mdi-pencil" @click="editDialogVisible = true">
+          <VBtn
+            v-access="{ permission: 'service-account.manage', projectId: params.projectId, target: { resourceId: params.serviceAccountId } }"
+            variant="outlined"
+            prepend-icon="mdi-pencil"
+            @click="editDialogVisible = true"
+          >
             Edit
           </VBtn>
           <VBtn
@@ -132,6 +137,7 @@ void artifacts.load()
             variant="outlined"
             prepend-icon="mdi-delete"
             @click="deleteDialogVisible = true"
+            v-access="{ permission: 'service-account.manage', projectId: params.projectId, target: { resourceId: params.serviceAccountId } }"
           >
             Delete
           </VBtn>
@@ -298,7 +304,13 @@ void artifacts.load()
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'service-account.manage', projectId: params.projectId, target: { resourceId: params.serviceAccountId } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

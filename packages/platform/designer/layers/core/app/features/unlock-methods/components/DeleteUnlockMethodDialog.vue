@@ -2,6 +2,7 @@
 import type { UnlockMethodOutput } from "@highstate/backend/shared"
 
 const visible = defineModel<boolean>("visible")
+const projectId = useProjectStore().projectId
 
 const props = defineProps<{
   unlockMethod: UnlockMethodOutput | null
@@ -49,7 +50,13 @@ const handleCancel = () => {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="handleCancel">Cancel</VBtn>
-        <VBtn color="error" :loading="loading" @click="handleConfirm">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'unlock-method.delete', projectId, target: { resourceId: props.unlockMethod?.id } }"
+          color="error"
+          :loading="loading"
+          @click="handleConfirm"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

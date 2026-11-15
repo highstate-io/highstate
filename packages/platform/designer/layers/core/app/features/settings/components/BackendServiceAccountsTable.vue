@@ -45,6 +45,7 @@ const headers = [baseHeaders.name, baseHeaders.createdAt, baseHeaders.actions]
           :page-params="{ serviceAccountId: item.id }"
         />
         <TableItemAction
+          :access="{ permission: 'service-account.manage', target: { resourceId: item.id } }"
           icon="mdi-delete-outline"
           tooltip="Delete service account"
           color="error"

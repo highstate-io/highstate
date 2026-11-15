@@ -2,6 +2,7 @@
 import type { Terminal } from "@xterm/xterm"
 import { decodeTime } from "ulid"
 import { GenericTerminal } from "#layers/core/app/features/terminals"
+import { accessError } from "../../../utils/access-control"
 
 const { projectId, workerVersionId } = defineProps<{
   projectId: string
@@ -11,6 +12,11 @@ const { projectId, workerVersionId } = defineProps<{
 const { $client } = useNuxtApp()
 
 let terminal: Terminal | null = null
+const failure = ref<string>()
+const fail = (error: unknown) => {
+  terminal?.reset()
+  failure.value = accessError(error)?.message ?? "Logs could not be loaded."
+}
 
 const formatTimestamp = (ulidId: string): string => {
   try {
@@ -61,6 +67,7 @@ const { unsubscribe } = $client.logs.watchWorkerVersionLogs.subscribe(
 
       writeLogEntry(message.id, message.content, message.isSystem)
     },
+    onError: fail,
   },
 )
 
@@ -69,17 +76,22 @@ onUnmounted(unsubscribe)
 const onLoad = async (loadedTerminal: Terminal) => {
   terminal = loadedTerminal
 
-  const logs = await $client.logs.getWorkerVersionLogs.query({
-    projectId,
-    workerVersionId,
-  })
+  try {
+    const logs = await $client.logs.getWorkerVersionLogs.query({
+      projectId,
+      workerVersionId,
+    })
 
-  for (const log of logs) {
-    writeLogEntry(log.id, log.content, log.isSystem)
+    for (const log of logs) {
+      writeLogEntry(log.id, log.content, log.isSystem)
+    }
+  } catch (error) {
+    fail(error)
   }
 }
 </script>
 
 <template>
-  <GenericTerminal @load="onLoad" />
+  <AccessNotice v-if="failure" :message="failure" title="Logs unavailable" />
+  <GenericTerminal v-else @load="onLoad" />
 </template>

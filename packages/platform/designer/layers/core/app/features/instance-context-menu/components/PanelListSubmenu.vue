@@ -27,7 +27,11 @@ watch(visible, async isVisible => {
 </script>
 
 <template>
-  <ContextMenuItem icon="mdi-view-dashboard-outline" title="Panels">
+  <ContextMenuItem
+    icon="mdi-view-dashboard-outline"
+    title="Panels"
+    :access="{ permission: 'panel.get', projectId: projectStore.projectId, collection: true }"
+  >
     <VMenu
       v-model="visible"
       :open-on-focus="false"
@@ -40,6 +44,7 @@ watch(visible, async isVisible => {
         <ContextMenuItem
           v-for="panel in panels"
           :key="panel.id"
+          :access="{ permission: 'panel.get', projectId: projectStore.projectId, target: { resourceId: panel.id } }"
           :title="panel.meta.title"
           :subtitle="panel.meta.description"
           :custom-icon="panel.meta.icon"

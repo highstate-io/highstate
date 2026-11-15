@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const projectId = useProjectStore().projectId
+
 import type { InstanceState } from "@highstate/backend"
 import type { InstanceModel, UnitModel } from "@highstate/contract"
 import { ComponentIcon } from "#layers/core/app/features/shared"
@@ -95,7 +97,12 @@ const { plainArguments, expandableArguments } = createEditorArguments(
         <VSpacer />
 
         <VBtn @click="cancel">Cancel</VBtn>
-        <VBtn @click="save" color="primary">Save</VBtn>
+        <VBtn
+          v-access="{ permission: 'secret.update', projectId, target: { instanceId: instance.id } }"
+          @click="save"
+          color="primary"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

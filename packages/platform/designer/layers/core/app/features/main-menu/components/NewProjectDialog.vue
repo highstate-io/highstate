@@ -152,7 +152,12 @@ watch(projectName, newProjectId => {
         <VCardActions>
           <VSpacer />
           <VBtn :disabled="creating" @click="visible = false">Cancel</VBtn>
-          <VBtn :disabled="!isFormValid || creating" :loading="creating" @click="createProject">
+          <VBtn
+            v-access="{ permission: 'project.create' }"
+            :disabled="!isFormValid || creating"
+            :loading="creating"
+            @click="createProject"
+          >
             Create
           </VBtn>
         </VCardActions>

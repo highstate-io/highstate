@@ -86,6 +86,7 @@ const headers = [
         <TableItemAction
           icon="mdi-restart"
           tooltip="Restart Worker Version"
+          :access="{ permission: 'worker-version.restart', projectId, target: { resourceId: item.id, workerId } }"
           variant="text"
           size="small"
           @click="emit('restartVersion', item.id)"
@@ -93,6 +94,7 @@ const headers = [
         <TableItemAction
           icon="mdi-console"
           tooltip="View Logs"
+          :access="{ permission: 'worker-version.get', projectId, target: { resourceId: item.id, workerId } }"
           variant="text"
           size="small"
           @click="emit('viewLogs', item.id)"

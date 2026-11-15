@@ -48,6 +48,7 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
+  css: ["#layers/core/app/assets/access.css"],
   vuetify: {
     moduleOptions: {
       disableVuetifyStyles: true,

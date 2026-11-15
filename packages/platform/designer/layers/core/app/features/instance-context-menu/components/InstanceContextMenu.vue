@@ -54,6 +54,13 @@ const selectedInstances = computed(() => {
 })
 
 const isMultipleInstances = computed(() => selectedInstances.value.length > 1)
+const operationAccess = computed(() =>
+  selectedInstances.value.map(instance => ({
+    permission: "operation.create" as const,
+    projectId: projectStore.projectId,
+    target: { instanceId: instance.id },
+  })),
+)
 
 // check if an instance can perform a specific operation
 const canInstancePerformOperation = (
@@ -223,6 +230,7 @@ defineExpose({ showContextMenu })
       color="primary"
       :disabled="locked || !canAllPerformOperation('update')"
       @click="openOperationDialog('update')"
+      :access="operationAccess"
     />
 
     <ContextMenuItem
@@ -232,6 +240,7 @@ defineExpose({ showContextMenu })
       color="primary"
       :disabled="locked || !canAllPerformOperation('refresh')"
       @click="openOperationDialog('refresh')"
+      :access="operationAccess"
     />
 
     <!-- TODO: check that all dependencies are met before preview -->
@@ -242,6 +251,7 @@ defineExpose({ showContextMenu })
       color="secondary"
       :disabled="locked || !canAllPerformOperation('preview')"
       @click="startPreview"
+      :access="operationAccess"
     />
 
     <template v-if="!!state?.lastOperationState">
@@ -252,6 +262,7 @@ defineExpose({ showContextMenu })
         icon="mdi-text"
         color="primary"
         @click="stateStore.openInstanceLogs(instance)"
+        :access="{ permission: 'operation.logs.get', projectId: projectStore.projectId, target: { instanceId: instance.id } }"
       />
     </template>
 
@@ -259,6 +270,7 @@ defineExpose({ showContextMenu })
 
     <ContextMenuItem
       title="View in Settings"
+      :access="{ permission: 'instance-state.get', projectId: projectStore.projectId, target: { instanceId: instance.id } }"
       icon="mdi-cog"
       color="primary"
       @click="
@@ -306,6 +318,7 @@ defineExpose({ showContextMenu })
         color="warning"
         :disabled="locked || !canAllPerformOperation('recreate')"
         @click="openOperationDialog('recreate')"
+        :access="operationAccess"
       />
 
       <ContextMenuItem
@@ -315,6 +328,7 @@ defineExpose({ showContextMenu })
         color="error"
         :disabled="locked || !canAllPerformOperation('destroy')"
         @click="openOperationDialog('destroy')"
+        :access="operationAccess"
       />
 
       <ContextMenuItem
@@ -327,6 +341,7 @@ defineExpose({ showContextMenu })
         color="error"
         :disabled="locked"
         @click="openForgetStateDialog"
+        :access="selectedInstances.map(instance => ({ permission: 'instance-state.delete', projectId: projectStore.projectId, target: { instanceId: instance.id } }))"
       />
     </template>
   </NodeContextMenu>

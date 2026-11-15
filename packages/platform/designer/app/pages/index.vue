@@ -93,6 +93,21 @@ onUnmounted(() => {
             </VListItem>
 
             <VListSubheader class="text-uppercase">Projects</VListSubheader>
+            <AccessNotice
+              v-if="!projectsStore.listAccess.allowed && !projectsStore.listAccess.pending"
+              title="Project list unavailable"
+              :message="projectsStore.listAccess.reason"
+            />
+            <VAlert v-else-if="projectsStore.error" type="error">{{ projectsStore.error }}</VAlert>
+            <div
+              v-else-if="projectsStore.loading || projectsStore.listAccess.pending"
+              role="status"
+            >
+              Loading projects…
+            </div>
+            <div v-else-if="!projectsStore.projects.length" class="pa-4 text-medium-emphasis">
+              No projects yet.
+            </div>
             <div class="project-list">
               <VListItem
                 v-for="project in projectsStore.projects"
@@ -105,7 +120,7 @@ onUnmounted(() => {
               </VListItem>
             </div>
 
-            <VListItem class="list-item" @click="dialogVisible = true">
+            <VListItem v-access="{ permission: 'project.create' }" class="list-item" @click="dialogVisible = true">
               <VIcon class="mr-2">mdi-plus</VIcon>
               Create
             </VListItem>

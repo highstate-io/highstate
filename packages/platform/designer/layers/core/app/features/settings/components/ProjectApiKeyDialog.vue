@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const projectId = useProjectStore().projectId
+
 import type {
   ApiKeyInput,
   ApiKeyOutput,
@@ -247,7 +249,14 @@ function restrictionIds(
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="visible = false">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!valid" :loading="loading" @click="save">Save</VBtn>
+        <VBtn
+          v-access="{ permission: apiKey ? 'api-key.update' : 'api-key.create', projectId, target: { resourceId: apiKey?.id } }"
+          color="primary"
+          :disabled="!valid"
+          :loading="loading"
+          @click="save"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

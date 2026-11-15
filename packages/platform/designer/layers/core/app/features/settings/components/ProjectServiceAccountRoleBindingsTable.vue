@@ -120,6 +120,7 @@ await load()
         :disabled="readonly || !selectedRoleId"
         :loading="loading"
         @click="add"
+        v-access="{ permission: 'role-binding.create', projectId }"
       >
         Add
       </VBtn>
@@ -145,6 +146,7 @@ await load()
               size="small"
               :disabled="readonly"
               @click="remove(role.id)"
+              v-access="{ permission: 'role-binding.delete', projectId }"
             />
           </td>
         </tr>

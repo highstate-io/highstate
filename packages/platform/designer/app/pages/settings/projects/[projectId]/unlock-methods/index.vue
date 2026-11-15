@@ -62,7 +62,12 @@ const handleConfirmDelete = async (unlockMethod: UnlockMethodOutput) => {
     description="Manage the methods used to unlock and access this project's encrypted data."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="showCreateDialog = true">
+      <VBtn
+        v-access="{ permission: 'unlock-method.create', projectId: projectStore.projectId }"
+        color="primary"
+        prepend-icon="mdi-plus"
+        @click="showCreateDialog = true"
+      >
         Add Unlock Method
       </VBtn>
     </template>

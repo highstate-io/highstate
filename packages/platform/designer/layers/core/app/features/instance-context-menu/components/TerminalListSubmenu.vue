@@ -7,7 +7,7 @@ const { stateId, terminalIds } = defineProps<{
   terminalIds: string[]
 }>()
 
-const { instancesStore, stateStore } = useProjectStores()
+const { instancesStore, stateStore, projectStore } = useProjectStores()
 
 const {
   state: terminals,
@@ -62,7 +62,11 @@ const openTerminal = async (terminalId: string) => {
 </script>
 
 <template>
-  <ContextMenuItem icon="mdi-console" title="Terminals">
+  <ContextMenuItem
+    icon="mdi-console"
+    title="Terminals"
+    :access="{ permission: 'terminal.connect', projectId: projectStore.projectId, collection: true }"
+  >
     <VMenu
       v-model="visible"
       :open-on-focus="false"
@@ -77,6 +81,7 @@ const openTerminal = async (terminalId: string) => {
         <ContextMenuItem
           v-for="terminal in terminals"
           :key="terminal.id"
+          :access="{ permission: 'terminal.connect', projectId: projectStore.projectId, target: { resourceId: terminal.id } }"
           :disabled="!!loadingTerminalId"
           :title="terminal.meta.title"
           :subtitle="terminal.meta.description"
@@ -94,6 +99,7 @@ const openTerminal = async (terminalId: string) => {
           <ContextMenuItem
             v-for="session in sessions"
             :key="session.id"
+            :access="{ permission: 'terminal.connect', projectId: projectStore.projectId, target: { resourceId: session.terminalId } }"
             :title="session.meta.title"
             :subtitle="getSessionSubtitle(session)"
             :custom-icon="session.meta.icon"

@@ -59,7 +59,11 @@ const headers = [
 
     <!-- Value Column -->
     <template #item.value="{ item }">
-      <SecretValueField :secret-id="item.id" :project-id="projectId" />
+      <SecretValueField
+        :secret-id="item.id"
+        :project-id="projectId"
+        :owner-service-account-id="item.serviceAccountId ?? undefined"
+      />
     </template>
 
     <!-- Actions Column -->

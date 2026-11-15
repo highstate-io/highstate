@@ -31,7 +31,11 @@ const openPage = async (pageId: string) => {
 </script>
 
 <template>
-  <ContextMenuItem icon="mdi-file-document" title="Pages">
+  <ContextMenuItem
+    icon="mdi-file-document"
+    title="Pages"
+    :access="{ permission: 'page.get', projectId: projectStore.projectId, collection: true }"
+  >
     <VMenu
       v-model="visible"
       :open-on-focus="false"
@@ -44,6 +48,7 @@ const openPage = async (pageId: string) => {
         <ContextMenuItem
           v-for="pageId in pageIds"
           :key="pageId"
+          :access="{ permission: 'page.get', projectId: projectStore.projectId, target: { resourceId: pageId } }"
           :title="pages[pageId]?.meta.title ?? pageId"
           :subtitle="pages[pageId]?.meta.description"
           :custom-icon="pages[pageId]?.meta.icon"

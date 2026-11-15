@@ -1,3 +1,4 @@
+import { accessRouter } from "./routers/access"
 import { apiKeyRouter } from "./routers/api-key"
 import { libraryRouter } from "./routers/library"
 import { logsRouter } from "./routers/logs"
@@ -29,6 +30,7 @@ import { workspaceRouter } from "./routers/workspace"
 import { router } from "./trpc"
 
 export const appRouter = router({
+  access: accessRouter,
   apiKey: apiKeyRouter,
   worker: workerRouter,
   backendApiKeySettings: backendApiKeySettingsRouter,

@@ -5,17 +5,58 @@ export const useProjectsStore = defineStore("projects", () => {
   const { $client } = useNuxtApp()
   const projects = ref<ProjectOutput[]>([])
   const projectsLoaded = ref(false)
+  const access = useAccess()
+  const loading = ref(false)
+  const error = ref<string>()
+  const listAccess = computed(() => access.status({ permission: "project.list", collection: true }))
 
   async function loadProjects(): Promise<ProjectOutput[]> {
     return await loadAllCollectionItems(query => $client.project.getProjects.query(query))
   }
 
+  let generation = 0
   async function refreshProjects(): Promise<void> {
-    projects.value = await loadProjects()
-    projectsLoaded.value = true
+    const current = ++generation
+
+    if (!listAccess.value.allowed) {
+      projects.value = []
+      loading.value = false
+      return
+    }
+
+    loading.value = true
+    error.value = undefined
+
+    try {
+      const result = await loadProjects()
+
+      if (current !== generation || !listAccess.value.allowed) {
+        return
+      }
+
+      projects.value = result
+    } catch (caught) {
+      if (current !== generation) {
+        return
+      }
+
+      projects.value = []
+      error.value = caught instanceof Error ? caught.message : "Failed to load projects"
+    } finally {
+      if (current === generation) {
+        loading.value = false
+        projectsLoaded.value = true
+      }
+    }
   }
 
-  void refreshProjects()
+  watch(
+    () => [listAccess.value.allowed, access.revision.value],
+    () => {
+      void refreshProjects()
+    },
+    { immediate: true },
+  )
 
   const loadingCreateProject = ref<boolean>(false)
 
@@ -54,6 +95,10 @@ export const useProjectsStore = defineStore("projects", () => {
   return {
     projects,
     projectsLoaded,
+    loading,
+    error,
+    listAccess,
+    refreshProjects,
     focusedProjectId,
     createProject,
     loadingCreateProject,

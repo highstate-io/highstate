@@ -29,7 +29,11 @@ const projectsStore = useProjectsStore()
 
 <template>
   <Suspense v-if="projectsStore.focusedProjectId" :key="projectsStore.focusedProjectId">
-    <ComponentListWrapper :project-id="projectsStore.focusedProjectId" />
+    <AccessBoundary
+      :requirements="[{ permission: 'library.get', collection: true }, { permission: 'instance-model.get', projectId: projectsStore.focusedProjectId, collection: true }]"
+    >
+      <ComponentListWrapper :project-id="projectsStore.focusedProjectId" />
+    </AccessBoundary>
   </Suspense>
   <div v-else class="mt-4 text-center text-uppercase text-disabled">No active project</div>
 </template>

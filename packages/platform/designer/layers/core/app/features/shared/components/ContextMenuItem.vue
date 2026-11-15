@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AccessRequirement } from "../../../utils/access-control"
 import { Icon } from "@iconify/vue"
 
 defineProps<{
@@ -9,6 +10,7 @@ defineProps<{
   customIcon?: string
   disabled?: boolean
   loading?: boolean
+  access?: AccessRequirement | AccessRequirement[]
 }>()
 
 const emit = defineEmits<{
@@ -17,7 +19,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <VListItem :disabled="disabled" @click="emit('click')">
+  <VListItem v-access="access" :disabled="disabled" @click="emit('click')">
     <template v-if="loading" #prepend>
       <VProgressCircular indeterminate color="primary" />
     </template>
