@@ -17,6 +17,7 @@ const roles = shallowRef<HumanRoleBindingOption[]>([])
 const failure = ref<string>()
 const bindingFailure = ref<string>()
 const mutationFailure = ref<string>()
+const bindingError = computed(() => mutationFailure.value ?? bindingFailure.value)
 const loading = ref(false)
 const saving = ref<string>()
 const selectedRoleIds = ref<string[]>([])
@@ -210,8 +211,8 @@ const details = [
             </p>
             <AccessBoundary :requirements="bindingRequirements" title="Role bindings unavailable">
               <AccessNotice
-                v-if="mutationFailure || bindingFailure"
-                :message="mutationFailure || bindingFailure"
+                v-if="bindingError"
+                :message="bindingError"
                 title="Role bindings unavailable"
               />
               <div class="binding-form mb-6">
