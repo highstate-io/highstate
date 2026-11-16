@@ -13,6 +13,7 @@ const provider = makeEntityOutput({
     identity: {
       protocol: "oauth2",
       authority: "https://github.com",
+      issuer: "https://github.com/login/oauth",
       userInfoUrl: "https://api.github.com/user",
       mapping: {
         subject: "id",

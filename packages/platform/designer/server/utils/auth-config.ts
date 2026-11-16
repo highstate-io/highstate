@@ -108,6 +108,7 @@ export function getHostedAuthConfig(): HostedAuthConfig {
     const urls = [
       provider.authorizationEndpoint,
       provider.tokenEndpoint,
+      provider.identity.issuer,
       provider.identity.protocol === "oidc"
         ? provider.identity.issuer
         : provider.identity.userInfoUrl,

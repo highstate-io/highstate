@@ -17,7 +17,7 @@ export async function createLoginClient(
   if (provider.identity.protocol === "oauth2") {
     const config = new client.Configuration(
       {
-        issuer: new URL(provider.tokenEndpoint!).origin,
+        issuer: provider.identity.issuer ?? new URL(provider.tokenEndpoint!).origin,
         authorization_endpoint: provider.authorizationEndpoint,
         token_endpoint: provider.tokenEndpoint,
       },

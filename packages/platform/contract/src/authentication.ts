@@ -45,6 +45,7 @@ export const loginIdentitySchema = z.discriminatedUnion("protocol", [
   }),
   z.object({
     protocol: z.literal("oauth2"),
+    issuer: httpUrlSchema.optional(),
     authority: z.string().min(1),
     userInfoUrl: httpUrlSchema,
     mapping: loginProfileMappingSchema,

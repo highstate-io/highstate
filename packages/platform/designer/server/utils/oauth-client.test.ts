@@ -9,6 +9,57 @@ afterEach(() => {
 })
 
 describe("maintained OAuth/OIDC validation", () => {
+  test.each([
+    true,
+    false,
+  ])("validates explicit OAuth authorization response issuer: %s", async valid => {
+    const provider = loginProviderConfigSchema.parse({
+      id: `github-${valid}`,
+      title: "GitHub",
+      clientId: "client",
+      clientAuthMethod: "none",
+      authorizationEndpoint: "https://github.com/login/oauth/authorize",
+      tokenEndpoint: "https://github.com/login/oauth/access_token",
+      identity: {
+        protocol: "oauth2",
+        issuer: "https://github.com/login/oauth",
+        authority: "https://github.com",
+        userInfoUrl: "https://api.github.com/user",
+        mapping: { subject: "id" },
+      },
+    })
+
+    const fetch = vi
+      .fn()
+      .mockImplementation(async (url: string | URL) =>
+        String(url).startsWith("https://api.github.com/")
+          ? Response.json({ id: 123 })
+          : Response.json({ access_token: "test-token", token_type: "bearer" }),
+      )
+
+    vi.stubGlobal("fetch", fetch)
+    const url = new URL("https://designer.example/api/auth/callback?code=code&state=state")
+
+    url.searchParams.set(
+      "iss",
+      valid ? "https://github.com/login/oauth" : "https://attacker.example",
+    )
+
+    const result = exchangeLoginCode(provider, url, {
+      codeVerifier: client.randomPKCECodeVerifier(),
+      state: "state",
+      nonce: "nonce",
+    })
+
+    if (valid) {
+      await expect(result).resolves.toEqual({ id: 123 })
+      expect(fetch).toHaveBeenCalledTimes(2)
+    } else {
+      await expect(result).rejects.toThrow()
+      expect(fetch).not.toHaveBeenCalled()
+    }
+  })
+
   const provider = loginProviderConfigSchema.parse({
     id: "test",
     title: "Test",
