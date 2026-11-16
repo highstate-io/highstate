@@ -146,6 +146,20 @@ test("HTTP middleware rejects missing sessions and cross-origin mutations", asyn
   await expect(guard(event(url, { cookie }) as never)).rejects.toMatchObject({ statusCode: 401 })
 })
 
+test("login errors render without restarting the login redirect chain", async () => {
+  servicesWithPermissions([])
+  const { default: guard } = await import("./middleware/00.authentication")
+  await expect(
+    guard(event("https://designer.example/__nuxt_error?statusCode=401") as never),
+  ).resolves.toBeUndefined()
+  await expect(guard(event("https://designer.example/") as never)).resolves.toBe(
+    "https://designer.example/login",
+  )
+  await expect(
+    guard(event("https://designer.example/__nuxt_error/private") as never),
+  ).resolves.toBe("https://designer.example/login")
+})
+
 test("artifact IDOR checks permissions before accessing content storage", async () => {
   const { retrieve } = servicesWithPermissions([])
   const { default: handler } = await import("./api/projects/[projectId]/artifacts/[hash]")

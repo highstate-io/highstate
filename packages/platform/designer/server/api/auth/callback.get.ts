@@ -22,6 +22,7 @@ export default defineEventHandler(async event => {
   }
 
   const services = await getSharedServices()
+  let stage = "transaction"
 
   try {
     // delete returns the transaction atomically, preventing concurrent callback replay
@@ -39,7 +40,9 @@ export default defineEventHandler(async event => {
     }
 
     const url = new URL(`/api/auth/callback${getRequestURL(event).search}`, config.publicUrl)
+    stage = "exchange"
     const profile = await exchangeLoginCode(provider, url, transaction)
+    stage = "profile"
     const identity = mapLoginProfile(provider, profile)
     const previous = getCookie(event, getSessionCookieName())
 
@@ -50,6 +53,7 @@ export default defineEventHandler(async event => {
       })
     }
 
+    stage = "session"
     const session = await createHostedSession(services, identity)
 
     setCookie(event, getSessionCookieName(), session, {
@@ -58,8 +62,14 @@ export default defineEventHandler(async event => {
     })
 
     return sendRedirect(event, "/")
-  } catch {
-    services.logger.warn("designer login failed")
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? error.code : undefined
+
+    services.logger.warn(
+      { stage, code: typeof code === "string" && /^OAUTH_[A-Z_]+$/.test(code) ? code : undefined },
+      "designer login failed",
+    )
+
     throw createError({ statusCode: 401, statusMessage: "Login failed" })
   }
 })

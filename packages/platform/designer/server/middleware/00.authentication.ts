@@ -25,6 +25,7 @@ export default defineEventHandler(async event => {
 
   if (
     event.path.startsWith("/api/auth/") ||
+    event.path.split("?")[0] === "/__nuxt_error" ||
     event.path === "/login" ||
     event.path.startsWith("/_nuxt/")
   ) {
