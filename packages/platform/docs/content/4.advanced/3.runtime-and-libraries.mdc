@@ -46,6 +46,14 @@ Without an explicit port, configuring the TLS paths enables port `7284`.
 Set each runtime's API URL to the externally reachable HTTPS hostname and port of this listener.
 An unconfigured listener remains disabled, and configuring only one of the certificate or key paths fails startup.
 
+Runtime containers must be able to connect back to this listener during normal execution, not only during tests.
+On hosts with restrictive firewalls, allow the selected runtime's source network to reach the configured TLS port.
+For local Docker this commonly means the Docker bridge network; a host-loopback-only address is not reachable
+from an ordinary container. Units that call the public backend API also need access to `HIGHSTATE_PUBLIC_API_URL`.
+Limit any firewall exception to the required source network and callback ports rather than opening them to all
+networks. Highstate does not modify the host firewall automatically. Run the authenticated runtime check below
+after configuring the listener, certificate trust, routing, and firewall policy.
+
 Snapshot image builds also require `HIGHSTATE_RUNNER_BASE_IMAGE` to name a compatible runner image pinned by
 digest, such as `registry.example.com/highstate/runner@sha256:<digest>`.
 The runner image must include the runtime agent and the release-aligned Bun and Pulumi toolchain.

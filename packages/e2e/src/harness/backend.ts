@@ -1,6 +1,7 @@
 import type { Evidence } from "./evidence"
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
+import { killProcessGroup } from "./process"
 import { preparePulumiCli } from "./toolchain"
 
 export interface BackendProcess {
@@ -50,6 +51,7 @@ export async function startBackend(options: {
     },
     stdout: "pipe",
     stderr: "pipe",
+    detached: process.platform !== "win32",
     ipc(message) {
       if (typeof message === "object" && message !== null && "ready" in message) {
         ready()
@@ -89,21 +91,22 @@ export async function startBackend(options: {
       url: options.url,
       token,
       async stop(force = false) {
-        child.kill(force ? "SIGKILL" : "SIGTERM")
+        killProcessGroup(child, force ? "SIGKILL" : "SIGTERM")
 
         await Promise.race([
           child.exited,
           Bun.sleep(15_000).then(() => {
-            child.kill("SIGKILL")
+            killProcessGroup(child, "SIGKILL")
             return child.exited
           }),
         ])
 
+        killProcessGroup(child, "SIGKILL")
         await exited
       },
     }
   } catch (error) {
-    child.kill("SIGKILL")
+    killProcessGroup(child, "SIGKILL")
     const exitError = await exited
     throw new Error(`Backend startup failed: ${exitError.message}`, { cause: error })
   }

@@ -45,12 +45,12 @@ export async function upgrade(environment: Environment): Promise<void> {
     join(directory, "populate.ts"),
   )
 
-  await preparePulumiCli(directory)
+  const pulumiBin = await preparePulumiCli(directory)
 
   await command(["bun", join(directory, "populate.ts")], {
     cwd: directory,
     env: {
-      PATH: process.env.PATH,
+      PATH: `${pulumiBin}:${process.env.PATH ?? ""}`,
       HOME: join(directory, "home"),
       PULUMI_HOME: join(directory, "home/.pulumi"),
       HIGHSTATE_CODEBASE_PATH: directory,

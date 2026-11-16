@@ -25,6 +25,7 @@ import { projectLibraryDtoSchema } from "./project-schemas"
 import { PrismaProjectLibraryStore } from "./project-store"
 import {
   exactPackageVersionSchema,
+  ProjectLibraryImageConfigurationError,
   type ProjectLibrarySnapshot,
   selectedLibraryPackagesSchema,
 } from "./project-types"
@@ -689,8 +690,40 @@ describe("project library with a local npm registry and real project persistence
     expect(dto.desiredSnapshot).not.toBeNull()
     expect(dto.diagnostics[0]?.phase).toBe("publication")
     expect(images.ensureDesiredImage).toHaveBeenCalledTimes(1)
-    expect((await library.onProjectUnlocked(context.projectId)).diagnostics).toEqual([])
+    await library.retryDesiredImage(context)
+    expect((await library.getProjectLibrary(context)).diagnostics).toEqual([])
     expect(publish).toHaveBeenCalledTimes(2)
+  }, 30000)
+
+  it("reports missing image configuration without misreporting evaluation failure and resumes evaluation on retry", async () => {
+    const { context, images, catalogs } = service("image-configuration")
+    const publish = vi.fn(async () => {})
+
+    const library = new ProjectLibraryService(
+      store,
+      resolver,
+      images,
+      catalogs,
+      [{ packageName: "@fixture/a", version: "1.0.0" }],
+      publish,
+    )
+
+    images.ensureDesiredImage.mockRejectedValueOnce(
+      new ProjectLibraryImageConfigurationError(
+        "Configure HIGHSTATE_RUNNER_BASE_IMAGE with a digest-pinned runner image, then retry",
+      ),
+    )
+
+    const dto = await library.bootstrap(context.projectId)
+
+    expect(dto.diagnostics).toEqual([
+      { phase: "image", message: expect.stringContaining("HIGHSTATE_RUNNER_BASE_IMAGE") },
+    ])
+
+    expect(publish).not.toHaveBeenCalled()
+    await library.retryDesiredImage(context)
+    expect(publish).toHaveBeenCalledTimes(1)
+    expect((await library.getProjectLibrary(context)).diagnostics).toEqual([])
   }, 30000)
 
   it("allows only one of overlapping proposals to replace a captured selection", async () => {

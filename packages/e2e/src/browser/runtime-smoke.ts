@@ -1,8 +1,10 @@
+import type { ContainerRuntimeOutput } from "@highstate/backend/shared"
 import { mkdir, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { expect as baseExpect, chromium, type Request } from "@playwright/test"
 import { root, startDesigner } from "../harness/designer"
 import { designerCall } from "../harness/designer-client"
+import { cleanupProjectResources, createEnvironment } from "../harness/environment"
 
 const expect = baseExpect.configure({ timeout: 15_000 })
 
@@ -38,14 +40,60 @@ const step = async (name: string, action: () => Promise<void>, required = true) 
 }
 
 let designer: Awaited<ReturnType<typeof startDesigner>> | undefined
+let environment: Awaited<ReturnType<typeof createEnvironment>> | undefined
+const createdProjectIds: string[] = []
 let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
 const faults: string[] = []
+const externalNetworkChanges: string[] = []
 const pendingRequests = new Set<Request>()
 const navigationEvents: string[] = []
 let failedRequests: { type: string; host: string; path: string }[] = []
 
 try {
-  designer = await startDesigner()
+  environment = await createEnvironment()
+
+  designer = await startDesigner({
+    directory: environment.directory,
+    env: {
+      HIGHSTATE_RUNNER_BASE_IMAGE: environment.runnerImage,
+      HIGHSTATE_RUNTIME_TLS_CERT_PATH: join(environment.directory, "cert.pem"),
+      HIGHSTATE_RUNTIME_TLS_KEY_PATH: join(environment.directory, "key.pem"),
+      HIGHSTATE_RUNTIME_HOST: "0.0.0.0",
+      HIGHSTATE_RUNTIME_PORT: String(environment.runtimePort),
+    },
+  })
+
+  const runtimeSettings = await designerCall<{ runtimes: ContainerRuntimeOutput[] }>(
+    designer.url,
+    "runtimeSettings.list",
+    undefined,
+  )
+
+  const localRuntime = runtimeSettings.runtimes.find(runtime => runtime.systemName === "local")!
+
+  await designerCall(
+    designer.url,
+    "runtimeSettings.put",
+    {
+      kind: "container-runtime",
+      id: localRuntime.id,
+      value: {
+        meta: localRuntime.meta,
+        revision: localRuntime.revision,
+        npmRegistryCredentialIds: localRuntime.npmRegistryCredentialIds,
+        containerRegistryCredentialIds: localRuntime.containerRegistryCredentialIds,
+        spec: {
+          type: "docker",
+          local: true,
+          engineEndpoint: "unix:///var/run/docker.sock",
+          runtimeApiUrl: `https://host.docker.internal:${environment.runtimePort}`,
+          runtimeApiCaBundle: environment.cert,
+        },
+      },
+    },
+    true,
+  )
+
   browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
   const page = await context.newPage()
@@ -66,6 +114,17 @@ try {
       const location = message.location().url
       const url = URL.canParse(location) ? new URL(location) : undefined
       const networkCode = message.text().match(/\bnet::[A-Z_]+\b/)?.[0]
+
+      // docker build interfaces can invalidate Chromium's in-flight third-party icon requests
+      // keep the evidence, but do not mistake that host-network event for an application failure
+      if (
+        networkCode === "net::ERR_NETWORK_CHANGED" &&
+        url &&
+        ["api.iconify.design", "api.simplesvg.com", "api.unisvg.com"].includes(url.hostname)
+      ) {
+        externalNetworkChanges.push(`${url.host}${url.pathname}`)
+        return
+      }
 
       faults.push(
         message.text().includes('/catalog" found')
@@ -284,6 +343,7 @@ try {
   })
 
   const projectId = new URL(page.url()).pathname.split("/")[2]
+  createdProjectIds.push(projectId!)
   expect(projectId).toBeTruthy()
 
   await step("component count remains inside its panel", async () => {
@@ -449,6 +509,8 @@ try {
       const state = await designerCall<{
         selectedPackages: { packageName: string; version: string }[]
         desiredSnapshot: { model: { components: Record<string, unknown> } } | null
+        diagnostics: { phase: string; message: string }[]
+        image: { status: string } | null
       }>(designer!.url, "library.getProjectLibrary", { projectId })
 
       expect(state.selectedPackages).toEqual([
@@ -456,6 +518,8 @@ try {
       ])
 
       expect(Object.keys(state.desiredSnapshot?.model.components ?? {}).length).toBeGreaterThan(100)
+      expect(state.diagnostics).toEqual([])
+      expect(state.image?.status).toBe("ready")
       await page.goto(`${designer!.url}/projects/${projectId}`)
     },
   )
@@ -511,6 +575,7 @@ try {
     await expect(dialog()).toBeHidden({ timeout: 60_000 })
     await expect(page).toHaveURL(/\/projects\/[^/]+/)
     const alternateId = new URL(page.url()).pathname.split("/")[2]
+    createdProjectIds.push(alternateId!)
     await page.goto(`${designer!.url}/settings/projects/${projectId}/operations`)
     await settings().locator(".project-selector .v-field").click()
     await page.getByRole("option", { name: "Alternate project", exact: true }).click()
@@ -590,7 +655,14 @@ try {
       try {
         await browser?.close()
       } finally {
-        await designer?.stop()
+        try {
+          for (const projectId of createdProjectIds) {
+            await cleanupProjectResources(projectId, environment!.evidence)
+          }
+        } finally {
+          await designer?.stop()
+          await environment?.cleanup.run()
+        }
       }
     },
     false,
@@ -604,7 +676,11 @@ try {
   // publish only metadata; Playwright errors can include form values or response bodies
   await writeFile(
     join(evidence, "result.json"),
-    JSON.stringify({ status, steps, faults, navigationEvents, failedRequests }, null, 2),
+    JSON.stringify(
+      { status, steps, faults, navigationEvents, failedRequests, externalNetworkChanges },
+      null,
+      2,
+    ),
   )
 
   console.log(`Evidence: ${evidence}`)

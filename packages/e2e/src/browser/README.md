@@ -22,11 +22,15 @@ Settings create, update, delete, and reload checks use the actual UI and backend
 The smoke also creates a project through the UI, checks the empty package selection and add-package controls,
 checks the empty-project auto-update guard, and opens project operation history with a real collection query.
 It adds the published `@highstate/library@0.31.2` through registry search, inclusion checkbox, version picker,
-and the Add packages action, then reloads and verifies the saved selection and resolved catalog.
+and the Add packages action, then reloads and verifies the saved selection, resolved catalog, ready snapshot image,
+and absence of library readiness diagnostics. Docker and OpenSSL are required: the shared runtime harness builds
+a runner from this checkout, starts a disposable OCI registry, and configures the TLS runtime callback listener.
 This regression intentionally uses the pinned published release rather than a synthetic package and requires
 access to the public npm registry. Synthetic registry tests separately cover malformed and incomplete artifacts.
-It does not execute a unit or build a package image; runtime execution is covered by the lifecycle suite.
+It does not deploy a unit; deployment execution is covered by the lifecycle suite.
 Browser runtime, console, HTTP, and event socket errors fail the run.
+Docker-induced `ERR_NETWORK_CHANGED` messages for the three public Iconify CDN hosts are recorded separately;
+they do not waive application errors, HTTP failures, or other icon-loading errors.
 Independent package and operation checks continue after a failure so the result identifies each affected surface.
 
 Sanitized step results, durations, and fault categories are written to `.artifacts/e2e/browser-*/result.json`.

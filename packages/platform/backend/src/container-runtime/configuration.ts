@@ -4,6 +4,7 @@ import type { RegistryCredential } from "./contracts"
 import type { RuntimeSecretResolver } from "./factory"
 import type { SnapshotImageBuildConfig, SnapshotImageConfiguration } from "./snapshot-images"
 import { armor, Decrypter } from "age-encryption"
+import { ProjectLibraryImageConfigurationError } from "../library/project-types"
 
 /**
  * Decrypts backend-owned credentials only at their runtime boundary.
@@ -52,7 +53,9 @@ export class DatabaseSnapshotImageConfiguration implements SnapshotImageConfigur
 
   async get(projectId: string, runtimeId: string): Promise<SnapshotImageBuildConfig> {
     if (!this.baseImage) {
-      throw new Error("HIGHSTATE_RUNNER_BASE_IMAGE must name a digest-pinned runner image")
+      throw new ProjectLibraryImageConfigurationError(
+        "Configure HIGHSTATE_RUNNER_BASE_IMAGE with a digest-pinned runner image, then retry",
+      )
     }
 
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({

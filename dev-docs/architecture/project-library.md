@@ -11,6 +11,8 @@ Moving execution does not make a container image the only copy of the project's 
 A proposed package set is resolved, integrity-checked, evaluated, and checked for duplicate component and
 entity types before its selection and snapshot commit together.
 Image materialization follows that commit, so an image failure does not roll back the selected snapshot.
+Project evaluation follows successful image preparation; an unavailable image must not also be reported as a
+catalog publication failure. Retrying readiness resumes both image preparation and project evaluation.
 Operations wait for the required image rather than falling back to an older desired environment.
 The project-library service, npm resolver, snapshot store, and snapshot-image manager own exact behavior.
 

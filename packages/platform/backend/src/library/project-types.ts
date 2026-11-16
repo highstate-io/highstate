@@ -161,3 +161,7 @@ export type SnapshotUnitSource = {
   relativePath: string
   sourceHash: number
 }
+/**
+ * A deployment configuration error whose message is safe to show in library readiness diagnostics.
+ */
+export class ProjectLibraryImageConfigurationError extends Error {}

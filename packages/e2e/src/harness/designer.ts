@@ -3,6 +3,7 @@ import { createServer } from "node:net"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { encode } from "@msgpack/msgpack"
+import { killProcessGroup } from "./process"
 import { preparePulumiCli } from "./toolchain"
 
 export const root = resolve(import.meta.dir, "../../../..")
@@ -108,6 +109,7 @@ export async function startDesigner(
           XDG_CACHE_HOME: join(directory, "home/.cache"),
           HIGHSTATE_CODEBASE_PATH: directory,
           HIGHSTATE_BACKEND_DATABASE_LOCAL_PATH: join(directory, ".highstate"),
+          HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH: join(directory, "worker.sock"),
           HIGHSTATE_ENCRYPTION_ENABLED: "false",
           HIGHSTATE_INITIAL_LIBRARY_PACKAGES: "[]",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_WORKSPACE_PATH: directory,
@@ -123,6 +125,7 @@ export async function startDesigner(
         },
         stdout: "pipe",
         stderr: "pipe",
+        detached: process.platform !== "win32",
       },
     )
 
@@ -169,7 +172,9 @@ export async function startDesigner(
       mode: options.mode ?? "production",
       logs: () => output,
       async stop() {
-        child?.kill("SIGTERM")
+        if (child) {
+          killProcessGroup(child, "SIGTERM")
+        }
 
         const exited = await Promise.race([
           child?.exited.then(() => true),
@@ -177,10 +182,17 @@ export async function startDesigner(
         ])
 
         if (!exited) {
-          child?.kill("SIGKILL")
+          if (child) {
+            killProcessGroup(child, "SIGKILL")
+          }
         }
 
         await child?.exited
+
+        if (child) {
+          killProcessGroup(child, "SIGKILL")
+        }
+
         await logs
 
         if (!options.directory) {
@@ -189,7 +201,10 @@ export async function startDesigner(
       },
     }
   } catch (error) {
-    child?.kill("SIGKILL")
+    if (child) {
+      killProcessGroup(child, "SIGKILL")
+    }
+
     await child?.exited
 
     if (!options.directory) {

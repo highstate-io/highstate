@@ -438,6 +438,7 @@ export async function createServices({
         await projectEvaluationSubsystem.evaluateProject(projectId)
       }
     },
+    logger.child({ service: "ProjectLibraryService" }),
   )
 
   secretService ??= new SecretService(

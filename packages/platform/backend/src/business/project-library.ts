@@ -1,3 +1,4 @@
+import type { Logger } from "pino"
 import type { ProjectRequestContext } from "../common"
 import type { LocalLibraryOverlaySnapshot } from "../library"
 import type { LibraryPackageVersionDetails, SnapshotUnitSource } from "../library/project-types"
@@ -13,6 +14,7 @@ import {
   type ProjectLibraryCatalog,
   type ProjectLibraryDiagnostic,
   type ProjectLibraryDto,
+  ProjectLibraryImageConfigurationError,
   type ProjectLibraryImageService,
   type ProjectLibraryResolver,
   type ProjectLibrarySnapshot,
@@ -61,6 +63,7 @@ export class ProjectLibraryService {
       projectId: string,
       snapshot: ProjectLibrarySnapshot,
     ) => Promise<void>,
+    private readonly logger?: Logger,
   ) {}
 
   async getProjectLibrary(context: ProjectRequestContext): Promise<ProjectLibraryDto> {
@@ -266,7 +269,7 @@ export class ProjectLibraryService {
 
   async retryDesiredImage(context: ProjectRequestContext): Promise<unknown> {
     requireProjectPermission(context, "library.manage")
-    return await this.materialize(
+    return await this.activate(
       context.projectId,
       await this.desiredSnapshot(context.projectId),
       true,
@@ -488,43 +491,57 @@ export class ProjectLibraryService {
     return snapshot
   }
 
-  private async activate(projectId: string, snapshot: ProjectLibrarySnapshot): Promise<void> {
-    let publicationFailed = false
+  private async activate(
+    projectId: string,
+    snapshot: ProjectLibrarySnapshot,
+    retry = false,
+  ): Promise<unknown> {
+    const materialized = await this.materialize(projectId, snapshot, retry)
+    if (!materialized) {
+      return undefined
+    }
 
     try {
       await this.onDesiredSnapshot?.(projectId, snapshot)
-    } catch {
-      publicationFailed = true
-    }
+    } catch (error) {
+      this.logger?.error(
+        { error: error, projectId, snapshotId: snapshot.id },
+        "project evaluation failed after committing library snapshot",
+      )
 
-    await this.materialize(projectId, snapshot)
-
-    if (publicationFailed) {
       this.diagnostics.set(projectId, [
-        ...(this.diagnostics.get(projectId) ?? []),
         {
           phase: "publication",
-          message:
-            "Desired snapshot committed but catalog publication failed; unlock the project to resume",
+          message: "Snapshot saved, but project evaluation failed; check backend logs and retry",
         },
       ])
     }
+
+    return materialized.image
   }
 
   private async materialize(
     projectId: string,
     snapshot: ProjectLibrarySnapshot,
     retry = false,
-  ): Promise<unknown> {
+  ): Promise<{ image: unknown } | undefined> {
     try {
       const result = await this.images.ensureDesiredImage(projectId, snapshot, retry)
       this.diagnostics.delete(projectId)
-      return result
-    } catch {
+      return { image: result }
+    } catch (error) {
+      this.logger?.error(
+        { error: error, projectId, snapshotId: snapshot.id },
+        "library snapshot image preparation failed",
+      )
+
       this.diagnostics.set(projectId, [
         {
           phase: "image",
-          message: "Desired snapshot image materialization failed; retry the image build",
+          message:
+            error instanceof ProjectLibraryImageConfigurationError
+              ? error.message
+              : "Snapshot image preparation failed; check runtime configuration and backend logs, then retry",
         },
       ])
 
