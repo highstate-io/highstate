@@ -69,19 +69,25 @@ it("creates distinct namespace-local monitor identities for apps sharing a names
       resource => resource.type === "kubernetes:rbac.authorization.k8s.io/v1:ClusterRole",
     ),
   ).toBe(false)
+
   const roles = resources.filter(
     resource => resource.type === "kubernetes:rbac.authorization.k8s.io/v1:Role",
   )
+
   expect(roles.map(role => role.inputs.metadata.name).sort()).toEqual([
     "app-a-monitor",
     "app-b-monitor",
   ])
+
   expect(roles.every(role => role.inputs.metadata.namespace === "shared")).toBe(true)
+
   const bindings = resources.filter(
     resource => resource.type === "kubernetes:rbac.authorization.k8s.io/v1:RoleBinding",
   )
+
   expect(bindings).toHaveLength(2)
   expect(bindings.every(binding => binding.inputs.roleRef.kind === "Role")).toBe(true)
+
   expect(
     roles.every(role =>
       role.inputs.rules.every((rule: { apiGroups: string[] }) => rule.apiGroups.length === 1),
