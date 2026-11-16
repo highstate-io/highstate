@@ -23,6 +23,11 @@
     "access": "public"
   },
   "nx": {
+    "targets": {
+      "test": {
+        "dependsOn": ["^build", "typecheck"]
+      }
+    },
     "tags": [
       "platform"
     ]
