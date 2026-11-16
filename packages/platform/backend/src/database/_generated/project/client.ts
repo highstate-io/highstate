@@ -63,7 +63,7 @@ export type ApiKey = Prisma.ApiKeyModel
 export type Artifact = Prisma.ArtifactModel
 /**
  * Model InstanceCustomStatus
- * 
+ * A named custom status attached to an instance by a service account.
  */
 export type InstanceCustomStatus = Prisma.InstanceCustomStatusModel
 /**
@@ -81,12 +81,12 @@ export type Entity = Prisma.EntityModel
 export type EntitySnapshot = Prisma.EntitySnapshotModel
 /**
  * Model EntitySnapshotReference
- * 
+ * A directed, grouped relationship between two entity snapshots.
  */
 export type EntitySnapshotReference = Prisma.EntitySnapshotReferenceModel
 /**
  * Model EntitySnapshotContent
- * 
+ * Deduplicated immutable entity content addressed by its SHA-256 hash.
  */
 export type EntitySnapshotContent = Prisma.EntitySnapshotContentModel
 /**
@@ -105,22 +105,42 @@ export type EntitySnapshotContent = Prisma.EntitySnapshotContentModel
 export type InstanceEvaluationState = Prisma.InstanceEvaluationStateModel
 /**
  * Model InstanceState
- * 
+ * The persistent deployment state and last successful provenance of an instance.
  */
 export type InstanceState = Prisma.InstanceStateModel
 /**
  * Model UserProjectViewport
- * 
+ * A user's saved viewport for the project's instance graph.
  */
 export type UserProjectViewport = Prisma.UserProjectViewportModel
 /**
  * Model UserCompositeViewport
- * 
+ * A user's saved viewport for one composite instance's generated graph.
  */
 export type UserCompositeViewport = Prisma.UserCompositeViewportModel
 /**
+ * Model LibraryPackageVersion
+ * An immutable cached evaluation of one exact npm library package version.
+ */
+export type LibraryPackageVersion = Prisma.LibraryPackageVersionModel
+/**
+ * Model LibrarySnapshot
+ * An immutable, reproducible resolution of the project's complete packaged library environment.
+ */
+export type LibrarySnapshot = Prisma.LibrarySnapshotModel
+/**
+ * Model LibrarySnapshotVersion
+ * Identifies exact snapshot membership referenced by deployed and operation provenance.
+ */
+export type LibrarySnapshotVersion = Prisma.LibrarySnapshotVersionModel
+/**
+ * Model ProjectLibraryState
+ * Singleton state identifying the project's desired packaged library snapshot.
+ */
+export type ProjectLibraryState = Prisma.ProjectLibraryStateModel
+/**
  * Model InstanceLock
- * 
+ * A persisted lock preventing concurrent operations from executing the same instance.
  */
 export type InstanceLock = Prisma.InstanceLockModel
 /**
@@ -139,17 +159,17 @@ export type InstanceModel = Prisma.InstanceModelModel
 export type HubModel = Prisma.HubModelModel
 /**
  * Model Operation
- * 
+ * A project operation and its captured planning context.
  */
 export type Operation = Prisma.OperationModel
 /**
  * Model InstanceOperationState
- * 
+ * The execution result and provenance of one instance in an operation.
  */
 export type InstanceOperationState = Prisma.InstanceOperationStateModel
 /**
  * Model OperationLog
- * 
+ * A persisted log entry emitted while executing a project operation.
  */
 export type OperationLog = Prisma.OperationLogModel
 /**

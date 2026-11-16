@@ -1,3 +1,4 @@
+/// Encrypted instance export content imported from another project.
 model ProjectImportPort {
     /// The CUIDv2 of the project where import port is located.
     projectId String

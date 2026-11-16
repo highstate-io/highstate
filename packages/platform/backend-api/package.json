@@ -48,6 +48,7 @@
     "@highstate/backend": "workspace:*",
     "@highstate/cli": "workspace:*",
     "@highstate/contract": "workspace:*",
+    "@paralleldrive/cuid2": "^2.2.2",
     "abort-controller-x": "^0.4.3",
     "zod": "^4.0.5"
   },

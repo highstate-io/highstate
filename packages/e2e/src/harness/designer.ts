@@ -3,6 +3,7 @@ import { createServer } from "node:net"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { encode } from "@msgpack/msgpack"
+import { killProcessGroup } from "./process"
 import { preparePulumiCli } from "./toolchain"
 
 export const root = resolve(import.meta.dir, "../../../..")
@@ -108,13 +109,15 @@ export async function startDesigner(
           XDG_CACHE_HOME: join(directory, "home/.cache"),
           HIGHSTATE_CODEBASE_PATH: directory,
           HIGHSTATE_BACKEND_DATABASE_LOCAL_PATH: join(directory, ".highstate"),
+          HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH: join(directory, "worker.sock"),
           HIGHSTATE_ENCRYPTION_ENABLED: "false",
+          HIGHSTATE_INITIAL_LIBRARY_PACKAGES: "[]",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_WORKSPACE_PATH: directory,
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_IMPORT_PATH: join(directory, "package.json"),
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES: "@highstate/e2e-library",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_STARTUP: "false",
           HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_CHANGES: "false",
-          HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH: join(directory, "worker.sock"),
+          HIGHSTATE_PUBLIC_API_URL: url,
           NITRO_HOST: "127.0.0.1",
           NITRO_PORT: String(port),
           NUXT_PUBLIC_EVENTS_PORT: String(eventsPort),
@@ -122,6 +125,7 @@ export async function startDesigner(
         },
         stdout: "pipe",
         stderr: "pipe",
+        detached: process.platform !== "win32",
       },
     )
 
@@ -168,7 +172,9 @@ export async function startDesigner(
       mode: options.mode ?? "production",
       logs: () => output,
       async stop() {
-        child?.kill("SIGTERM")
+        if (child) {
+          killProcessGroup(child, "SIGTERM")
+        }
 
         const exited = await Promise.race([
           child?.exited.then(() => true),
@@ -176,10 +182,17 @@ export async function startDesigner(
         ])
 
         if (!exited) {
-          child?.kill("SIGKILL")
+          if (child) {
+            killProcessGroup(child, "SIGKILL")
+          }
         }
 
         await child?.exited
+
+        if (child) {
+          killProcessGroup(child, "SIGKILL")
+        }
+
         await logs
 
         if (!options.directory) {
@@ -188,7 +201,10 @@ export async function startDesigner(
       },
     }
   } catch (error) {
-    child?.kill("SIGKILL")
+    if (child) {
+      killProcessGroup(child, "SIGKILL")
+    }
+
     await child?.exited
 
     if (!options.directory) {

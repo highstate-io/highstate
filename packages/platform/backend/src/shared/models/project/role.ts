@@ -63,6 +63,14 @@ export type ProjectPermissionGroupDefinition = {
 
 export const projectPermissionGroups = [
   {
+    title: "Project library",
+    permissions: [
+      { name: "library.get", title: "View project library", risk: "low" },
+      { name: "library.manage", title: "Manage project library", risk: "high" },
+    ],
+    supportedRestrictions: [],
+  },
+  {
     title: "Instance models",
     permissions: [
       {

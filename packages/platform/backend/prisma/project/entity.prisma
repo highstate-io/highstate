@@ -77,11 +77,16 @@ model EntitySnapshot {
     @@index([stateId, createdAt(sort: Desc)])
 }
 
+/// How a relationship between two entity snapshots was declared.
 enum EntityReferenceKind {
+    /// A reference explicitly declared by the entity producer.
     explicit
+
+    /// A reference implied by an entity included in another entity's field.
     inclusion
 }
 
+/// A directed, grouped relationship between two entity snapshots.
 model EntitySnapshotReference {
     /// The CUIDv2 of the entity snapshot relation.
     fromId String
@@ -108,6 +113,7 @@ model EntitySnapshotReference {
     @@index([fromId])
 }
 
+/// Deduplicated immutable entity content addressed by its SHA-256 hash.
 model EntitySnapshotContent {
     /// The SHA-256 hash of the entity snapshot content.
     hash String @id

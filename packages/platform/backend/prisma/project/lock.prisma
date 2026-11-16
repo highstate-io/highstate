@@ -1,3 +1,4 @@
+/// A persisted lock preventing concurrent operations from executing the same instance.
 model InstanceLock {
     /// The ID of the instance state being locked.
     stateId String @id

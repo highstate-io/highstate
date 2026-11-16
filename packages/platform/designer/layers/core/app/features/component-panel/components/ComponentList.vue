@@ -76,7 +76,7 @@ const componentGroupCount = computed(() => {
 </script>
 
 <template>
-  <div class="d-flex flex-column mt-4 pl-4 pr-4 gr-4 sidebar-container">
+  <div class="d-flex flex-column pa-4 ga-4 sidebar-container">
     <VTextField
       v-if="libraryStore"
       v-model="libraryStore.library.search"
@@ -99,19 +99,21 @@ const componentGroupCount = computed(() => {
           v-for="componentGroup in components"
           :key="componentGroup.baseName"
           :components="componentGroup.components"
+          :sources="libraryStore.library.catalog?.sources"
         />
       </div>
 
-      <div
-        v-if="(libraryStore.library.filteredComponents.length ?? 0) === 0"
-        class="text-center text-uppercase text-disabled"
-      >
+      <div v-if="componentGroupCount === 0" class="text-center text-uppercase text-disabled">
         No components found
       </div>
     </div>
 
-    <div v-if="componentGroupCount > 0" class="mb-2 text-center text-uppercase text-disabled">
-      Found {{ componentGroupCount }} component(s)
+    <div
+      v-if="componentGroupCount > 0"
+      role="status"
+      class="component-count text-caption text-center text-medium-emphasis"
+    >
+      {{ componentGroupCount }} {{ componentGroupCount === 1 ? 'component' : 'components' }} found
     </div>
   </div>
 </template>
@@ -119,18 +121,25 @@ const componentGroupCount = computed(() => {
 <style scoped>
 .sidebar-container {
   height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .search {
   max-height: 40px;
+  flex-shrink: 0;
+}
+
+.component-count {
+  flex-shrink: 0;
 }
 
 .component-list-container {
   overflow-y: auto;
   margin-right: -14px;
   padding-right: 14px;
-  margin-bottom: -8px;
-  height: calc(100% - 112px);
+  flex: 1;
+  min-height: 0;
   overflow-x: hidden;
 }
 </style>

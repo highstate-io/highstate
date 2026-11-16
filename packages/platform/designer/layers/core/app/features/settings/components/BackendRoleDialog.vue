@@ -117,6 +117,8 @@ function save(): void {
                 v-model="description"
                 class="mb-4 flex-grow-0"
                 label="Description"
+                :hint="descriptionHint"
+                persistent-hint
                 variant="outlined"
                 density="compact"
                 rows="2"

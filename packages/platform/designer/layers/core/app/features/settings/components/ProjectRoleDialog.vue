@@ -111,8 +111,10 @@ function save(): void {
             />
             <VTextarea
               v-model="description"
-              class="flex-grow-0"
+              class="flex-grow-0 mb-4"
               label="Description"
+              :hint="descriptionHint"
+              persistent-hint
               variant="outlined"
               density="compact"
               rows="2"

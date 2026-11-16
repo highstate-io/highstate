@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model OperationLog
- * 
+ * A persisted log entry emitted while executing a project operation.
  */
 export type OperationLogModel = runtime.Types.Result.DefaultSelection<Prisma.$OperationLogPayload>
 

@@ -16,7 +16,6 @@ import {
   operationType,
   operationTypeSchema,
   type PlanDocument,
-  phasesFromPlan,
   phasesToJson,
   planDocumentSchema,
   readDocument,
@@ -89,16 +88,24 @@ async function createPlan(
     options: operationOptions(options),
   })
 
+  if (!response.plan?.token || !response.plan.modelHash) {
+    throw new Error("Backend did not return a content-bound operation plan")
+  }
+
   const document: PlanDocument = {
     format_version: 1,
     project_id: target.projectId,
     type,
     instance_ids: instanceIds,
     options,
-    phases: phasesToJson(response.phases),
+    plan_token: response.plan.token,
+    model_hash: response.plan.modelHash,
+    library_snapshot_id: response.plan.librarySnapshotId,
+    local_overlay_hash: response.plan.localOverlayHash,
+    phases: phasesToJson(response.plan.phases),
   }
 
-  return { clients, target, document, phases: response.phases }
+  return { clients, target, document }
 }
 
 function humanPlan(document: PlanDocument): string {
@@ -156,7 +163,7 @@ async function launchPlan(
     instanceIds: document.instance_ids,
     options: operationOptions(document.options),
     meta: { title, description },
-    plan: phasesFromPlan(document),
+    planToken: document.plan_token,
   })
 }
 

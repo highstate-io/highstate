@@ -64,6 +64,8 @@ function save(): void {
         <VTextarea
           v-model="description"
           label="Description"
+          :hint="descriptionHint"
+          persistent-hint
           variant="outlined"
           density="compact"
           rows="3"

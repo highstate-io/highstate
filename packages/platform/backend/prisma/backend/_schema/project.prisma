@@ -1,3 +1,4 @@
+/// Backend-managed project configuration, placement and encrypted key material.
 model Project {
     /// The CUIDv2 of the project.
     id String @id @default(cuid(2))
@@ -16,11 +17,11 @@ model Project {
     /// The ID of the project model storage this project uses.
     modelStorageId String
 
-    /// The ID of the library used by this project.
-    libraryId String
+    /// The ID of the container runtime used by this project.
+    containerRuntimeId String
 
-    /// The ID of the Pulumi backend used by this project.
-    pulumiBackendId String
+    /// The ID of the Pulumi state backend used by this project.
+    pulumiStateBackendId String
 
     /// Encrypted project master key in AGE format.
     encryptedMasterKey String
@@ -52,11 +53,17 @@ model Project {
     /// The project model storage this project uses.
     modelStorage ProjectModelStorage @relation(fields: [modelStorageId], references: [id])
 
-    /// The library used by this project.
-    library Library @relation(fields: [libraryId], references: [id])
+    /// The container runtime used by this project.
+    containerRuntime ContainerRuntime @relation(fields: [containerRuntimeId], references: [id])
 
-    /// The Pulumi backend used by this project.
-    pulumiBackend PulumiBackend @relation(fields: [pulumiBackendId], references: [id])
+    /// The Pulumi state backend used by this project.
+    pulumiStateBackend PulumiStateBackend @relation(fields: [pulumiStateBackendId], references: [id])
+
+    /// Backend-local images materialized from this project's library snapshots.
+    librarySnapshotImages LibrarySnapshotImage[]
+
+    /// Backend-owned logical workloads placed for this project.
+    runtimeWorkloads RuntimeWorkload[]
 
     /// The import ports in this project.
     importPorts ProjectImportPort[]
@@ -70,6 +77,7 @@ model Project {
     @@unique([spaceId, name])
 }
 
+/// A namespace grouping projects and their backend authorization scope.
 model ProjectSpace {
     /// The CUIDv2 of the project space.
     id String @id @default(cuid(2))
@@ -99,6 +107,7 @@ model ProjectSpace {
     @@unique([parentId, name])
 }
 
+/// A reusable storage configuration for project models.
 model ProjectModelStorage {
     /// The CUIDv2 of the project model storage.
     id String @id @default(cuid(2))

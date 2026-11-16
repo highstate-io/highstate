@@ -1,44 +1,91 @@
+/// The aggregate execution state of a project operation.
 enum OperationStatus {
-    // transient statuses
+    /// Created and waiting to begin execution.
     pending
+
+    /// Executing the planned instance phases.
     running
+
+    /// A failure was detected and remaining execution is being settled.
     failing
+
+    /// Cancellation was requested and in-flight execution is being stopped.
     cancelling
 
-    // stable statuses
+    /// Finished successfully.
     completed
+
+    /// Finished with an execution failure.
     failed
+
+    /// Finished after cancellation was requested.
     cancelled
 }
 
+/// The requested operation performed against the selected instances.
 enum OperationType {
+    /// Reconcile deployed resources with the current instance configuration.
     update
+
+    /// Calculate proposed changes without applying them.
     preview
+
+    /// Remove the selected instances' deployed resources.
     destroy
+
+    /// Destroy and then deploy the selected instances again.
     recreate
+
+    /// Read current provider state into the recorded deployment state.
     refresh
 }
 
+/// The execution state of one instance within a project operation.
 enum InstanceOperationStatus {
-    // transient statuses
+    /// Applying changes to the instance's resources.
     updating
+
+    /// Processing triggers associated with the instance operation.
     processing_triggers
+
+    /// Calculating proposed changes without applying them.
     previewing
+
+    /// Removing the instance's deployed resources.
     destroying
+
+    /// Refreshing the instance's recorded provider state.
     refreshing
+
+    /// Waiting for dependencies or a runnable execution phase.
     pending
+
+    /// Stopping the instance's in-flight execution after cancellation.
     cancelling
 
-    // stable statuses
+    /// The update completed successfully.
     updated
+
+    /// The preview completed successfully.
     previewed
+
+    /// The instance required no execution or was excluded by planning.
     skipped
+
+    /// The instance's resource destruction completed successfully.
     destroyed
+
+    /// The provider state refresh completed successfully.
     refreshed
+
+    /// Execution terminated after cancellation was requested.
     cancelled
+
+    /// Execution failed.
     failed
 }
 
+/// A project operation and its captured planning context.
 model Operation {
     /// The CUIDv2 of the operation.
     id String @id @default(cuid(2))
@@ -69,6 +116,9 @@ model Operation {
     /// [OperationPhase[]]
     phases Json?
 
+    /// The ID of the desired project library snapshot captured for planning this operation.
+    librarySnapshotId String?
+
     /// The time when the operation started.
     startedAt DateTime @default(now())
 
@@ -86,8 +136,12 @@ model Operation {
 
     /// The entity snapshots created by this operation.
     entitySnapshots EntitySnapshot[]
+
+    /// The desired project library snapshot captured for planning this operation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
 }
 
+/// The execution result and provenance of one instance in an operation.
 model InstanceOperationState {
     /// The ID of the operation this state belongs to.
     operationId String
@@ -114,6 +168,18 @@ model InstanceOperationState {
     /// [InstanceResolvedInputs]
     resolvedInputs Json
 
+    /// The ID of the library snapshot used to execute this instance operation.
+    librarySnapshotId String?
+
+    /// The ID of the package version supplying the targeted component implementation.
+    libraryPackageVersionId String?
+
+    /// The previously deployed package version when this operation performs an upgrade.
+    previousLibraryPackageVersionId String?
+
+    /// The content hash of the local development overlay used by this instance operation, when active.
+    localOverlayHash String?
+
     /// The time when the operation on this instance started.
     /// Not populated on create, even if the instance is ready to start immediately.
     startedAt DateTime?
@@ -127,9 +193,16 @@ model InstanceOperationState {
     /// The instance this state belongs to.
     state InstanceState @relation(fields: [stateId], references: [id])
 
+    /// The exact snapshot membership used to execute this instance operation.
+    librarySnapshotVersion LibrarySnapshotVersion? @relation(fields: [librarySnapshotId, libraryPackageVersionId], references: [snapshotId, libraryPackageVersionId])
+
+    /// The previously deployed package version when this operation performs an upgrade.
+    previousLibraryPackageVersion LibraryPackageVersion? @relation("PreviousOperationPackageVersion", fields: [previousLibraryPackageVersionId], references: [id])
+
     @@id([operationId, stateId])
 }
 
+/// A persisted log entry emitted while executing a project operation.
 model OperationLog {
     /// The ULID of the log. Also used to extract the timestamp.
     id String @id

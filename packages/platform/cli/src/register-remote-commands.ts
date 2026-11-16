@@ -48,6 +48,8 @@ import {
   StateGetCommand,
   StateListCommand,
 } from "./commands"
+import * as projectLibraryCommands from "./commands/project-library"
+import * as runtimeSettingsCommands from "./commands/runtime-settings"
 
 export default function registerRemoteCommands(cli: Cli): void {
   cli.register(SecretListCommand)
@@ -55,6 +57,15 @@ export default function registerRemoteCommands(cli: Cli): void {
   cli.register(SecretGetCommand)
   cli.register(InstanceSecretsGetCommand)
   cli.register(InstanceSecretsUpdateCommand)
+
+  for (const command of Object.values(projectLibraryCommands)) {
+    cli.register(command)
+  }
+
+  for (const command of Object.values(runtimeSettingsCommands)) {
+    cli.register(command)
+  }
+
   cli.register(ContextAddCommand)
   cli.register(ContextListCommand)
   cli.register(ContextShowCommand)

@@ -1,9 +1,12 @@
+/// The current state or cached result of composite instance evaluation.
 enum InstanceEvaluationStatus {
-    /// transient statuses (not persisted in the database)
+    /// Evaluation is in progress; this transient state is not persisted.
     evaluating
 
-    /// stable statuses
+    /// Evaluation completed successfully and its result is cached.
     evaluated
+
+    /// Evaluation failed; the associated message describes the failure.
     error
 }
 
@@ -37,9 +40,26 @@ model InstanceEvaluationState {
     /// [InstanceModel]
     model Json?
 
+    /// The packaged library snapshot used to produce this evaluation state.
+    librarySnapshotId String?
+
+    /// The SHA-256 content hash of the resident model and resolved inputs used by the evaluation.
+    modelHash String
+
+    /// The content hash of the local development overlay used by the evaluation, when active.
+    localOverlayHash String?
+
+    /// The runtime action that produced this evaluation state.
+    evaluationActionId String
+
     /// The time when the last evaluation was finished.
     evaluatedAt DateTime @updatedAt
 
     /// The instance this state belongs to.
     state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The packaged library snapshot used by the evaluation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
+
+    @@index([librarySnapshotId])
 }

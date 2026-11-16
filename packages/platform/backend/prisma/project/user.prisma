@@ -1,5 +1,9 @@
+/// The authentication source of a globally identified user.
 enum UserType {
+  /// A user authenticated through the backend's local identity.
   local
+
+  /// A user authenticated through an OpenID Connect identity provider.
   oidc
 }
 

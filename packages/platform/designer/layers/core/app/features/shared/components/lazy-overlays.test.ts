@@ -205,16 +205,17 @@ describe("lazy canvas overlays", () => {
     ]
 
     const selection = { selectedInstances: selected, clearSelection: vi.fn() }
-    const planOperation = vi.fn(async () => [])
+    const reviewOperation = vi.fn(async () => ({ phases: [], token: "reviewed-plan" }))
 
     const stores = {
       projectStore: { projectId: "test" },
       stateStore: { instanceStates: new Map(), isNodeDeletable: () => false },
-      operationsStore: { planOperation },
+      operationsStore: { reviewOperation },
     }
 
     const globals = {
       useProjectStores: () => stores,
+      useProjectLibraryStore: () => ({ library: vue.ref({}) }),
       useWorkspaceStore: () => ({}),
       useCanvasStore: () => ({ selection }),
       generateMultipleInstancesOperationTitle: () => "Test operation",
@@ -293,12 +294,12 @@ describe("lazy canvas overlays", () => {
         children().some(child => child.type === OperationDialog || child.type === ForgetDialog),
       ).toBe(false)
 
-      expect(planOperation).not.toHaveBeenCalled()
+      expect(reviewOperation).not.toHaveBeenCalled()
       clickItem("Update selected (2)")
       await vue.nextTick()
-      expect(planOperation).toHaveBeenCalledOnce()
+      expect(reviewOperation).toHaveBeenCalledOnce()
 
-      expect(planOperation).toHaveBeenLastCalledWith(
+      expect(reviewOperation).toHaveBeenLastCalledWith(
         expect.objectContaining({ instanceIds: ["one", "two"], type: "update" }),
       )
 
@@ -310,7 +311,7 @@ describe("lazy canvas overlays", () => {
       clickItem("Update selected (2)")
       await vue.nextTick()
       expect(children().find(child => child.type === OperationDialog)).toBe(dialog)
-      expect(planOperation).toHaveBeenCalledTimes(2)
+      expect(reviewOperation).toHaveBeenCalledTimes(2)
       clickItem("Forget State selected (2)")
       await vue.nextTick()
 

@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model UserProjectViewport
- * 
+ * A user's saved viewport for the project's instance graph.
  */
 export type UserProjectViewportModel = runtime.Types.Result.DefaultSelection<Prisma.$UserProjectViewportPayload>
 

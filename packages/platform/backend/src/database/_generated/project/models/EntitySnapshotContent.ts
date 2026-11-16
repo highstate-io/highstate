@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model EntitySnapshotContent
- * 
+ * Deduplicated immutable entity content addressed by its SHA-256 hash.
  */
 export type EntitySnapshotContentModel = runtime.Types.Result.DefaultSelection<Prisma.$EntitySnapshotContentPayload>
 

@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model ProjectModelStorage
- * 
+ * A reusable storage configuration for project models.
  */
 export type ProjectModelStorageModel = runtime.Types.Result.DefaultSelection<Prisma.$ProjectModelStoragePayload>
 

@@ -116,6 +116,8 @@ export type InstanceStatePatch = Pick<
   | "currentResourceCount"
   | "exportedArtifactIds"
   | "hasResourceHooks"
+  | "librarySnapshotId"
+  | "libraryPackageVersionId"
 >
 
 export type UpdateOperationStateOptions = {
@@ -505,8 +507,8 @@ export class InstanceStateService {
 
           await this.runnerBackend.deleteState({
             projectId: project.id,
+            libraryId: undefined,
             stateId: id,
-            libraryId: project.libraryId,
             instanceName,
             instanceType,
           })

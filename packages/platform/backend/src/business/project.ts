@@ -5,6 +5,7 @@ import type { InstanceArgumentPatchOperation } from "../project-model"
 import type { PubSubManager } from "../pubsub"
 import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
+import type { ProjectLibraryService } from "./project-library"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
 import {
@@ -36,6 +37,7 @@ import {
   type Project,
   type ProjectWhereInput,
   projectDatabaseVersion,
+  updateProjectPlacement,
 } from "../database"
 import {
   applyInstancePatch,
@@ -48,13 +50,17 @@ import {
 import {
   type FullProjectModel,
   forSchema,
+  localContainerRuntime,
   type PageRequest,
   type PageResult,
   type ProjectInput,
   type ProjectModelStorageSpec,
   ProjectNotFoundError,
   type ProjectOutput,
+  type ProjectPlacementInput,
+  projectInputSchema,
   projectOutputSchema,
+  projectPlacementInputSchema,
   type UnlockMethodInput,
 } from "../shared"
 import { includeForInstanceState, mapInstanceStateResult } from "./instance-state"
@@ -71,7 +77,32 @@ export class ProjectService {
     private readonly pubsubManager: PubSubManager,
     private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
+    private readonly projectLibrary?: ProjectLibraryService,
   ) {}
+
+  /**
+   * Changes the selected runtime and state backend after all project workloads have been cleaned up.
+   * Remote placement disables the local library overlay and invalidates cached evaluation results.
+   */
+  async updateProjectPlacement(
+    context: BackendRequestContext,
+    projectId: string,
+    input: ProjectPlacementInput,
+  ): Promise<ProjectOutput> {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+    requireBackendPermission(context, "project.migrate", target)
+
+    requireBackendPermission(context, "container-runtime.get", {
+      resourceId: input.containerRuntimeId,
+    })
+
+    requireBackendPermission(context, "pulumi-state-backend.get", {
+      resourceId: input.pulumiStateBackendId,
+    })
+
+    await updateProjectPlacement(this.database, projectId, projectPlacementInputSchema.parse(input))
+    return await this.getProjectOrThrowCore(projectId)
+  }
 
   /**
    * Returns all projects in the system.
@@ -135,6 +166,40 @@ export class ProjectService {
   ): Promise<Project> {
     requireBackendPermission(context, "project.create")
 
+    projectInput = projectInputSchema.parse(projectInput)
+
+    const containerRuntimeId =
+      projectInput.containerRuntimeId ??
+      (
+        await this.database.backend.containerRuntime.findUniqueOrThrow({
+          where: { systemName: "local" },
+        })
+      ).id
+
+    const pulumiStateBackendId =
+      projectInput.pulumiStateBackendId ??
+      (
+        await this.database.backend.pulumiStateBackend.findUniqueOrThrow({
+          where: { systemName: "local" },
+        })
+      ).id
+
+    requireBackendPermission(context, "container-runtime.get", {
+      resourceId: containerRuntimeId,
+    })
+
+    requireBackendPermission(context, "pulumi-state-backend.get", {
+      resourceId: pulumiStateBackendId,
+    })
+
+    const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
+      where: { id: containerRuntimeId },
+    })
+
+    await this.database.backend.pulumiStateBackend.findUniqueOrThrow({
+      where: { id: pulumiStateBackendId },
+    })
+
     const logger = createProjectLogger(this.logger, projectId)
 
     logger.info("creating new project")
@@ -158,13 +223,32 @@ export class ProjectService {
         unlockSuite,
         spaceId: projectInput.spaceId,
         modelStorageId: projectInput.modelStorageId,
-        libraryId: projectInput.libraryId,
-        pulumiBackendId: projectInput.pulumiBackendId,
+        containerRuntimeId,
+        pulumiStateBackendId,
       },
     })
 
     const projectDatabase = await this.database.forProject(projectId)
+
+    if (
+      projectInput.localOverlayEnabled === false ||
+      runtime.systemName !== localContainerRuntime.systemName ||
+      runtime.spec.type !== "docker" ||
+      !runtime.spec.local
+    ) {
+      await projectDatabase.projectLibraryState.update({
+        where: { id: "default" },
+        data: { localOverlayEnabled: false },
+      })
+    }
+
     await ensureAdminProjectBindingCreated(this.database.backend, projectDatabase, projectId)
+
+    try {
+      await this.projectLibrary?.bootstrap(projectId, projectInput.includeStandardLibrary !== false)
+    } catch (error) {
+      logger.error({ error }, "failed to initialize project library")
+    }
 
     logger.info("project successfully created")
 
@@ -323,7 +407,7 @@ export class ProjectService {
         deletedInstanceIds: [instanceId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
 
       return instance
     } catch (error) {
@@ -364,10 +448,10 @@ export class ProjectService {
 
         if (component && !isUnitModel(component) && patch.args) {
           // evaluate the project if arguments changed for composite instancer
-          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+          this.scheduleEvaluation(context.projectId)
         } else if (patch.hubInputs || patch.injectionInputs || patch.inputs) {
           // TODO: only evaluate if inputs changed for composite instances
-          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+          this.scheduleEvaluation(context.projectId)
         }
 
         return instance
@@ -470,7 +554,7 @@ export class ProjectService {
         })
 
         if (!isUnitModel(component)) {
-          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+          this.scheduleEvaluation(context.projectId)
         }
       }
 
@@ -502,7 +586,7 @@ export class ProjectService {
         deletedInstanceIds: [instanceId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
     } catch (error) {
       this.logger.error(
         { error, projectId: context.projectId, instanceId },
@@ -566,7 +650,7 @@ export class ProjectService {
       })
 
       if (patch.inputs || patch.injectionInputs) {
-        void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+        this.scheduleEvaluation(context.projectId)
       }
 
       return hub
@@ -593,7 +677,7 @@ export class ProjectService {
         deletedHubIds: [hubId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
     } catch (error) {
       this.logger.error({ error, projectId: context.projectId, hubId }, "failed to delete hub")
       throw error
@@ -669,7 +753,7 @@ export class ProjectService {
         })
       }
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
     } catch (error) {
       this.logger.error(
         {
@@ -683,6 +767,12 @@ export class ProjectService {
 
       throw error
     }
+  }
+
+  private scheduleEvaluation(projectId: string): void {
+    void this.projectEvaluationSubsystem.evaluateProject(projectId).catch(error => {
+      this.logger.error({ error, projectId }, "failed to evaluate project after model mutation")
+    })
   }
 
   /**

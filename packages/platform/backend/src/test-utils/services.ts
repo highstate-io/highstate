@@ -72,9 +72,27 @@ export const test = baseTest.extend<{
 
         const resolvedInput = projectInputSchema.parse({ meta, name, ...input })
 
+        const containerRuntimeId =
+          resolvedInput.containerRuntimeId ??
+          (
+            await database.backend.containerRuntime.findUniqueOrThrow({
+              where: { systemName: "local" },
+            })
+          ).id
+
+        const pulumiStateBackendId =
+          resolvedInput.pulumiStateBackendId ??
+          (
+            await database.backend.pulumiStateBackend.findUniqueOrThrow({
+              where: { systemName: "local" },
+            })
+          ).id
+
         return await database.backend.project.create({
           data: {
             ...resolvedInput,
+            containerRuntimeId,
+            pulumiStateBackendId,
             databaseVersion: projectDatabaseVersion,
             encryptedMasterKey: "",
             encryptedPrivateKey: "",

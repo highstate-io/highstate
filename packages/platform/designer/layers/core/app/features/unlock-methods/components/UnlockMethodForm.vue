@@ -258,10 +258,11 @@ defineExpose({
       variant="outlined"
       density="compact"
       label="Description"
+      :hint="descriptionHint"
+      persistent-hint
       placeholder="Optional description for this unlock method"
       rows="2"
       auto-grow
-      hide-details
     />
 
     <template v-if="form.type === 'password'">
@@ -273,17 +274,22 @@ defineExpose({
         :rules="passwordRules"
         :hint="passwordHint"
         persistent-hint
-      />
-
-      <VBtn
-        type="button"
-        class="mb-4"
-        variant="tonal"
-        prepend-icon="mdi-auto-fix"
-        @click="generatePassword"
       >
-        Generate Secure Password
-      </VBtn>
+        <template #append-inner>
+          <VBtn
+            type="button"
+            icon="mdi-auto-fix"
+            variant="text"
+            size="24"
+            class="mr-1"
+            aria-label="Generate Secure Password"
+            @click="generatePassword"
+          >
+            <VIcon size="20">mdi-auto-fix</VIcon>
+            <VTooltip activator="parent" location="top">Generate secure password</VTooltip>
+          </VBtn>
+        </template>
+      </PasswordField>
 
       <PasswordField
         v-model="form.confirmPassword"

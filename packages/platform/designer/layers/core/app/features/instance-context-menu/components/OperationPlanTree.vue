@@ -15,6 +15,7 @@ type TreeNode = {
   icon: string
   iconColor?: string
   phaseType: string
+  upgrade?: OperationPhaseInstance["libraryPackageUpgrade"]
   children?: TreeNode[]
 }
 
@@ -78,6 +79,7 @@ const createInstanceNode = (
     title:
       component && instanceModel ? `${component.meta.title} "${instanceModel.name}"` : instance.id,
     subtitle: instance.message,
+    upgrade: instance.libraryPackageUpgrade,
     icon: component?.meta.icon ?? "iconamoon:component",
     iconColor: component?.meta.iconColor,
     phaseType: "instance",
@@ -150,6 +152,11 @@ const getPhaseColor = (phaseType: string): string => {
           <div v-if="item.subtitle" class="text-caption text-medium-emphasis">
             {{ item.subtitle }}
           </div>
+          <VChip v-if="item.upgrade" color="warning" size="small" class="my-1 align-self-start">
+            {{ item.upgrade.packageName }}:
+            {{ item.upgrade.previousVersion ?? 'not deployed' }}
+            → {{ item.upgrade.version }}
+          </VChip>
         </div>
       </template>
     </VTreeview>

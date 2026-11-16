@@ -1,7 +1,7 @@
 import { root } from "./harness/designer"
 
 const suite = process.argv[2] ?? "all"
-if (!["all", "api", "browser", "cli"].includes(suite)) {
+if (!["all", "api", "browser", "cli", "runtime-browser"].includes(suite)) {
   throw new Error(`Unknown E2E suite: ${suite}`)
 }
 
@@ -18,6 +18,9 @@ for (const command of [
   ...(["all", "api"].includes(suite) ? [[process.execPath, "packages/e2e/src/api/smoke.ts"]] : []),
   ...(["all", "browser"].includes(suite)
     ? [[process.execPath, "packages/e2e/src/browser/smoke.ts"]]
+    : []),
+  ...(["all", "runtime-browser"].includes(suite)
+    ? [[process.execPath, "packages/e2e/src/browser/runtime-smoke.ts"]]
     : []),
 ]) {
   const child = Bun.spawn(command, { cwd: root, stdout: "inherit", stderr: "inherit" })

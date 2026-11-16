@@ -1,3 +1,4 @@
+/// The deployment lifecycle of an instance, independent of its latest operation result.
 enum InstanceStatus {
     /// The instance is exists in the model (resident or virtual), but not yet deployed or was completely destroyed.
     ///
@@ -26,6 +27,7 @@ enum InstanceStatus {
     failed
 }
 
+/// Whether an instance is explicitly modeled or produced by composite evaluation.
 enum InstanceSource {
     /// The instance is defined in the project model.
     resident
@@ -34,6 +36,7 @@ enum InstanceSource {
     virtual
 }
 
+/// The persistent deployment state and last successful provenance of an instance.
 model InstanceState {
     /// The surrogate CUIDv2 primary key of the instance to allow renaming instances.
     id String @id @default(cuid(2))
@@ -128,11 +131,20 @@ model InstanceState {
     /// Whether the instance has resource hooks and requires running program on destroy to properly clean up resources.
     hasResourceHooks Boolean @default(false)
 
+    /// The ID of the complete project library snapshot used by the last successful non-preview operation.
+    librarySnapshotId String?
+
+    /// The ID of the direct package version that supplied this instance's component implementation.
+    libraryPackageVersionId String?
+
     /// The parent instance.
     parent InstanceState? @relation("InstanceHierarchy", fields: [parentId], references: [id])
 
     /// The child instances, if any.
     children InstanceState[] @relation("InstanceHierarchy")
+
+    /// The exact snapshot membership used by the last successful operation.
+    librarySnapshotVersion LibrarySnapshotVersion? @relation(fields: [librarySnapshotId, libraryPackageVersionId], references: [snapshotId, libraryPackageVersionId])
 
     /// The evaluation state of this instance.
     evaluationState InstanceEvaluationState?

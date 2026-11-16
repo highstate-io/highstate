@@ -1,17 +1,32 @@
-model PulumiBackend {
-    /// The CUIDv2 of the Pulumi backend.
+/// A reusable Pulumi state backend configuration.
+model PulumiStateBackend {
+    /// The CUIDv2 of the Pulumi state backend.
     id String @id @default(cuid(2))
 
-    /// The backend meta managed by the backend.
+    /// Reserved name for a system-managed state backend.
+    systemName String? @unique
+
+    /// The metadata managed by the backend.
     ///
     /// [CommonObjectMeta]
     meta Json
 
-    /// The spec of the Pulumi backend.
+    /// The state backend specification, including its URL and encrypted authentication configuration.
+    /// Credentials inside the specification are ASCII-armored AGE ciphertext encrypted to the backend's
+    /// AGE recipient; the backend AGE private identity, not a project key, is required for decryption.
     ///
-    /// [PulumiBackendSpec]
+    /// [PulumiStateBackendSpec]
     spec Json
 
-    /// The projects using this backend.
+    /// An opaque CUIDv2 token used only for optimistic concurrency.
+    revision String @default(cuid(2))
+
+    /// The time when the state backend was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the state backend was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The projects using this state backend.
     projects Project[]
 }

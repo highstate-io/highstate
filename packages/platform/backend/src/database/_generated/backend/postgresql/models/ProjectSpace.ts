@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model ProjectSpace
- * 
+ * A namespace grouping projects and their backend authorization scope.
  */
 export type ProjectSpaceModel = runtime.Types.Result.DefaultSelection<Prisma.$ProjectSpacePayload>
 
