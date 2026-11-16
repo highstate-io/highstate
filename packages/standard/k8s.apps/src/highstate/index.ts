@@ -33,19 +33,26 @@ if (args.initialAdminUserIds.length + args.initialAdminGroupIds.length === 0) {
 const pg = await toPromise(inputs.postgresql)
 const postgresqlConfig = await createPostgresqlConfig(pg, cluster)
 
-const runtime = Secret.create(`${args.appName}-runtime`, {
-  namespace,
-  stringData: {
-    "backend-identity": backendIdentity,
-    "providers.json": secret(createLoginConfig(providers)),
-    "initial-admins.json": JSON.stringify({
-      userIds: args.initialAdminUserIds,
-      groupIds: args.initialAdminGroupIds,
-    }),
-    "postgresql-url": secret(postgresqlConfig.url),
-    ...(postgresqlConfig.ca ? { "postgresql-ca.crt": secret(postgresqlConfig.ca) } : {}),
+const runtime = Secret.create(
+  `${args.appName}-runtime`,
+  {
+    namespace,
+    stringData: {
+      "backend-identity": backendIdentity,
+      "providers.json": secret(createLoginConfig(providers)),
+      "initial-admins.json": JSON.stringify({
+        userIds: args.initialAdminUserIds,
+        groupIds: args.initialAdminGroupIds,
+      }),
+      "postgresql-url": secret(postgresqlConfig.url),
+      ...(postgresqlConfig.ca ? { "postgresql-ca.crt": secret(postgresqlConfig.ca) } : {}),
+    },
   },
-})
+  {
+    // This secret has a fixed name; replacement must release the old SSA owner first.
+    deleteBeforeReplace: true,
+  },
+)
 
 const volume = await PersistentVolumeClaim.createOrGet(
   `${args.appName}-data`,
