@@ -69,6 +69,7 @@ it("creates distinct namespace-local monitor identities for apps sharing a names
       namespace,
       ports: [{ port: 80, targetPort: 80, protocol: "TCP" }],
     })
+
     const endpoints = await toPromise(service.endpoints)
     expect(endpoints.length).toBeGreaterThan(0)
     expect(endpoints.every(endpoint => endpoint.implRef?.package === "@highstate/k8s")).toBe(true)
