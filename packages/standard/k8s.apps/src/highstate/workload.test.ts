@@ -139,6 +139,7 @@ describe("Highstate runtime topology", () => {
     expect(pod.hostNetwork).toBeUndefined()
     expect(pod.volumes.every(volume => !volume.hostPath)).toBe(true)
     const application = pod.containers[0]
+    expect(application.securityContext.appArmorProfile.type).toBe("Unconfined")
     const docker = pod.initContainers[0]
     expect(docker.restartPolicy).toBe("Always")
     expect(docker.securityContext.privileged).toBe(true)

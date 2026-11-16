@@ -27,6 +27,11 @@ import {
 
 export type ClusterAccessScopeArgs = {
   /**
+   * Creates a namespace-local Role instead of a ClusterRole.
+   * Cannot be combined with cluster-wide access or extra namespaces.
+   */
+  namespaceOnly?: boolean
+  /**
    * The namespace to create the ServiceAccount in.
    */
   namespace: Input<Namespace>
@@ -34,14 +39,14 @@ export type ClusterAccessScopeArgs = {
   /**
    * The RBAC rule to apply to the `ServiceAccount`.
    *
-   * It will be used to create ClusterRole.
+   * It will be used to create a Role when namespaceOnly is enabled, otherwise a ClusterRole.
    */
   rule?: Input<types.input.rbac.v1.PolicyRule>
 
   /**
    * The RBAC rules to apply to the `ServiceAccount`.
    *
-   * It will be used to create `ClusterRole`.
+   * It will be used to create a Role when namespaceOnly is enabled, otherwise a ClusterRole.
    */
   rules?: InputArray<types.input.rbac.v1.PolicyRule>
 
@@ -88,6 +93,12 @@ export class ClusterAccessScope extends ComponentResource {
   constructor(name: string, args: ClusterAccessScopeArgs, opts?: ComponentResourceOptions) {
     super("highstate:k8s:ClusterAccessScope", name, args, opts)
 
+    if (args.namespaceOnly && (args.clusterWide || args.extraNamespaces !== undefined)) {
+      throw new Error(
+        "Namespace-only access cannot include cluster-wide access or extra namespaces",
+      )
+    }
+
     const { serviceAccount, kubeconfig } = output(args.namespace).cluster.apply(cluster => {
       const provider = getProvider(cluster)
       const namespaceName = output(args.namespace).metadata.name
@@ -103,11 +114,14 @@ export class ClusterAccessScope extends ComponentResource {
         { provider },
       )
 
-      const clusterRole = new rbac.v1.ClusterRole(
+      const Role = args.namespaceOnly ? rbac.v1.Role : rbac.v1.ClusterRole
+
+      const role = new Role(
         name,
         {
           metadata: {
-            name: interpolate`hs.${namespaceName}.${name}`,
+            name: args.namespaceOnly ? name : interpolate`hs.${namespaceName}.${name}`,
+            namespace: args.namespaceOnly ? namespaceName : undefined,
             annotations: {
               "kubernetes.io/description": interpolate`Created by Highstate for the ServiceAccount "${name}" in the namespace "${namespaceName}".`,
             },
@@ -124,7 +138,7 @@ export class ClusterAccessScope extends ComponentResource {
         const roleBindingName = createBindingName(
           namespace,
           serviceAccount.metadata.name,
-          clusterRole.metadata.name,
+          role.metadata.name,
         )
 
         return new rbac.v1.RoleBinding(
@@ -132,8 +146,8 @@ export class ClusterAccessScope extends ComponentResource {
           {
             metadata: { name: roleBindingName, namespace },
             roleRef: {
-              kind: "ClusterRole",
-              name: clusterRole.metadata.name,
+              kind: args.namespaceOnly ? "Role" : "ClusterRole",
+              name: role.metadata.name,
               apiGroup: "rbac.authorization.k8s.io",
             },
             subjects: [
@@ -152,7 +166,7 @@ export class ClusterAccessScope extends ComponentResource {
         const clusterRoleBindingName = createBindingName(
           namespaceName,
           serviceAccount.metadata.name,
-          clusterRole.metadata.name,
+          role.metadata.name,
         )
 
         new rbac.v1.ClusterRoleBinding(
@@ -161,7 +175,7 @@ export class ClusterAccessScope extends ComponentResource {
             metadata: { name: clusterRoleBindingName },
             roleRef: {
               kind: "ClusterRole",
-              name: clusterRole.metadata.name,
+              name: role.metadata.name,
               apiGroup: "rbac.authorization.k8s.io",
             },
             subjects: [

@@ -7,7 +7,7 @@ One backend owns this data at a time.
 
 ## Requirements
 
-- Kubernetes 1.29 or newer with native sidecars enabled.
+- Kubernetes 1.31 or newer with native sidecars enabled and the structured AppArmor API.
 - A storage class or existing PVC supporting `ReadWriteOncePod` (the default), or explicitly selected `ReadWriteOnce` storage with reliable Linux advisory `flock` support, such as local-path storage on a local filesystem.
   With an existing PVC, the unit uses that PVC's namespace, which must already permit privileged pods.
 - A dedicated PostgreSQL database and password-authenticated connection.
@@ -74,6 +74,8 @@ The runtime retains its lock across application startup until the process exits;
 The persistent `.highstate-owner.lock` file must never be removed or replaced while either owner runs.
 Network filesystems without reliable advisory locking are not supported by the `ReadWriteOnce` option.
 This is single-owner operation, not active-active deployment or node-failure fencing.
+Application monitor identities use namespace-local Roles and RoleBindings with application-specific names.
+Deploying monitored apps in an existing namespace requires permission to manage those namespaced RBAC objects, not cluster-wide roles.
 Startup initializes a private Pulumi file backend under the persistent data volume; no Pulumi Cloud login is required.
 Set `maintenance=true` to deploy with zero replicas for recovery.
 
@@ -127,6 +129,27 @@ The Debian `unshare` tool lacks `--forward-signals`, so that runner option is di
 The unit routes base panel hosts under `*.panels.<fqdn>`.
 Applications that use deeper nested panel hosts need additional DNS, gateway and TLS configuration;
 a wildcard certificate for `*.panels.<fqdn>` does not cover those deeper names.
+
+## Host AppArmor compatibility
+
+PostgreSQL needs intra-container signals during startup, recovery, and normal operation.
+On hosts whose default AppArmor profile denies signals between stacked profile labels, it can remain in startup even after WAL replay finishes.
+A failed self-signal inside a disposable container distinguishes this host issue from database corruption or slow storage.
+The same image becoming ready on another host is not evidence that a database reset is needed.
+
+For a deployment on an affected host, the PostgreSQL unit supports the chart override:
+
+```yaml
+values:
+  containerSecurityContext:
+    appArmorProfile:
+      type: Unconfined
+```
+
+This disables AppArmor only for that database container; it does not grant capabilities, change its non-root user, or disable seccomp.
+An updated host/runtime AppArmor profile that correctly permits peer signals is preferable where available.
+No host-wide AppArmor sysctl change is required for the per-container workaround.
+The Highstate runtime already requires an unconfined profile for its execution backends and sets it through the structured Kubernetes API.
 
 ## Coordinated backup
 

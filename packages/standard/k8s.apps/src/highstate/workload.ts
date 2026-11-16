@@ -36,7 +36,11 @@ export function createRuntimeDeployment(args: RuntimeDeploymentArgs) {
       name: "highstate",
       image: args.image,
       port: { name: "http", containerPort: 3000 },
-      securityContext: { runAsUser: 0, seccompProfile: { type: "Unconfined" } },
+      securityContext: {
+        runAsUser: 0,
+        seccompProfile: { type: "Unconfined" },
+        appArmorProfile: { type: "Unconfined" },
+      },
       environment: {
         HIGHSTATE_AUTH_MODE: "hosted",
         HIGHSTATE_PUBLIC_URL: args.publicUrl,
@@ -64,7 +68,6 @@ export function createRuntimeDeployment(args: RuntimeDeploymentArgs) {
     template: {
       metadata: {
         annotations: {
-          "container.apparmor.security.beta.kubernetes.io/highstate": "unconfined",
           "highstate.io/runtime-config": args.runtime.stringData.apply(data =>
             createHash("sha256").update(JSON.stringify(data)).digest("hex"),
           ),

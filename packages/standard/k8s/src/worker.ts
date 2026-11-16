@@ -2,6 +2,7 @@ import type { UnitWorker } from "@highstate/contract"
 import type { k8s } from "@highstate/library"
 import type { DeepInput, Input, InputArray, Unwrap } from "@highstate/pulumi"
 import type { Namespace } from "./namespace"
+import { toPromise } from "@highstate/pulumi"
 import { type Output, output } from "@pulumi/pulumi"
 import { ClusterAccessScope } from "./rbac"
 import { getClusterKubeconfigContent, images, type NamespacedResource } from "./shared"
@@ -10,12 +11,23 @@ export async function createMonitorWorker(
   namespace: Input<Namespace>,
   resources: InputArray<NamespacedResource>,
 ): Promise<Output<Unwrap<UnitWorker>>> {
-  const scope = new ClusterAccessScope("monitor", {
-    rule: {
-      apiGroups: ["", "apps"],
-      resources: ["deployments", "statefulsets", "services", "pods"],
-      verbs: ["get", "list", "watch"],
-    },
+  const first = await toPromise(output(resources)[0])
+  if (!first) {
+    throw new Error("A monitor requires at least one namespaced resource")
+  }
+
+  const name = `${await toPromise(first.metadata.name)}-monitor`
+
+  const scope = new ClusterAccessScope(name, {
+    namespaceOnly: true,
+    rules: [
+      { apiGroups: [""], resources: ["services", "pods"], verbs: ["get", "list", "watch"] },
+      {
+        apiGroups: ["apps"],
+        resources: ["deployments", "statefulsets"],
+        verbs: ["get", "list", "watch"],
+      },
+    ],
 
     namespace,
     resources,
