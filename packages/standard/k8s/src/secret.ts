@@ -2,6 +2,7 @@ import { getOrCreate } from "@highstate/contract"
 import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
+  type CustomResourceOptions,
   type Input,
   type Inputs,
   interpolate,
@@ -16,6 +17,9 @@ import { getProvider, mapMetadata, NamespacedResource, type ScopedResourceArgs }
 
 export type SecretArgs = ScopedResourceArgs &
   Omit<types.input.core.v1.Secret, "kind" | "metadata" | "apiVersion">
+
+export type SecretResourceOptions = ComponentResourceOptions &
+  Pick<CustomResourceOptions, "deleteBeforeReplace">
 
 export type CreateOrGetSecretArgs = SecretArgs & {
   /**
@@ -90,7 +94,7 @@ export abstract class Secret extends NamespacedResource {
   /**
    * Creates a new secret.
    */
-  static create(name: string, args: SecretArgs, opts?: ComponentResourceOptions): Secret {
+  static create(name: string, args: SecretArgs, opts?: SecretResourceOptions): Secret {
     return new CreatedSecret(name, args, opts)
   }
 
@@ -211,7 +215,7 @@ export abstract class Secret extends NamespacedResource {
 }
 
 class CreatedSecret extends Secret {
-  constructor(name: string, args: SecretArgs, opts?: ComponentResourceOptions) {
+  constructor(name: string, args: SecretArgs, opts?: SecretResourceOptions) {
     const secret = output(args.namespace).cluster.apply(cluster => {
       return new core.v1.Secret(
         name,
