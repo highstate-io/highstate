@@ -40,6 +40,7 @@ type LoginProviderConfig = {
     | { protocol: "oidc"; issuer: string; groups?: string }
     | {
         protocol: "oauth2"
+        issuer?: string
         authority: string
         userInfoUrl: string
         mapping: {
@@ -58,6 +59,9 @@ type LoginProviderConfig = {
 Secret-based authentication requires `clientSecret`.
 OIDC discovers metadata from `issuer`; its authorization and token endpoints can be overridden explicitly.
 OAuth2 requires explicit authorization and token endpoints and fetches the authenticated profile from `userInfoUrl`.
+Set its `issuer` to the authorization server's issuer when it differs from the token endpoint's origin.
+This validates the callback's `iss` parameter independently of the stable identity `authority`.
+For GitHub, use issuer `https://github.com/login/oauth` and authority `https://github.com`.
 Register `${HIGHSTATE_PUBLIC_URL}/api/auth/callback` as the provider's redirect URI, without a double slash.
 OIDC automatically includes the `openid` scope.
 
