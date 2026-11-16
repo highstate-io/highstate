@@ -17,7 +17,12 @@ runtime.setMocks(
         state: {
           ...args.inputs,
           metadata: { ...args.inputs.metadata, uid: args.name },
-          spec: { ...args.inputs.spec, clusterIP: "10.0.0.1", clusterIPs: [], externalIPs: [] },
+          spec: {
+            ...args.inputs.spec,
+            clusterIP: "10.0.0.1",
+            clusterIPs: ["10.0.0.1"],
+            externalIPs: [],
+          },
           status: { loadBalancer: { ingress: [] } },
           data: { ...args.inputs.data, token: Buffer.from("scoped-token").toString("base64") },
         },
@@ -60,7 +65,13 @@ it("creates distinct namespace-local monitor identities for apps sharing a names
   )
 
   for (const name of ["app-a", "app-b"]) {
-    const service = Service.create(name, { namespace, ports: [{ port: 80 }] })
+    const service = Service.create(name, {
+      namespace,
+      ports: [{ port: 80, targetPort: 80, protocol: "TCP" }],
+    })
+    const endpoints = await toPromise(service.endpoints)
+    expect(endpoints.length).toBeGreaterThan(0)
+    expect(endpoints.every(endpoint => endpoint.implRef?.package === "@highstate/k8s")).toBe(true)
     await toPromise(await createMonitorWorker(namespace, [service]))
   }
 

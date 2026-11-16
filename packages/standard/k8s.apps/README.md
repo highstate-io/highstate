@@ -61,9 +61,12 @@ Connect these inputs:
 | `postgresql` | Dedicated backend database |
 | `loginProviders` | One or more runtime login capabilities |
 | `volume` | Optional existing PVC matching `storageAccessMode` |
+| `namespace` | Optional unowned existing namespace on the supplied cluster |
 | `resticRepo` | Optional rclone-backed Restic repository |
 
 Set `fqdn`, `image`, `dockerImage`, and at least one of `initialAdminUserIds` or `initialAdminGroupIds`.
+The `postgresql` connection must select a database, not only a server.
+For a managed PostgreSQL instance, connect its server connection to `postgresql.database.v1`, then connect that unit's database-specific connection to Highstate.
 Register `https://<fqdn>/api/auth/callback` as the login client's redirect URI.
 `appName` defaults to `highstate`; it determines the namespace and deployment name.
 When `volume` is connected, its existing namespace replaces the namespace derived from `appName`.

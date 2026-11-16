@@ -420,6 +420,9 @@ class ReferencedNamespace extends Namespace {
       output({ finalizers: [] }),
       output({ conditions: [], phase: "" }),
     )
+
+    // Reuse the supplied credentials; callers retain control of port-forward permissions.
+    this.portForwardCluster = this.cluster
   }
 }
 
