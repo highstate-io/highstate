@@ -772,6 +772,7 @@ export class LocalRunnerBackend implements RunnerBackend {
       await probeHostsNamespace(config.HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS)
     } catch (error) {
       unavailableReason = error instanceof Error ? error.message : String(error)
+
       logger.warn(
         { error },
         "unit sidecars unavailable; running other units without a hosts overlay",

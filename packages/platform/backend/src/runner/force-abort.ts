@@ -49,6 +49,7 @@ export async function probeHostsNamespace(forwardSignals: boolean): Promise<void
     process.exited,
     new Response(process.stderr).text(),
   ])
+
   if (exitCode !== 0) {
     throw new Error(stderr.trim() || `hosts namespace probe exited with code ${exitCode}`)
   }
