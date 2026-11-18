@@ -32,6 +32,7 @@ import {
   setupArtifactEnvironment,
 } from "./artifact-env"
 import { getPulumiEnvironment } from "./environment"
+import { probeHostsNamespace } from "./force-abort"
 import {
   highstateRuntimeEndpointEnvVar,
   highstateRuntimeTokenEnvVar,
@@ -765,10 +766,23 @@ export class LocalRunnerBackend implements RunnerBackend {
 
     let runner: LocalRunnerBackend | undefined
 
+    let unavailableReason: string | undefined
+
+    try {
+      await probeHostsNamespace(config.HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS)
+    } catch (error) {
+      unavailableReason = error instanceof Error ? error.message : String(error)
+      logger.warn(
+        { error },
+        "unit sidecars unavailable; running other units without a hosts overlay",
+      )
+    }
+
     const sidecarTracker = new SidecarTracker({
       dockerBinary: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_BINARY,
       dockerUseSudo: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_USE_SUDO,
       dockerHost: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_HOST,
+      unavailableReason,
       logger: logger.child({ service: "SidecarTracker" }),
       onUnitLog: (unitId, message) => {
         runner?.emitStateUpdate({ type: "message", unitId, message })

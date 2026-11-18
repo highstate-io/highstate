@@ -50,6 +50,7 @@ Different workloads cross different isolation boundaries:
 
 Pulumi programs use an ephemeral, operation-scoped loopback API.
 They do not call the public backend API.
+If the runner cannot isolate the hosts file in a private mount namespace, it rejects unit sidecar requests rather than altering shared name resolution. Other units can still run.
 [Contracts and Extensions](contracts-and-extensions.md#worker-connectivity) defines worker connectivity.
 
 ## Coordination Boundary

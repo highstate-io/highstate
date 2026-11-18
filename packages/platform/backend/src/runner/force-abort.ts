@@ -23,6 +23,37 @@ export type ForceAbortableCommandOptions = {
   unshareForwardSignals?: boolean
 }
 
+function hostsNamespaceCommand(forwardSignals: boolean): string[] {
+  return [
+    "unshare",
+    "--user",
+    "--map-current-user",
+    "--keep-caps",
+    "--mount",
+    "--propagation",
+    "private",
+    ...(forwardSignals ? ["--forward-signals"] : []),
+    "--kill-child=SIGKILL",
+    "--",
+  ]
+}
+
+export async function probeHostsNamespace(forwardSignals: boolean): Promise<void> {
+  // A private self-bind exercises the same permissions without replacing any host entries.
+  const process = Bun.spawn(
+    [...hostsNamespaceCommand(forwardSignals), "mount", "--bind", "/etc/hosts", "/etc/hosts"],
+    { stderr: "pipe" },
+  )
+
+  const [exitCode, stderr] = await Promise.all([
+    process.exited,
+    new Response(process.stderr).text(),
+  ])
+  if (exitCode !== 0) {
+    throw new Error(stderr.trim() || `hosts namespace probe exited with code ${exitCode}`)
+  }
+}
+
 export async function createForceAbortableCommand(
   options: ForceAbortableCommandOptions = {},
 ): Promise<PulumiCommand> {
@@ -81,16 +112,7 @@ export async function createForceAbortableCommand(
     try {
       const commandLine = options.hostsFilePath
         ? [
-            "unshare",
-            "--user",
-            "--map-current-user",
-            "--keep-caps",
-            "--mount",
-            "--propagation",
-            "private",
-            ...((options.unshareForwardSignals ?? true) ? ["--forward-signals"] : []),
-            "--kill-child=SIGKILL",
-            "--",
+            ...hostsNamespaceCommand(options.unshareForwardSignals ?? true),
             "sh",
             "-c",
             'mount --bind "$HIGHSTATE_HOSTS_FILE" /etc/hosts && exec "$@"',

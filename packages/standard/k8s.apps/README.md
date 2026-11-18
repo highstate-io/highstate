@@ -18,7 +18,7 @@ One backend owns this data at a time.
 - An HTTPS access point, DNS name, and at least one `auth.login-provider.v1` connection.
   The access point must support wildcard DNS and TLS issuance for `*.panels.<fqdn>` (normally DNS-01).
 - A cluster policy that permits the privileged Docker sidecar and the runtime's unconfined seccomp and AppArmor profiles.
-  Nodes must permit user namespaces: the local Pulumi runner uses `unshare` for per-operation hosts files.
+  Unit sidecars require nodes that permit `unshare` and private hosts-file mounts. Units that do not start sidecars can run without those permissions.
 
 Docker-in-Docker has ephemeral image and container storage.
 The daemon belongs exclusively to this runtime; application startup removes surviving containers after a restart.
