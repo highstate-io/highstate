@@ -15,6 +15,7 @@ import {
 const { projectStore } = useProjectStores()
 const settingsStore = useProjectPanelSettingsStore()
 const workspaceStore = useWorkspaceStore()
+
 const { params } = defineProps<{
   params: { projectId: string; panelId: string }
 }>()

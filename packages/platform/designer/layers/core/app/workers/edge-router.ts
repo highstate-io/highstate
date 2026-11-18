@@ -252,6 +252,7 @@ const getEdgeEndpoints = (edge: EdgeRouterEdge) => {
 const addEdge = (_port: MessagePort, state: RouterState, edge: EdgeRouterEdge): void => {
   const sourceNodeShape = state.shapeMap.get(edge.source)
   const targetNodeShape = state.shapeMap.get(edge.target)
+
   if (sourceNodeShape && targetNodeShape) {
     const { srcConnEnd, dstConnEnd } = getEdgeEndpoints(edge)
 

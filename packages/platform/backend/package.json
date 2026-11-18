@@ -1,6 +1,6 @@
 {
   "name": "@highstate/backend",
-  "version": "0.32.0",
+  "version": "0.32.1",
   "type": "module",
   "files": [
     "dist",
@@ -17,7 +17,8 @@
       "default": "./dist/shared/index.js"
     },
     "./library-worker": "./dist/library/worker/main.js",
-    "./package-resolution-worker": "./dist/library/package-resolution-worker.js"
+    "./package-resolution-worker": "./dist/library/package-resolution-worker.js",
+    "./project-keyring-helper": "./dist/business/project-keyring-helper.js"
   },
   "publishConfig": {
     "access": "public"

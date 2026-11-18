@@ -15,6 +15,7 @@ const { state, operation, expectedInputHash, validationOutput } = defineProps<{
 const tabs = computed(() =>
   createStatusPanelTabs(state, operation, expectedInputHash, validationOutput),
 )
+
 const badgeTab = computed(() => tabs.value.find(tab => tab.important) ?? tabs.value[0])
 
 const currentTabName = ref<string>(badgeTab.value.name)

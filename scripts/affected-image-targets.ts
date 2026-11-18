@@ -9,6 +9,7 @@ const terminalTargets = [
   "core-terminal-ssh",
   "core-terminal-talosctl",
 ] as const
+
 const workerTargets = ["core-worker-k8s-monitor", "core-worker-k8s-dashboard"] as const
 const allTargets = [...terminalTargets, ...workerTargets, "apps-exetrouter"]
 
@@ -82,6 +83,7 @@ if (import.meta.main) {
   const value = (name: string): string => {
     const index = process.argv.indexOf(name)
     const result = index === -1 ? undefined : process.argv[index + 1]
+
     if (!result) {
       throw new Error(`Missing ${name}`)
     }

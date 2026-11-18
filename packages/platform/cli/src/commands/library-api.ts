@@ -230,6 +230,7 @@ export class EntityGetCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const response = await clients.library.getLibrary({ projectId: target.projectId })
     const entity = response.library?.entities[this.type]
+
     if (!entity) {
       throw new Error(`Entity "${this.type}" not found`)
     }

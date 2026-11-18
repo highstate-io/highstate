@@ -7,6 +7,7 @@ const { name, args, inputs, outputs } = forUnit(gcp.disk)
 
 const provider = await createProvider(inputs.connection)
 const diskName = args.diskName ?? name
+
 const zone =
   inputs.connection.defaultZone ??
   (

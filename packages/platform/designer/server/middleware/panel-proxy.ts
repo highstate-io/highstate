@@ -55,6 +55,7 @@ export default defineEventHandler(async event => {
   let session = sessionId ? getPanelSession(sessionId, panelId) : undefined
   const sessionSource = getHeader(event, "origin") ?? getHeader(event, "referer")
   const hasSessionSource = isPanelSessionSource(sessionSource, panelId, getRequestURL(event))
+
   if (
     !session &&
     hasSessionSource &&
@@ -150,6 +151,7 @@ async function sendProxyResponse(
   for (let index = 0; index < response.rawHeaders.length; index += 2) {
     const name = response.rawHeaders[index]
     const value = response.rawHeaders[index + 1]
+
     if (!name || value === undefined) {
       continue
     }

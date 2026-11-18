@@ -15,6 +15,7 @@ const updateEdge = (id: string, y: number): EdgeRouterInputMessage => ({
     targetY: y,
   },
 })
+
 const transaction: EdgeRouterInputMessage = { type: "process-transaction", routerId: "router" }
 
 describe("edge router message queue", () => {

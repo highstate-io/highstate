@@ -78,6 +78,7 @@ function messageParts(node) {
 function messageStyle(context, node, uppercase) {
   const source = context.sourceCode
   const parts = messageParts(node)
+
   if (!parts.length) {
     return
   }
@@ -86,6 +87,7 @@ function messageStyle(context, node, uppercase) {
   const last = parts.at(-1)
   const wrongCase = uppercase ? /^[a-z]/.test(first) : /^[A-Z][a-z]/.test(first)
   const punctuation = /[.!]$/.test(last)
+
   if (!wrongCase && !punctuation) {
     return
   }
@@ -114,6 +116,21 @@ function messageStyle(context, node, uppercase) {
 }
 
 const rules = {
+  "imports-first": rule("Keep static imports before executable code", context => ({
+    Program(node) {
+      let sawCode = false
+
+      for (const statement of node.body) {
+        if (statement.type === "ImportDeclaration") {
+          if (sawCode) {
+            report(context, statement, "Place static imports before other module statements")
+          }
+        } else if (statement.type !== "ExpressionStatement" || !statement.directive) {
+          sawCode = true
+        }
+      }
+    },
+  })),
   "switch-mappers": rule(
     "Use switch for multiple mapping cases on the same value",
     context => {
@@ -221,6 +238,7 @@ const rules = {
         }
 
         const variable = context.sourceCode.getDeclaredVariables(node)[0]
+
         if (
           !variable ||
           variable.references.some(
@@ -244,6 +262,7 @@ const rules = {
           }
 
           const text = comment.value.trim()
+
           if (
             !text ||
             text.length > 100 ||
@@ -301,6 +320,7 @@ const rules = {
 
         const source = context.sourceCode
         const caught = caughtBinding(source, node)
+
         if (!caught) {
           return
         }
@@ -426,6 +446,7 @@ const rules = {
       TSParameterProperty(node) {
         const declaration = node.parent.parent
         const owner = declaration?.parent?.parent
+
         if (declaration?.kind !== "constructor" || !/.+Service$/.test(owner?.id?.name ?? "")) {
           return
         }
@@ -465,9 +486,19 @@ const rules = {
             continue
           }
 
-          const comments = source.getCommentsBefore(current)
+          const precedingComments = source.getCommentsBefore(current)
+
+          const comments = precedingComments.filter(
+            comment => comment.loc.start.line > previous.loc.end.line,
+          )
+
           const start = comments[0] ?? current
-          if (start.loc.start.line - previous.loc.end.line > 1) {
+
+          const trailing = precedingComments
+            .filter(comment => comment.loc.start.line <= previous.loc.end.line)
+            .at(-1)
+
+          if (start.loc.start.line - (trailing?.loc.end.line ?? previous.loc.end.line) > 1) {
             continue
           }
 
@@ -475,7 +506,11 @@ const rules = {
             context,
             current,
             "Separate class methods and CLI metadata with a blank line",
-            fixer => fixer.insertTextBefore(start, "\n"),
+            fixer =>
+              fixer.replaceTextRange(
+                [trailing?.range[1] ?? previous.range[1], start.range[0]],
+                `\n\n${" ".repeat(start.loc.start.column)}`,
+              ),
           )
         }
       },
@@ -487,30 +522,21 @@ const rules = {
     context => {
       const source = context.sourceCode
 
-      const identifiers = node => {
-        const names = new Set()
+      const referencesDeclaration = (declaration, condition) => {
+        const variables = source.getDeclaredVariables(declaration)
 
-        const visit = child => {
-          if (!child || typeof child !== "object") {
-            return
-          }
+        const referenced = variable =>
+          variable.references.some(
+            reference =>
+              reference.identifier.range[0] >= condition.range[0] &&
+              reference.identifier.range[1] <= condition.range[1],
+          )
 
-          if (child.type === "Identifier") {
-            names.add(child.name)
-          }
-
-          for (const key of source.visitorKeys[child.type] ?? []) {
-            const value = child[key]
-            if (Array.isArray(value)) {
-              value.forEach(visit)
-            } else {
-              visit(value)
-            }
-          }
-        }
-
-        visit(node)
-        return names
+        const destructured = declaration.declarations.some(item => item.id.type === "ObjectPattern")
+        return (
+          variables.length > 0 &&
+          (destructured ? variables.every(referenced) : variables.some(referenced))
+        )
       }
 
       const inspect = node => {
@@ -524,23 +550,44 @@ const rules = {
         for (let index = 1; index < body.length; index++) {
           const previous = body[index - 1]
           const current = body[index]
+          const beforePrevious = body[index - 2]
 
           const checked =
             previous.type === "VariableDeclaration" &&
             previous.loc.start.line === previous.loc.end.line &&
-            previous.declarations.length === 1 &&
-            previous.declarations[0].id.type === "Identifier" &&
             current.type === "IfStatement" &&
-            identifiers(current.test).has(previous.declarations[0].id.name)
+            current.loc.start.line === source.getTokenBefore(current.consequent).loc.end.line &&
+            referencesDeclaration(previous, current.test) &&
+            !(
+              beforePrevious?.type === "VariableDeclaration" &&
+              beforePrevious.loc.end.line + 1 === previous.loc.start.line
+            )
 
-          const comments = source.getCommentsBefore(current)
+          const precedingComments = source.getCommentsBefore(current)
+
+          const comments = precedingComments.filter(
+            comment => comment.loc.start.line > previous.loc.end.line,
+          )
+
+          const trailing = precedingComments
+            .filter(comment => comment.loc.start.line <= previous.loc.end.line)
+            .at(-1)
+
           const start = comments[0] ?? current
-          const gap = start.loc.start.line - previous.loc.end.line
+          const last = source.getLastToken(previous)
+
+          const previousEnd =
+            last?.value === ";" && last.loc.start.line === current.loc.start.line
+              ? source.getTokenBefore(last).loc.end.line
+              : previous.loc.end.line
+
+          const gap = start.loc.start.line - (trailing?.loc.end.line ?? previousEnd)
+
           // Comments can explain either side of a guard; do not move them across statements.
           if (checked && !comments.length && gap > 1) {
             report(context, current, "Keep the assignment adjacent to its checking guard", fixer =>
               fixer.replaceTextRange(
-                [previous.range[1], current.range[0]],
+                [trailing?.range[1] ?? previous.range[1], current.range[0]],
                 `\n${" ".repeat(current.loc.start.column)}`,
               ),
             )
@@ -549,13 +596,17 @@ const rules = {
               context,
               current,
               "Separate guards, loops and multiline calls with a blank line",
-              fixer => fixer.insertTextBefore(start, "\n"),
+              fixer =>
+                fixer.replaceTextRange(
+                  [trailing?.range[1] ?? previous.range[1], start.range[0]],
+                  `\n\n${" ".repeat(start.loc.start.column)}`,
+                ),
             )
           }
         }
       }
 
-      return { BlockStatement: inspect, StaticBlock: inspect }
+      return { Program: inspect, BlockStatement: inspect, StaticBlock: inspect }
     },
     true,
   ),
@@ -612,6 +663,7 @@ const rules = {
 
         const [first, second] = node.arguments
         const message = first?.type === "ObjectExpression" ? second : first
+
         if (message) {
           messageStyle(context, message, false)
         }
@@ -681,6 +733,7 @@ const rules = {
       Program() {
         for (const comment of context.sourceCode.getAllComments()) {
           const text = comment.value.trim()
+
           if (
             !/^(?:biome-ignore(?:-all|-start|-end)?|(?:eslint|oxlint)-disable(?:-next-line|-line)?)\b/.test(
               text,

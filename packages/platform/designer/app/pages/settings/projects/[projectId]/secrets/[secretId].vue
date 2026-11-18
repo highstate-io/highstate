@@ -33,7 +33,6 @@ if (projectStore.initializing) {
 }
 
 const secret = await settingsStore.get(params.secretId)
-
 if (!secret) {
   throw createError({
     statusCode: 404,

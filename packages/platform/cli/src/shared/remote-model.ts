@@ -26,8 +26,10 @@ const referenceSchema = z.object({
   output: z.string().min(1),
   path: z.string().min(1).optional(),
 })
+
 const hubReferenceSchema = z.object({ hub_id: z.string().min(1) })
 const positionSchema = z.object({ x: z.number(), y: z.number() })
+
 const instanceFields = {
   args: z.record(z.string(), z.json()).optional(),
   inputs: z.record(z.string(), z.array(referenceSchema)).optional(),
@@ -35,6 +37,7 @@ const instanceFields = {
   injection_inputs: z.array(hubReferenceSchema).optional(),
   position: positionSchema.partial().nullable().optional(),
 }
+
 export const instanceInputSchema = z.object({
   id: z.string().min(1),
   kind: z.enum(["unit", "composite"]),

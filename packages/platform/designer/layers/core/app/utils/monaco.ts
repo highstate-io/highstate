@@ -13,6 +13,7 @@ const highlighter = await createHighlighter({
 })
 
 monaco.languages.register({ id: "nix" })
+
 monaco.languages.setLanguageConfiguration("nix", {
   brackets: [
     ["{", "}"],

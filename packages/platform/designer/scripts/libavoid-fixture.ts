@@ -25,6 +25,7 @@ const rectangle = (x: number, y: number, width: number, height: number) =>
   Rectangle.fromCorners(new Point(x, y), new Point(x + width, y + height)).toPolygon()
 
 const shapes: ShapeRef[] = []
+
 const addShape = (x: number, y: number, width: number, height: number) => {
   const shape = new ShapeRef(router, rectangle(x, y, width, height))
   router.addShape(shape)

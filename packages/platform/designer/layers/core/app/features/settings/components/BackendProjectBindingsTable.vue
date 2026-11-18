@@ -5,6 +5,7 @@ const { serviceAccountId, readonly } = defineProps<{
   serviceAccountId: string
   readonly?: boolean
 }>()
+
 const count = defineModel<number>("count", { default: 0 })
 const { $client } = useNuxtApp()
 

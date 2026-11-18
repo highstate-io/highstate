@@ -10,6 +10,7 @@ import { useTouchConnectionHover } from "../business/touch-connection-hover"
 const filename = new URL("./InstanceNodeIOSide.vue", import.meta.url)
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename: filename.pathname })
 const script = compileScript(descriptor, { id: "io-side-test", genDefaultAs: "component" })
+
 const compiled = transpileModule(script.content, {
   compilerOptions: { module: ModuleKind.CommonJS },
 }).outputText

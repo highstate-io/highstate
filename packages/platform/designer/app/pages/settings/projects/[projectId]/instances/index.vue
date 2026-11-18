@@ -19,6 +19,7 @@ definePageMeta({
   name: "settings.instances",
   tab: {
     label: "Instances",
+    group: "Resources",
     icon: "mdi-cube-outline",
     order: 10,
   },

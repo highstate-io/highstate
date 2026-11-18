@@ -140,6 +140,7 @@ export function parseSizeString(size: string): number {
 
   const value = parseFloat(match[1])
   const unit = match[2] || "b"
+
   if (!(unit in units)) {
     throw new Error(`Invalid size unit: ${unit}`)
   }

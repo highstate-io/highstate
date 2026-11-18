@@ -3,6 +3,7 @@ import { getSharedServices } from "@highstate/backend"
 export default defineEventHandler(async event => {
   const projectId = getRouterParam(event, "projectId")
   const hash = getRouterParam(event, "hash")
+
   if (!projectId || !hash) {
     throw createError({
       statusCode: 400,
@@ -16,6 +17,7 @@ export default defineEventHandler(async event => {
     // get artifact metadata from database
     const database = await services.database.forProject(projectId)
     const artifact = await database.artifact.findUnique({ where: { hash } })
+
     if (!artifact) {
       throw createError({
         statusCode: 404,

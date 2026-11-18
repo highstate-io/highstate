@@ -93,6 +93,7 @@ export class ProjectRoleSettingsService {
   async get(context: ProjectRequestContext, roleId: string): Promise<ProjectRoleOutput | null> {
     const database = await this.database.forProject(context.projectId)
     const role = await database.role.findUnique({ where: { id: roleId } })
+
     if (!role) {
       return null
     }
@@ -117,6 +118,7 @@ export class ProjectRoleSettingsService {
 
     const database = await this.database.forProject(context.projectId)
     const data = projectRoleInputSchema.parse(input)
+
     if (!hasProjectPermissionRulesSubset(context, data.rules)) {
       requireProjectPermission(context, "role.escalate")
     }
@@ -144,6 +146,7 @@ export class ProjectRoleSettingsService {
     await this.assertMutable(context.projectId, roleId)
     const database = await this.database.forProject(context.projectId)
     const data = projectRoleInputSchema.parse(input)
+
     if (!hasProjectPermissionRulesSubset(context, data.rules)) {
       requireProjectPermission(context, "role.escalate", { resourceId: roleId })
     }
@@ -445,6 +448,7 @@ export class ProjectRoleSettingsService {
   async assertExists(projectId: string, roleId: string): Promise<void> {
     const database = await this.database.forProject(projectId)
     const role = await database.role.findUnique({ where: { id: roleId }, select: { id: true } })
+
     if (!role) {
       throw new ProjectRoleNotFoundError(projectId, roleId)
     }

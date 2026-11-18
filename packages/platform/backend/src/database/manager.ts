@@ -67,6 +67,11 @@ export interface DatabaseManager {
    * @param projectId The ID of the project to get the database client for.
    */
   forProject(projectId: string): Promise<ProjectDatabase>
+
+  /**
+   * Closes the project's database and evicts its cached master key.
+   */
+  closeProject(projectId: string): Promise<void>
 }
 
 export class DatabaseManagerImpl implements DatabaseManager {
@@ -105,6 +110,10 @@ export class DatabaseManagerImpl implements DatabaseManager {
   }
 
   async getProjectMasterKey(projectId: string): Promise<Buffer | undefined> {
+    if (!(await this.projectUnlockBackend.checkProjectUnlocked(projectId))) {
+      throw new ProjectLockedError(projectId)
+    }
+
     if (!this.isEncryptionEnabled) {
       return undefined
     }
@@ -147,6 +156,10 @@ export class DatabaseManagerImpl implements DatabaseManager {
   }
 
   async forProject(projectId: string): Promise<ProjectDatabase> {
+    if (!(await this.projectUnlockBackend.checkProjectUnlocked(projectId))) {
+      throw new ProjectLockedError(projectId)
+    }
+
     const cachedDatabase = this.projectDatabases.get(projectId)
     if (cachedDatabase) {
       return cachedDatabase
@@ -204,8 +217,20 @@ export class DatabaseManagerImpl implements DatabaseManager {
 
     await ensureAdminProjectBindingCreated(this.backend, database, projectId)
 
+    if (!(await this.projectUnlockBackend.checkProjectUnlocked(projectId))) {
+      await database.$disconnect()
+      throw new ProjectLockedError(projectId)
+    }
+
     this.projectDatabases.set(projectId, database)
 
     return database
+  }
+
+  async closeProject(projectId: string): Promise<void> {
+    this.projectMasterKeys.delete(projectId)
+    const database = this.projectDatabases.get(projectId)
+    this.projectDatabases.delete(projectId)
+    await database?.$disconnect()
   }
 }

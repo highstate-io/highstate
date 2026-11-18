@@ -9,6 +9,12 @@ export const agentDocuments = [
     description: "Design and implement Highstate entities, units, composites, and Pulumi programs.",
   },
   {
+    id: "infrastructure-design",
+    title: "Infrastructure Design",
+    description:
+      "Design projects, adopt existing infrastructure, and reuse deployment patterns across environments.",
+  },
+  {
     id: "infrastructure-management",
     title: "Infrastructure Management",
     description: "Research and safely update Highstate projects through the CLI.",

@@ -293,6 +293,7 @@ export function hashApiKeyToken(token: string): string {
 function parseApiKeyToken(token: string, realm: "project" | "backend"): string {
   const prefix = realm === "project" ? "hcp" : "hcb"
   const match = new RegExp(`^${prefix}_([a-z][0-9a-z]{23})_[a-z][0-9a-z]{23}$`).exec(token)
+
   if (!match) {
     throw new InvalidCredentialError(`${realm}-api-key`)
   }

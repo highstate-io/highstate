@@ -52,6 +52,7 @@ const { data: navigation } = await useAsyncData(
     watch: [locale],
   },
 )
+
 const { data: files } = useLazyAsyncData(
   `search_${collectionName.value}`,
   () => queryCollectionSearchSections(collectionName.value as keyof PageCollections),

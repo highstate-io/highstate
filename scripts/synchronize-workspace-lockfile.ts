@@ -12,6 +12,7 @@ export function withWorkspaceVersions(lockfile: string, versions: Map<string, st
     const end = lockfile.indexOf("\n    },", start)
     const workspace = lockfile.slice(start, end)
     const updated = workspace.replace(/^( {6}"version": ")[^"]+(",)$/m, `$1${version}$2`)
+
     if (updated === workspace && !workspace.includes(`"version": "${version}"`)) {
       throw new Error(`Bun lockfile workspace "${path}" has no version`)
     }

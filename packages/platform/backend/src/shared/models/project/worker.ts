@@ -33,6 +33,7 @@ export function getWorkerIdentity(image: string): string {
   const withoutDigest = atIndex === -1 ? image : image.slice(0, atIndex)
   const lastColon = withoutDigest.lastIndexOf(":")
   const lastSlash = withoutDigest.lastIndexOf("/")
+
   if (lastColon > -1 && lastColon > lastSlash) {
     return withoutDigest.slice(0, lastColon)
   }

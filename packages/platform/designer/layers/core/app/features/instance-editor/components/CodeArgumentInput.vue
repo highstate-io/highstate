@@ -13,6 +13,7 @@ const { argument, modelValue } = defineProps<{
 }>()
 
 const currentValue = ref("")
+
 if (typeof modelValue === "string") {
   currentValue.value = modelValue
 } else {

@@ -18,6 +18,7 @@ definePageMeta({
   name: "settings.pages",
   tab: {
     label: "Pages",
+    group: "Resources",
     icon: "mdi-file-document-outline",
     order: 13,
     subpages: ["settings.page-details"],

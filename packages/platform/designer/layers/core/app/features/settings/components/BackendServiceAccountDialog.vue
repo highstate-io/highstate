@@ -8,6 +8,7 @@ const { serviceAccount, loading } = defineProps<{
   serviceAccount?: BackendServiceAccountOutput | null
   loading?: boolean
 }>()
+
 const visible = defineModel<boolean>("visible", { required: true })
 const emit = defineEmits<{ save: [input: BackendServiceAccountInput] }>()
 

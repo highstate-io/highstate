@@ -59,6 +59,7 @@ export function parseFileDependencies(filePath: string, content: string): FileDe
         : npmPackage
 
       const builtinName = normalizedPackageName.split("/")[0]
+
       if (
         builtinModules.includes(normalizedPackageName) ||
         builtinModules.includes(builtinName) ||

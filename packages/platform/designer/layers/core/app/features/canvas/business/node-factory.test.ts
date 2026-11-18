@@ -8,6 +8,7 @@ vi.stubGlobal("globalLogger", {
   warn: vi.fn(),
   debug: vi.fn(),
 })
+
 vi.stubGlobal("shallowReactive", shallowReactive)
 
 const createInstance = (name: string, inputs?: InstanceModel["inputs"]): InstanceModel => ({

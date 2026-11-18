@@ -38,6 +38,7 @@ export async function fetchNpmPackument(packageName: string): Promise<NpmRegistr
 export async function fetchLatestVersion(packageName: string): Promise<string> {
   const packument = await fetchNpmPackument(packageName)
   const latest = packument["dist-tags"]?.latest
+
   if (!latest) {
     throw new Error(
       `NPM registry response for package "${packageName}" does not include "dist-tags.latest"`,
@@ -53,6 +54,7 @@ export async function fetchManifest(
 ): Promise<NpmRegistryManifest> {
   const packument = await fetchNpmPackument(packageName)
   const manifest = packument.versions?.[version]
+
   if (!manifest) {
     throw new Error(
       `NPM registry response for package "${packageName}" does not include version "${version}"`,
@@ -78,6 +80,7 @@ export function readPackageManifestFromTarball(tarball: Uint8Array): NpmRegistry
     const prefix = readTarString(header, 345, 155)
     const path = prefix ? `${prefix}/${name}` : name
     const size = Number.parseInt(readTarString(header, 124, 12).trim() || "0", 8)
+
     if (!Number.isSafeInteger(size) || size < 0) {
       throw new Error("Package tarball contains an invalid entry size")
     }
@@ -121,6 +124,7 @@ export function getReleaseGroupPackages(
   expectedGroup: string,
 ): string[] {
   const release = manifest.highstate?.release
+
   if (
     release?.group !== expectedGroup ||
     !Array.isArray(release.packages) ||

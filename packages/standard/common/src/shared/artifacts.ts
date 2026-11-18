@@ -80,6 +80,7 @@ function isMatchingParamSet(params: ArtifactParams, constraints: ArtifactParams)
 
     const values = Array.isArray(value) ? value : [value]
     const expectedValues = Array.isArray(expected) ? expected : [expected]
+
     if (!expectedValues.every(expectedValue => values.includes(expectedValue))) {
       return false
     }
@@ -96,6 +97,7 @@ function getArtifactParamSets(file: ArtifactFile, constraints: ArtifactParams): 
 
   const base = params.base ?? {}
   const groups = params.groups ?? []
+
   if (groups.length === 0) {
     return [{ ...base, ...constraints }]
   }
@@ -300,6 +302,7 @@ async function downloadArtifactContent(url: string, sha256: string): Promise<Buf
 
   const content = Buffer.from(await response.arrayBuffer())
   const actualSha256 = createHash("sha256").update(content).digest("hex")
+
   if (actualSha256 !== sha256) {
     throw new Error(`SHA256 mismatch for artifact from "${url}"`)
   }
@@ -368,6 +371,7 @@ async function downloadArtifactArchive(
 export function resolveCurrentArtifactFile(file: ArtifactFile): ResolvedArtifactFile {
   const resolved = resolveArtifactFile(file, { arch: getArtifactArch() })
   const sha256 = getSingleArtifactSha(resolved)
+
   if (!sha256) {
     throw new Error("Artifact must resolve to exactly one SHA256 hash")
   }

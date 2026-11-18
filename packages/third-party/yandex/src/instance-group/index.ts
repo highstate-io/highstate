@@ -60,6 +60,7 @@ const rootPassword = getSecret("rootPassword", generatePassword)
 const subnetId = await detectSubnetId(args.network.subnetId, inputs.connection, provider)
 const networkContext = await fetchNetworkContext(subnetId, provider)
 const getInstanceZone = (index: number): string => zones[index % zones.length]!
+
 const subnetIdsByZone: Record<string, string> = Object.fromEntries(
   await Promise.all(
     zones.map(async zone => [
@@ -68,6 +69,7 @@ const subnetIdsByZone: Record<string, string> = Object.fromEntries(
     ]),
   ),
 )
+
 const subnetIds = Array.from(new Set(Object.values(subnetIdsByZone)))
 const getInstanceSubnetId = (index: number): string => subnetIdsByZone[getInstanceZone(index)]!
 
@@ -91,6 +93,7 @@ function parseNlbListener(listener: string) {
 
 // create single key for all disks in the group
 let encryptionKeyId: Output<string> | undefined
+
 if (args.bootDisk.encrypted) {
   const encryptionKey = new KmsSymmetricKey(
     "encryption-key",
@@ -325,6 +328,7 @@ const nlbSshProxyEndpoint = nlb
   ? nlb.listeners.apply(listeners => {
       const sshListener = listeners?.find(listener => listener.name === "ssh")
       const address = sshListener?.externalAddressSpec?.address
+
       if (!address) {
         throw new Error(`Could not determine NLB SSH listener address`)
       }
@@ -332,7 +336,9 @@ const nlbSshProxyEndpoint = nlb
       return parseEndpoint(`tcp://${address}:${args.ssh.port}`, 4)
     })
   : undefined
+
 const nlbSshProxy = nlbSshProxyEndpoint?.apply(endpoint => ({ endpoint, user: "root" }))
+
 const nlbEndpoints = nlb
   ? await toPromise(
       nlb.listeners.apply(listeners => {
@@ -352,10 +358,12 @@ const nlbEndpoints = nlb
 
 const terminals: UnitTerminal[] = []
 const instances = await toPromise(instanceGroup.instances)
+
 const sshArgs =
   args.network.assignPublicIp || args.nlb.enabled || inputs.sshProxyEndpoint
     ? args.ssh
     : { ...(args.ssh ?? {}), enabled: false }
+
 const sshProxy = inputs.sshProxyEndpoint
   ? { endpoint: inputs.sshProxyEndpoint, user: "root" }
   : args.nlb.enabled

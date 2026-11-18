@@ -19,6 +19,7 @@ const token = ref("")
 const saving = ref(false)
 const deleting = ref(false)
 const rotating = ref(false)
+
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useBackendRoleSettingsStore().getRestrictionOptions(),
   apiKeyStore.getServiceAccountOptions(),
@@ -28,6 +29,7 @@ definePageMeta({
   name: "settings.backend-api-keys",
   tab: {
     label: "Backend API Keys",
+    group: "Security",
     icon: "mdi-key-variant",
     order: 5,
     subpages: ["settings.backend-api-key-details"],
@@ -102,9 +104,7 @@ void apiKeyStore.items.load()
     description="Manage tokens that provide programmatic access to backend resources."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">
-        Create API key
-      </VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
     </template>
     <template #default="{ height }">
       <BackendApiKeysTable

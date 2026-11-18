@@ -15,6 +15,7 @@ const { name, args, inputs, outputs } = forUnit(netaminity.target)
 const resourceName = args.resourceName ?? name
 const namespace = await resolveNamespace(name, args.namespace, inputs.namespace, inputs.k8sCluster)
 const { endpoint } = resolveEndpoint("target", args.endpoint, inputs.endpoints)
+
 const secret = Secret.create(name, {
   name: `${resourceName}-netaminity`,
   namespace,

@@ -41,6 +41,7 @@ const setupUrls = endpoints.map(l7EndpointToString)
 
 const configPath = "/etc/wg-feed/config.yaml"
 const stateDirectory = posix.dirname(args.statePath)
+
 const configContent = generateFeedDaemonConfigContent({
   statePath: args.statePath,
   feedName: args.feedName,

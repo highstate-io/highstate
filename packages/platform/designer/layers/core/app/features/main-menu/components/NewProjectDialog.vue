@@ -13,6 +13,8 @@ const valid = ref(false)
 const unlockMethodValid = ref(false)
 const projectName = ref("")
 const title = ref("")
+const creating = ref(false)
+const error = ref<string>()
 const unlockMethodForm = ref<InstanceType<typeof UnlockMethodForm>>()
 
 const unlockMethodData = ref<UnlockMethodFormData>({
@@ -44,26 +46,36 @@ const createProject = async () => {
     return
   }
 
-  const projectId = createId()
+  creating.value = true
+  error.value = undefined
 
-  const unlockMethod = await createUnlockMethodFromForm(unlockMethodData.value, {
-    id: projectId,
-    name: projectName.value,
-  })
+  try {
+    const projectId = createId()
 
-  const project = await projectsStore.createProject(
-    projectId,
-    projectName.value,
-    { title: title.value },
-    unlockMethod,
-  )
+    const unlockMethod = await createUnlockMethodFromForm(unlockMethodData.value, {
+      id: projectId,
+      name: projectName.value,
+    })
 
-  workspaceStore.openProjectPanel(project.id)
-  visible.value = false
+    const project = await projectsStore.createProject(
+      projectId,
+      projectName.value,
+      { title: title.value },
+      unlockMethod,
+    )
 
-  // reset form
-  projectName.value = ""
-  unlockMethodForm.value?.resetForm()
+    workspaceStore.openProjectPanel(project.id)
+    visible.value = false
+
+    // reset form
+    projectName.value = ""
+    unlockMethodForm.value?.resetForm()
+  } catch (err) {
+    globalLogger.error({ error: err }, "failed to create project")
+    error.value = err instanceof Error ? err.message : "Failed to create project"
+  } finally {
+    creating.value = false
+  }
 }
 
 // reset form when dialog closes
@@ -121,6 +133,7 @@ watch(projectName, newProjectId => {
 
           <UnlockMethodForm
             ref="unlockMethodForm"
+            initial-setup
             :show-type-selector="true"
             :show-description="false"
             :show-display-name="false"
@@ -133,22 +146,13 @@ watch(projectName, newProjectId => {
             @update:form="unlockMethodData = $event"
           />
 
-          <VAlert type="warning" density="compact" class="mt-4">
-            <div class="ml-2">
-              <strong>Important:</strong>
-              Losing your unlock method will result in losing control over the created resources!
-            </div>
-          </VAlert>
+          <VAlert v-if="error" type="error" density="compact" class="mt-4">{{ error }}</VAlert>
         </VCardText>
 
         <VCardActions>
           <VSpacer />
-          <VBtn @click="visible = false">Cancel</VBtn>
-          <VBtn
-            :disabled="!isFormValid"
-            :loading="projectsStore.loadingCreateProject"
-            @click="createProject"
-          >
+          <VBtn :disabled="creating" @click="visible = false">Cancel</VBtn>
+          <VBtn :disabled="!isFormValid || creating" :loading="creating" @click="createProject">
             Create
           </VBtn>
         </VCardActions>

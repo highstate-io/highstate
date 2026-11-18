@@ -71,6 +71,7 @@ function parseConfigSections(config: string): ConfigSection[] {
 
     if (line.startsWith("#") || line.startsWith(";")) {
       const comment = line.slice(1).trim() || undefined
+
       if (currentSection && !currentSection.comment && currentSection.values.size === 0) {
         currentSection.comment = comment
       } else {
@@ -179,6 +180,7 @@ function parseAmneziaConfig(section: ConfigSection): wireguard.AmneziaParameters
 export function parseExistingConfig(config: string): ParsedExistingConfig {
   const sections = parseConfigSections(config)
   const interfaceSection = sections.find(section => section.type === "interface")
+
   if (!interfaceSection) {
     throw new Error('WireGuard config must contain an "[Interface]" section')
   }

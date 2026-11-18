@@ -2,6 +2,45 @@ const fs = require("node:fs")
 
 const COMMENT_MARKER = "<!-- highstate-pr-preview-comment -->"
 
+function renderPreviewComment({ packages, images, descriptor, pullRequest }) {
+  const hasPackages = packages.length > 0
+  const hasImages = Object.keys(images).length > 0
+  const sections = [COMMENT_MARKER, "## Highstate PR Preview"]
+
+  if (hasPackages) {
+    sections.push(`Install all affected packages with \`highstate update --pr ${pullRequest}\`.`)
+  } else {
+    sections.push(
+      hasImages
+        ? "No packages are affected by this pull request. Preview images are listed below."
+        : "No packages or images are affected by this pull request.",
+    )
+  }
+
+  const packageContent = hasPackages
+    ? `| Package | Preview URL |\n|---|---|\n${packages.map(pkg => `| \`${pkg.name}\` | \`${pkg.url}\` |`).join("\n")}`
+    : "Not affected."
+  const imageContent = hasImages
+    ? `| Image | Reference |\n|---|---|\n${Object.entries(images).map(([name, image]) => `| \`${name}\` | \`${image}\` |`).join("\n")}`
+    : "Not affected."
+
+  sections.push(`<details>
+<summary>Packages</summary>
+
+${packageContent}
+
+</details>`)
+  sections.push(`<details>
+<summary>Images</summary>
+
+${imageContent}
+
+</details>`)
+
+  sections.push(`<!-- highstate-pr-preview\n${JSON.stringify(descriptor)}\n-->`)
+  return sections.join("\n\n")
+}
+
 module.exports = async ({ github, context }) => {
   const packageMetadata = fs.readFileSync("metadata/package-metadata.json", "utf8")
   const packages = JSON.parse(packageMetadata).packages
@@ -62,37 +101,7 @@ module.exports = async ({ github, context }) => {
     },
     packages: Object.fromEntries(packages.map(pkg => [pkg.name, pkg.url])),
   }
-  const packageRows =
-    packages.map(pkg => `| \`${pkg.name}\` | \`${pkg.url}\` |`).join("\n") || "| none | |"
-  const imageRows = Object.entries(images)
-    .map(([name, image]) => `| \`${name}\` | \`${image}\` |`)
-    .join("\n")
-  const body = `${COMMENT_MARKER}
-## Highstate PR Preview
-
-Install all affected packages with \`highstate update --pr ${context.issue.number}\`.
-
-<details>
-<summary>Packages</summary>
-
-| Package | Preview URL |
-|---|---|
-${packageRows}
-
-</details>
-
-<details>
-<summary>Images</summary>
-
-| Image | Reference |
-|---|---|
-${imageRows}
-
-</details>
-
-<!-- highstate-pr-preview
-${JSON.stringify(descriptor)}
--->`
+  const body = renderPreviewComment({ packages, images, descriptor, pullRequest: context.issue.number })
   const comments = await github.paginate(github.rest.issues.listComments, {
     ...context.repo,
     issue_number: context.issue.number,
@@ -116,3 +125,5 @@ ${JSON.stringify(descriptor)}
     body,
   })
 }
+
+module.exports.renderPreviewComment = renderPreviewComment

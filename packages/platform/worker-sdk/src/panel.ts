@@ -117,6 +117,7 @@ export class PanelDataServer {
   private resolveTarget(request: Request): PanelTarget | undefined {
     const stateId = request.headers.get(stateHeader)
     const panelName = request.headers.get(panelHeader)
+
     if (!stateId || !panelName) {
       return undefined
     }

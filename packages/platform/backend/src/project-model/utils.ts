@@ -130,7 +130,6 @@ function applyAtPath(
   }
 
   const [token, ...remaining] = tokens
-
   if (token === undefined) {
     return
   }

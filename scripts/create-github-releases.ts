@@ -11,6 +11,7 @@ export function currentReleaseNotes(changelog: string, version: string): string 
   const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
   const heading = new RegExp(`^## ${escapedVersion}(?: |$)`, "m")
   const match = heading.exec(changelog)
+
   if (!match) {
     throw new Error(`Changelog does not contain release ${version}`)
   }

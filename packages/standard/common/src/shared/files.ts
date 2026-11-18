@@ -935,6 +935,7 @@ export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<numbe
 
   const url = l7EndpointToString(endpoint)
   const response = await fetch(url, { method: "HEAD" })
+
   if (!response.ok) {
     throw new Error(`Failed to fetch file size: ${response.statusText}`)
   }

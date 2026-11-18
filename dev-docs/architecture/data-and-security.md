@@ -25,6 +25,24 @@ database, and runs tasks that rehydrate evaluation, operations, workers, termina
 state.
 Locking the project or stopping the backend removes access to the process-local key and services that depend on
 it.
+Manual locking requires backend authorization and an idle project: active operations, workers, or terminal
+sessions prevent locking rather than being interrupted.
+The lock boundary stops reload-triggered evaluation, revokes unlock material, evicts cached project database
+access, and publishes the locked state to connected clients.
+
+Project unlock metadata is self-contained rather than referencing a backend-level identity registry.
+Projects reuse a discoverable WebAuthn credential without a backend credential registry or source-project lookup.
+Each new passkey method encrypts its own AGE identity using that credential's PRF extension.
+System keyring methods encrypt their own AGE unlock identities using one shared keyring wrapping identity.
+New unlock methods carry encrypted AGE identity envelopes with each project.
+The wrapping identity remains outside project storage, in a single keyring entry; encrypted envelopes live only
+in their respective projects.
+Transferring project data does not transfer access to an OS keyring or change a passkey's WebAuthn relying party.
+The project unlock service and its shared models own identity preparation and unlock-suite compatibility.
+Startup keyring unlocking is an explicit per-method opt-in persisted with the project's unlock metadata.
+Sharing an unlock identity does not propagate that opt-in to other projects.
+Project keyring access runs in a short-lived native helper process to isolate native keyring failures from
+the Designer runtime; secrets cross that process boundary only through private standard streams.
 
 Public API authorization for project resources depends on project data and therefore requires the project to
 be unlocked.
@@ -58,3 +76,11 @@ Data crosses a project boundary only through an explicit sharing mechanism such 
 Sharing does not merge project databases, authorization realms, or operation ownership.
 
 Runtime ownership is defined by the [control-plane coordination boundary](control-plane.md#coordination-boundary).
+
+## Pull Request Execution
+
+Fork verification and preview builds execute contributor code without repository write permissions or secrets.
+Privileged preview publication runs separately and treats build artifacts as untrusted data, not executable tools.
+Only base-repository code determines publication destinations and updates pull request comments.
+GitHub run metadata binds artifacts to the current pull request head; stale builds cannot update its preview comment.
+The workflows in `.github/workflows/` own the exact permissions and artifact handoff.

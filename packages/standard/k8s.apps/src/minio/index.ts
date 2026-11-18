@@ -176,6 +176,7 @@ if (args.consoleFqdn && args.useConsoleFork) {
 }
 
 const endpoints = await toPromise(chart.service.endpoints)
+
 const l7Endpoints = endpoints
   .map(endpoint => l4EndpointToL7(endpoint, "http"))
   .filter(endpoint => endpoint.port === DATABASE_PORT)

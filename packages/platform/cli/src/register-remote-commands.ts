@@ -23,6 +23,8 @@ import {
   InstanceGetCommand,
   InstanceListCommand,
   InstanceRenameCommand,
+  InstanceSecretsGetCommand,
+  InstanceSecretsUpdateCommand,
   InstanceUpdateCommand,
   LibraryListCommand,
   ModelCreateCommand,
@@ -40,11 +42,19 @@ import {
   ProjectListCommand,
   ProjectUnsetCommand,
   ProjectUseCommand,
+  SecretGetCommand,
+  SecretListCommand,
+  SecretUpdateCommand,
   StateGetCommand,
   StateListCommand,
 } from "./commands"
 
 export default function registerRemoteCommands(cli: Cli): void {
+  cli.register(SecretListCommand)
+  cli.register(SecretUpdateCommand)
+  cli.register(SecretGetCommand)
+  cli.register(InstanceSecretsGetCommand)
+  cli.register(InstanceSecretsUpdateCommand)
   cli.register(ContextAddCommand)
   cli.register(ContextListCommand)
   cli.register(ContextShowCommand)

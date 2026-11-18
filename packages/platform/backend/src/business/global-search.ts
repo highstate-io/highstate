@@ -844,6 +844,7 @@ export class GlobalSearchService {
       try {
         const projectDatabase = await this.database.forProject(project.id)
         const hits = await this.searchInUnlockedProjectByText(projectDatabase, normalizedText)
+
         if (hits.length === 0) {
           continue
         }

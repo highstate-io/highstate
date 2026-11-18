@@ -13,6 +13,7 @@ export function toDnsNameMatcher(pattern: string): DnsNameMatcher {
 
   const labels = pattern.split(".")
   const suffixLabels = labels.slice(1)
+
   if (
     labels[0] === "**" &&
     suffixLabels.length > 0 &&

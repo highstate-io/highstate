@@ -19,6 +19,7 @@ type UnlockMethodFormData = {
   description: string
   password: string
   confirmPassword: string
+  autoUnlock?: boolean
 }
 
 type Props = {
@@ -31,6 +32,7 @@ type Props = {
   passwordHint?: string
   defaultDisplayName?: string
   defaultDescription?: string
+  initialSetup?: boolean
 }
 
 interface Emits {
@@ -54,6 +56,19 @@ const emit = defineEmits<Emits>()
 
 const valid = ref(false)
 const passwordVisible = ref(false)
+const { $client } = useNuxtApp()
+const keyringAvailable = ref<boolean>()
+
+const refreshBackendState = async () => {
+  keyringAvailable.value = undefined
+
+  try {
+    const state = await $client.state.getBackendState.query()
+    keyringAvailable.value = state.capabilities.keyring
+  } catch {
+    keyringAvailable.value = false
+  }
+}
 
 const form = reactive<UnlockMethodFormData>({
   type: props.initialType,
@@ -62,6 +77,20 @@ const form = reactive<UnlockMethodFormData>({
   password: "",
   confirmPassword: "",
 })
+
+const methodValid = computed(
+  () => valid.value && (form.type !== "keyring" || keyringAvailable.value === true),
+)
+
+watch(
+  () => form.type,
+  type => {
+    if (type === "keyring") {
+      void refreshBackendState()
+    }
+  },
+  { immediate: true },
+)
 
 const displayNameRules = computed(() => {
   if (!props.showDisplayName) {
@@ -140,6 +169,8 @@ const getTypeIcon = (type: UnlockMethodType) => {
       return "mdi-key-variant"
     case "passkey":
       return "mdi-fingerprint"
+    case "keyring":
+      return "mdi-safe"
     default:
       return "mdi-lock"
   }
@@ -152,10 +183,12 @@ const resetForm = () => {
   form.password = ""
   form.confirmPassword = ""
   passwordVisible.value = false
+  form.autoUnlock = false
+  keyringAvailable.value = undefined
 }
 
 // watch for changes and emit updates
-watch(valid, newValid => {
+watch(methodValid, newValid => {
   emit("update:valid", newValid)
 })
 
@@ -198,6 +231,10 @@ defineExpose({
       <VBtn value="passkey" class="flex-grow-1">
         <VIcon :icon="getTypeIcon('passkey')" class="mr-2" />
         Passkey
+      </VBtn>
+      <VBtn value="keyring" class="flex-grow-1">
+        <VIcon :icon="getTypeIcon('keyring')" class="mr-2" />
+        Keyring
       </VBtn>
     </VBtnToggle>
 
@@ -303,9 +340,48 @@ defineExpose({
 
     <template v-else-if="form.type === 'passkey'">
       <VAlert type="info" density="compact" class="mb-4">
-        You'll be prompted to create a passkey using your device's biometric authentication or
-        security key when you click Create.
+        When you click Create, you'll be prompted to use or create a passkey with your device's
+        biometric authentication or a security key.
       </VAlert>
     </template>
+
+    <template v-else-if="form.type === 'keyring'">
+      <VCheckbox
+        v-model="form.autoUnlock"
+        label="Automatically unlock on backend startup"
+        hide-details
+        density="compact"
+        class="mb-4"
+      />
+      <VAlert type="info" density="compact" class="mb-4">
+        Uses the backend machine's OS keyring, not your browser's. Its keyring identity is shared
+        across projects.
+      </VAlert>
+      <VAlert v-if="keyringAvailable === false" type="error" density="compact" class="mb-4">
+        Keyring unavailable. Unlock or configure the backend's OS secret service.
+      </VAlert>
+    </template>
+
+    <VAlert type="warning" density="compact" class="mt-4">
+      <strong>Recovery risks</strong>
+      <p v-if="form.type === 'password'" class="mt-2">
+        A forgotten password cannot be recovered. Use a strong, unique password to resist offline
+        attacks.
+      </p>
+      <p v-else-if="form.type === 'passkey'" class="mt-2">
+        Loss or compromise of this passkey affects every project using it. Sync is not guaranteed; a
+        different domain may require another passkey.
+      </p>
+      <p v-else class="mt-2">
+        Losing the keyring removes this access; anyone able to use it can unlock linked projects.
+        Restoring on another machine requires another unlock method.
+      </p>
+      <p class="mt-2">
+        <strong v-if="initialSetup"
+          >Losing your only unlock method makes project data unrecoverable.</strong
+        >
+        Keep a recovery method on a separate device or account.
+      </p>
+    </VAlert>
   </VForm>
 </template>

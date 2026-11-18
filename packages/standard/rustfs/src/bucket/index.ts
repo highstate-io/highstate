@@ -3,6 +3,7 @@ import { forUnit, interpolate, makeEntityOutput, makeSecretOutput, output } from
 import { Bucket, ServiceAccount } from "../shared"
 
 const { stateId, args, inputs, name, outputs } = forUnit(rustfs.bucket)
+
 const bucket = new Bucket("bucket", {
   connection: inputs.connection,
   name: args.bucketName ?? name,

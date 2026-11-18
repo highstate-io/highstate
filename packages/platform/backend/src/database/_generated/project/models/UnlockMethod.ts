@@ -19,8 +19,8 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
  * The unlock method enables decryption of project databases through user authentication.
  * 
  * Each project database is encrypted with a master key, which is then encrypted for each
- * unlock method's recipient using AGE encryption. Users authenticate (password or passkey)
- * to decrypt their specific AGE identity, which then decrypts the master key.
+ * unlock method's recipient using AGE encryption. A password or passkey decrypts an AGE
+ * identity, or the backend unwraps one with its system keyring, to decrypt the master key.
  * 
  * Multiple unlock methods can exist per project, allowing different authentication paths
  * to the same encrypted database. When unlock methods are added/removed, the master key
@@ -450,7 +450,7 @@ export type $UnlockMethodPayload<ExtArgs extends runtime.Types.Extensions.Intern
      */
     type: $Enums.UnlockMethodType
     /**
-     * The AGE identity encrypted and armored also with AGE.
+     * The AGE unlock identity encrypted and armored with AGE for the password, passkey, or keyring.
      */
     encryptedIdentity: string
     /**

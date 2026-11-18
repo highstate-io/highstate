@@ -16,20 +16,24 @@ const { params } = defineProps<{ params: { projectId: string; roleId: string } }
 const roleStore = useProjectRoleSettingsStore()
 const router = useRouter()
 const role = ref(await roleStore.get(params.roleId))
+
 if (!role.value) {
   throw createError({ statusCode: 404, statusMessage: "Project role not found" })
 }
+
 const editDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const saving = ref(false)
 const deleting = ref(false)
 const bindingCount = ref(0)
 const restrictionOptions = await roleStore.getRestrictionOptions()
+
 const detailItems = [
   { key: "id", label: "Role ID" },
   { key: "createdAt", label: "Created" },
   { key: "updatedAt", label: "Last updated" },
 ]
+
 definePageMeta({ name: "settings.project-role-details" })
 async function save(input: ProjectRoleInput): Promise<void> {
   saving.value = true

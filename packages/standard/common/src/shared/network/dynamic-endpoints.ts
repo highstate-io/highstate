@@ -22,6 +22,7 @@ export async function resolveEndpoint<TEndpoint extends network.L3Endpoint>(
 ): Promise<TEndpoint> {
   const resolved = await toPromise(endpoint)
   const endpoints = Array.isArray(resolved) ? resolved : [resolved]
+
   if (endpoints.length === 0) {
     throw new Error("No endpoints provided")
   }

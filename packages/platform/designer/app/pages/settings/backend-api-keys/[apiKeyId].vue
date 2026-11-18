@@ -34,6 +34,7 @@ const token = ref("")
 const saving = ref(false)
 const deleting = ref(false)
 const rotating = ref(false)
+
 const detailItems = [
   { key: "id", label: "API key ID" },
   { key: "serviceAccount", label: "Service account" },

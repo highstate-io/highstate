@@ -4,13 +4,15 @@ Use this reference to research or update an active Highstate project through the
 
 ## Establish Access
 
-Use `highstate agent status` to refresh current access status before project work. If it reports missing
+Use `highstate status` when access is unknown or a context, project, credential change, or access failure gives
+reason to believe it has changed. Reuse known status rather than refreshing it before every command or task.
+If it reports missing
 authorization, ask the user to configure or provide an API key. If it names a locked project, ask the user to
 unlock that project. Do not attempt to extract, rotate, create, or bypass credentials unless the user explicitly
 requested credential administration and the available interface supports it.
 
 When no project is specified, ask the user which project to use. Pass `--project <project-id>` explicitly to
-`agent status`, `agent instructions`, and every project-scoped command. Do not run `project use`; it mutates the
+`status` and every project-scoped command. Do not run `project use`; it mutates the
 user's persistent CLI configuration.
 
 Normal output goes to stdout and diagnostics go to stderr. Use `--output json` for data you need to inspect or
@@ -48,6 +50,35 @@ connections.
 
 Deleting an instance removes desired state; it does not destroy deployed infrastructure. Plan and complete the
 required destroy operation before deleting the model object when resources must be removed.
+
+## Inspect And Update Secrets
+
+Start with secret metadata; `secret list` and `secret get` do not reveal values:
+
+```bash
+highstate secret list --state-id <state-id> --output json
+highstate secret get <secret-id> --output json
+```
+
+Filter lists with `--service-account-id` or `--search`; paginate with `--page-size` and `--page-token`.
+Reveal values only when required by the user's task. `secret get --reveal` reads one value;
+`instance secrets get` reads all named secret values for a unit state:
+
+```bash
+highstate secret get <secret-id> --reveal --output json
+highstate instance secrets get <state-id> --output json
+```
+
+Do not include revealed values in conversation, logs, or committed files. Pass updates through a JSON or YAML
+file or stdin (`--file -`), not command-line arguments:
+
+```bash
+highstate secret update <secret-id> --file <value-file>
+highstate instance secrets update <state-id> --file <secrets-file>
+```
+
+`secret update` replaces one named unit secret with the document's value. `instance secrets update` accepts an
+object keyed by secret name and preserves omitted names. Both report success without echoing secret values.
 
 ## Plan And Execute Operations
 

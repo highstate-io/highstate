@@ -29,6 +29,7 @@ const networkContext = await fetchNetworkContext(subnetId, provider)
 
 // create key for disk
 let encryptionKeyId: Output<string> | undefined
+
 if (args.bootDisk.encrypted) {
   const encryptionKey = new KmsSymmetricKey(
     "encryption-key",
@@ -149,6 +150,7 @@ const sshArgs =
   args.network.assignPublicIp || inputs.sshProxyEndpoint
     ? args.ssh
     : { ...(args.ssh ?? {}), enabled: false }
+
 const sshProxy = inputs.sshProxyEndpoint
   ? { endpoint: inputs.sshProxyEndpoint, user: "root" }
   : undefined

@@ -36,7 +36,6 @@ if (projectStore.initializing) {
 }
 
 const version = await settingsStore.getVersion(params.versionId)
-
 if (!version) {
   throw createError({
     statusCode: 404,

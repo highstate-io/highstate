@@ -328,6 +328,7 @@ class ExternalSecret extends Secret {
       const namespace = await toPromise(output(args.namespace).metadata.name)
       const resolvedName = await toPromise(args.name)
       const metadata = await toPromise(secret.metadata)
+
       if (!metadata) {
         throw new Error(`Secret ${resolvedName} in namespace ${namespace} not found`)
       }

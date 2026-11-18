@@ -216,11 +216,11 @@ export function calculateTotalResources(opMap: OpMap | undefined): number {
 
 export async function pulumiErrorToString(error: unknown): Promise<string> {
   const { CommandError } = await import("@pulumi/pulumi/automation/index.js")
-
   if (error instanceof CommandError) {
     // biome-ignore lint/complexity/useLiteralKeys: не ори на отца
     const stderr = error["commandResult"].stderr as string
     let diagnosticsStart = stderr.indexOf("\u001b[38;5;13m\u001b[1mDiagnostics:")
+
     if (diagnosticsStart === -1) {
       diagnosticsStart = stderr.indexOf("Diagnostics:")
     }

@@ -32,7 +32,6 @@ if (projectStore.initializing) {
 }
 
 const unlockMethod = await settingsStore.get(params.unlockMethodId)
-
 if (!unlockMethod) {
   throw createError({
     statusCode: 404,
@@ -43,6 +42,7 @@ if (!unlockMethod) {
 const detailItems = [
   { key: "unlockMethodId", label: "Unlock Method ID" },
   { key: "type", label: "Type" },
+  ...(unlockMethod.type === "keyring" ? [{ key: "autoUnlock", label: "Unlock on startup" }] : []),
   { key: "createdAt", label: "Created" },
 ]
 </script>
@@ -67,6 +67,10 @@ const detailItems = [
 
       <template #item.createdAt>
         <TimeTableCell :value="unlockMethod.createdAt" />
+      </template>
+
+      <template #item.autoUnlock>
+        {{ unlockMethod.meta.autoUnlock ? "Enabled" : "Disabled" }}
       </template>
     </DetailInfoCard>
   </DetailPageLayout>

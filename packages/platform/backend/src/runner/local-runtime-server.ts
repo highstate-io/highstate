@@ -96,6 +96,7 @@ export class LocalRuntimeServer {
 
             const token = authorization.slice("Bearer ".length)
             const state = instance?.tokenMap.get(token)
+
             if (!state) {
               throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized" })
             }

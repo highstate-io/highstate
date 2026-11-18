@@ -98,7 +98,8 @@ export type TerminalStatus = (typeof TerminalStatus)[keyof typeof TerminalStatus
 
 export const UnlockMethodType = {
   password: 'password',
-  passkey: 'passkey'
+  passkey: 'passkey',
+  keyring: 'keyring'
 } as const
 
 export type UnlockMethodType = (typeof UnlockMethodType)[keyof typeof UnlockMethodType]

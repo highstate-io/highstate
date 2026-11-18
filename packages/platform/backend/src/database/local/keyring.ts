@@ -60,6 +60,7 @@ export async function getOrCreateBackendIdentity(
   // priority 3: OS keyring (default behavior)
   const credentials = await findCredentialsAsync(serviceName)
   const entry = credentials.find(entry => entry.account === accountName)
+
   if (entry) {
     logger.info("using backend identity from OS keyring")
     return entry.password

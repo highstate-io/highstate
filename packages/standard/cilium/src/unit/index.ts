@@ -26,7 +26,6 @@ const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   await Promise.all(
     allPods.items.flatMap(pod => {
       const { name, namespace } = pod.metadata ?? {}
-
       if (!name || !namespace) {
         return []
       }

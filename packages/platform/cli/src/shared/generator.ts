@@ -66,6 +66,7 @@ export async function generateFromTemplate(
 
     const contents = await readFile(absoluteSourcePath, "utf8")
     const rendered = renderTemplate(contents)
+
     if (rendered.trim().length === 0) {
       return
     }

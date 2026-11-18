@@ -17,6 +17,7 @@ const { projectStore } = useProjectStores()
 const apiKeyStore = useProjectApiKeySettingsStore()
 const { $client } = useNuxtApp()
 const router = useRouter()
+
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
   projectStore.addLibraryRoot()
@@ -24,14 +25,17 @@ if (projectStore.initializing) {
   await projectStore.initialize1()
   await projectStore.initialize2()
 }
+
 const apiKey = ref(await apiKeyStore.get(params.apiKeyId))
 if (!apiKey.value) {
   throw createError({ statusCode: 404, statusMessage: "API key not found" })
 }
+
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useProjectRoleSettingsStore().getRestrictionOptions(),
   apiKeyStore.getServiceAccountOptions(),
 ])
+
 const editVisible = ref(false)
 const deleteVisible = ref(false)
 const rotateVisible = ref(false)
@@ -40,6 +44,7 @@ const token = ref("")
 const saving = ref(false)
 const deleting = ref(false)
 const rotating = ref(false)
+
 const detailItems = [
   { key: "id", label: "API key ID" },
   { key: "serviceAccount", label: "Service account" },
@@ -48,6 +53,7 @@ const detailItems = [
   { key: "createdAt", label: "Created" },
   { key: "updatedAt", label: "Last updated" },
 ]
+
 definePageMeta({ name: "settings.api-key-details" })
 
 async function save(input: ApiKeyInput): Promise<void> {

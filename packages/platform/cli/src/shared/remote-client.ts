@@ -6,9 +6,11 @@ import {
   OperationService,
   ProjectModelService,
   ProjectService,
+  SecretService,
 } from "@highstate/api/v1"
 
 export type HighstateClients = {
+  secret: Client<typeof SecretService>
   instanceState: Client<typeof InstanceStateService>
   library: Client<typeof LibraryService>
   operation: Client<typeof OperationService>
@@ -21,6 +23,7 @@ export function createHighstateClients(apiUrl: string, apiToken: string): Highst
   const transport = createApiTransport(apiUrl, [createAuthenticationInterceptor(apiToken), errors])
 
   return {
+    secret: createClient(SecretService, transport),
     instanceState: createClient(InstanceStateService, transport),
     library: createClient(LibraryService, transport),
     operation: createClient(OperationService, transport),

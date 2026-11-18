@@ -119,6 +119,7 @@ const onDragOver = (event: DragEvent) => {
   // transform the dragged object to blueprint
   let blueprint: Blueprint | undefined
   const componentType = getComponentTypeFromDragData(event.dataTransfer)
+
   if (componentType) {
     const name = instancesStore.getNextInstanceName(componentType)
     const id = getInstanceId(componentType, name)

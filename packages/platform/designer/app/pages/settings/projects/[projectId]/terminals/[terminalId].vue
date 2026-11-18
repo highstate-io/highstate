@@ -39,7 +39,6 @@ if (projectStore.initializing) {
 
 // load terminal details
 const terminal = await settingsStore.get(params.terminalId)
-
 if (!terminal) {
   throw createError({
     statusCode: 404,

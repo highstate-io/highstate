@@ -119,6 +119,7 @@ export class ProjectUseCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
     const name = this.contextName ?? process.env.HIGHSTATE_CONTEXT ?? config.activeContext
+
     if (!name || !config.contexts[name]) {
       throw new Error("An active named context is required")
     }
@@ -152,6 +153,7 @@ export class ProjectUnsetCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
     const name = this.contextName ?? config.activeContext
+
     if (!name || !config.contexts[name]) {
       throw new Error("An active named context is required")
     }

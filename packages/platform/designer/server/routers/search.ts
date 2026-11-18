@@ -70,6 +70,7 @@ export const searchRouter = router({
         .map(projectId => {
           const projectResults = results.map(r => r.projects.find(p => p.projectId === projectId))
           const allHaveProject = projectResults.every(p => !!p)
+
           if (!allHaveProject) {
             return null
           }

@@ -21,6 +21,7 @@ definePageMeta({
   name: "settings.backend-service-accounts",
   tab: {
     label: "Backend Service Accounts",
+    group: "Security",
     icon: "mdi-account-key",
     order: 4,
     subpages: ["settings.backend-service-account-details"],
@@ -74,9 +75,7 @@ void serviceAccountStore.items.load()
     description="Manage non-human identities that access backend and project resources."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">
-        Create service account
-      </VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
     </template>
     <template #default="{ height }">
       <BackendServiceAccountsTable

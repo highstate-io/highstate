@@ -36,7 +36,6 @@ if (projectStore.initializing) {
 }
 
 const page = await settingsStore.get(params.pageId)
-
 if (!page) {
   throw createError({
     statusCode: 404,

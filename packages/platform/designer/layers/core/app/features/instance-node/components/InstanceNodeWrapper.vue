@@ -12,6 +12,7 @@ const { data, id } = defineProps<NodeProps<InstanceNodeData>>()
 
 const stores = useProjectStores()
 const workspaceStore = useWorkspaceStore()
+
 const { projectStore, stateStore, instancesStore, libraryStore, operationsStore, validationStore } =
   stores
 

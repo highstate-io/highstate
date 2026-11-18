@@ -87,12 +87,14 @@ if (import.meta.main) {
   const trustedRoot = resolve(trustedRootIndex === -1 ? root : process.argv[trustedRootIndex + 1])
   const metadataIndex = process.argv.indexOf("--metadata")
   const metadata = process.argv[metadataIndex + 1]
+
   if (metadataIndex === -1 || !metadata) {
     throw new Error("Missing --metadata")
   }
 
   const previewVersionIndex = process.argv.indexOf("--preview-version")
   const previewVersion = process.argv[previewVersionIndex + 1]
+
   if (previewVersionIndex === -1 || !previewVersion) {
     throw new Error("Missing --preview-version")
   }

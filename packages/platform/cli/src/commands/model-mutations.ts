@@ -59,9 +59,11 @@ export class InstanceUpdateCommand extends RemoteCommand {
 
     const { clients, target } = await this.remote()
     let position = patch.position
+
     if (position && (position.x === undefined || position.y === undefined)) {
       const response = await clients.projectModel.getProjectModel({ projectId: target.projectId })
       const current = response.model?.instances.find(value => value.id === this.id)?.position
+
       if (!current) {
         throw new Error(`Instance "${this.id}" has no position to patch`)
       }
@@ -276,9 +278,11 @@ export class HubUpdateCommand extends RemoteCommand {
 
     const { clients, target } = await this.remote()
     let position = patch.position
+
     if (position && (position.x === undefined || position.y === undefined)) {
       const response = await clients.projectModel.getProjectModel({ projectId: target.projectId })
       const current = response.model?.hubs.find(value => value.id === this.id)?.position
+
       if (!current) {
         throw new Error(`Hub "${this.id}" has no position to patch`)
       }
