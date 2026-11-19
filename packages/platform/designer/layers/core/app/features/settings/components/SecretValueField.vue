@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import { ref } from "vue"
+import { accessError } from "../../../utils/access-control"
 
 const props = defineProps<{
   secretId: string
   projectId: string
+  ownerServiceAccountId?: string
 }>()
 
 const { $client } = useNuxtApp()
+const access = useAccess()
+
+const requirement = computed(() => ({
+  permission: "secret.value.get" as const,
+  projectId: props.projectId,
+  target: { resourceId: props.secretId, ownerServiceAccountId: props.ownerServiceAccountId },
+}))
+
+const failure = ref<string>()
 
 // state for managing revealed secrets
 const isRevealed = ref(false)
@@ -14,10 +25,25 @@ const isLoading = ref(false)
 const secretValue = ref<unknown>(null)
 const showJsonDialog = ref(false)
 
+watch(
+  () => access.status(requirement.value).allowed,
+  allowed => {
+    if (!allowed) {
+      secretValue.value = null
+      isRevealed.value = false
+      showJsonDialog.value = false
+    }
+  },
+)
+
 /**
  * toggle secret visibility - reveal or hide the secret value
  */
 const toggleSecretVisibility = async () => {
+  if (!access.status(requirement.value).allowed) {
+    return
+  }
+
   if (isRevealed.value) {
     // hide the secret
     isRevealed.value = false
@@ -29,15 +55,20 @@ const toggleSecretVisibility = async () => {
   try {
     isLoading.value = true
 
-    secretValue.value = await $client.secretSettings.getValue.query({
+    const value = await $client.secretSettings.getValue.query({
       projectId: props.projectId,
       secretId: props.secretId,
     })
 
+    if (!access.status(requirement.value).allowed) {
+      return
+    }
+
+    secretValue.value = value
+
     isRevealed.value = true
   } catch (error) {
-    console.error("Failed to reveal secret:", error)
-    // TODO: Show user-friendly error message
+    failure.value = accessError(error)?.message ?? "The secret value could not be loaded."
   } finally {
     isLoading.value = false
   }
@@ -125,9 +156,14 @@ const copyJsonDialogContent = async () => {
     <!-- Secret Value Display -->
     <div
       v-if="!isRevealed"
+      v-access="requirement"
+      role="button"
+      tabindex="0"
+      aria-label="Reveal secret value"
       class="secret-blur"
       :class="{ 'secret-loading': isLoading }"
       @click="toggleSecretVisibility"
+      @keydown.enter="toggleSecretVisibility"
     >
       <span v-if="isLoading" class="text-caption">Loading...</span>
       <span v-else class="secret-placeholder">••••••••••••</span>
@@ -157,6 +193,7 @@ const copyJsonDialogContent = async () => {
       />
     </div>
   </div>
+  <AccessNotice v-if="failure" :message="failure" />
 
   <!-- JSON Dialog -->
   <VDialog v-model="showJsonDialog" max-width="800">

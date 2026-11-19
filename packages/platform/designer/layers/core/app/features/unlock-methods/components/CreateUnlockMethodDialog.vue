@@ -9,7 +9,7 @@ const emit = defineEmits<{
 }>()
 
 const settingsStore = useProjectUnlockMethodSettingsStore()
-const { infoStore } = useProjectStores()
+const { infoStore, projectStore } = useProjectStores()
 
 const valid = ref(false)
 const loading = ref(false)
@@ -83,7 +83,13 @@ watch(visible, newVisible => {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="handleCancel">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!valid" :loading="loading" @click="handleCreate">
+        <VBtn
+          v-access="{ permission: 'unlock-method.create', projectId: projectStore.projectId }"
+          color="primary"
+          :disabled="!valid"
+          :loading="loading"
+          @click="handleCreate"
+        >
           Create
         </VBtn>
       </VCardActions>

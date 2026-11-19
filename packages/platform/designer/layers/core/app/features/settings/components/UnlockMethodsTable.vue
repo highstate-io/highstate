@@ -67,6 +67,7 @@ const headers = [
           size="small"
           color="error"
           @click="emit('delete', item)"
+          v-access="{ permission: 'unlock-method.delete', projectId, target: { resourceId: item.id } }"
         />
       </div>
     </template>

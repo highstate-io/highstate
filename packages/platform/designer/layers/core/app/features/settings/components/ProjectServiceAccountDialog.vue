@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ServiceAccountInput, ServiceAccountOutput } from "@highstate/backend/shared"
 
+const projectId = useProjectStore().projectId
+
 const { serviceAccount, loading } = defineProps<{
   serviceAccount?: ServiceAccountOutput | null
   loading?: boolean
@@ -66,7 +68,14 @@ function save(): void {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="visible = false">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!title.trim()" :loading="loading" @click="save">Save</VBtn>
+        <VBtn
+          v-access="{ permission: 'service-account.manage', projectId, target: { resourceId: serviceAccount?.id } }"
+          color="primary"
+          :disabled="!title.trim()"
+          :loading="loading"
+          @click="save"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

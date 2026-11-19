@@ -16,6 +16,7 @@ export interface SidecarTrackerOptions {
   dockerBinary: string
   dockerUseSudo: boolean
   dockerHost?: string
+  unavailableReason?: string
   logger: Logger
   onUnitLog: (unitId: InstanceId, message: string) => void
 }
@@ -61,7 +62,14 @@ export class SidecarTracker {
 
   constructor(private readonly options: SidecarTrackerOptions) {}
 
-  async registerExecution(operationId: string, cleanupOnRelease: boolean): Promise<string> {
+  async registerExecution(
+    operationId: string,
+    cleanupOnRelease: boolean,
+  ): Promise<string | undefined> {
+    if (this.options.unavailableReason) {
+      return undefined
+    }
+
     const operation = await this.getOrCreateOperation(operationId)
     operation.cleanupOnRelease ||= cleanupOnRelease
     operation.refCount++
@@ -102,6 +110,12 @@ export class SidecarTracker {
     unitId: InstanceId,
     input: RuntimeSidecarStartInput,
   ): Promise<RuntimeSidecarStartOutput> {
+    if (this.options.unavailableReason) {
+      throw new Error(
+        `Unit sidecars require an isolated hosts namespace: ${this.options.unavailableReason}`,
+      )
+    }
+
     if (!identityPattern.test(input.identity)) {
       throw new Error(`Invalid sidecar identity "${input.identity}"`)
     }

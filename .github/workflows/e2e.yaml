@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   browser:
-    name: Production API, CLI, and browser
+    name: API, CLI, and browser
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -35,11 +35,22 @@ jobs:
         run: bun run ci:prepare
       - name: Install Chromium
         run: bun run --cwd packages/e2e --bun playwright install --with-deps chromium
+      - name: Allow Chromium sandbox user namespaces
+        run: |
+          sudo tee /etc/apparmor.d/highstate-e2e-chromium > /dev/null <<'EOF'
+          abi <abi/4.0>,
+          include <tunables/global>
+
+          profile highstate-e2e-chromium /home/runner/.cache/ms-playwright/**/chrome-headless-shell flags=(unconfined) {
+            userns,
+          }
+          EOF
+          sudo apparmor_parser -r /etc/apparmor.d/highstate-e2e-chromium
       - name: Install Pulumi CLI
         uses: pulumi/actions@v6
         with:
           pulumi-version: 3.232.0
-      - name: Build and verify production API, CLI, and browser
+      - name: Build and verify API, CLI, and browser
         run: bun run --bun --filter @highstate/e2e test:e2e
       - name: Upload sanitized test evidence
         if: always()

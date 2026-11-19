@@ -16,7 +16,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const { initialize } = useTerminalSession(projectStore.projectId, sessionId)
+const { initialize, failure } = useTerminalSession(projectStore.projectId, sessionId)
 
 const onLoad = (terminal: Terminal) => {
   initialize(terminal)
@@ -24,5 +24,6 @@ const onLoad = (terminal: Terminal) => {
 </script>
 
 <template>
-  <FullScreenTerminal @load="onLoad" />
+  <AccessNotice v-if="failure" panel :message="failure" title="Terminal unavailable" />
+  <FullScreenTerminal v-else @load="onLoad" />
 </template>

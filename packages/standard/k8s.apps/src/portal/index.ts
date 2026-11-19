@@ -1,11 +1,11 @@
-import { Deployment, Namespace } from "@highstate/k8s"
+import { Deployment } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
-import { images } from "../shared"
+import { createAppNamespace, images } from "../shared"
 
 const { args, inputs, outputs } = forUnit(k8s.apps.portal)
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 Deployment.create(args.appName, {
   namespace,

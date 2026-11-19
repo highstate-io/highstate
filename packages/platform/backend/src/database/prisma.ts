@@ -77,6 +77,7 @@ export type {
   InstanceStateInclude,
   InstanceStateUpdateInput,
   InstanceStateWhereInput,
+  OperationLogWhereInput,
   OperationUpdateInput,
   OperationWhereInput,
   PageWhereInput,

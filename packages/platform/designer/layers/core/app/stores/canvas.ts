@@ -39,6 +39,32 @@ export const useCanvasStore = defineMultiStore({
     return defineStore(storeId, () => {
       const vueFlowStore = useVueFlow(storeId)
       const nodeFactory = useNodeFactory(vueFlowStore)
+      const access = useAccess()
+
+      const editAccess = computed(
+        () =>
+          type !== "project" ||
+          access.status({ permission: "instance-model.update", projectId }).allowed,
+      )
+
+      watchEffect(() => {
+        if (type !== "project") {
+          return
+        }
+
+        for (const node of vueFlowStore.nodes.value) {
+          const instanceId = (node.data.instance as InstanceModel | undefined)?.id
+
+          const allowed = access.status({
+            permission: "instance-model.update",
+            projectId,
+            target: { instanceId },
+          }).allowed
+
+          node.draggable = allowed
+          node.connectable = allowed && !node.data.blueprint
+        }
+      })
 
       const cursorMode = ref<CursorMode>("default")
       const blueprint = ref<Blueprint | undefined>()
@@ -114,13 +140,23 @@ export const useCanvasStore = defineMultiStore({
           instancesStore,
           cursorMode,
           blueprint,
-          selectionActive,
+          computed(() => selectionActive.value && editAccess.value),
           triggerNodesMoved,
           deleteNode,
         )
       }
 
       const deleteNodes = (nodes: GraphNode[]) => {
+        if (type === "project") {
+          access.requireAccess(
+            nodes.map(node => ({
+              permission: "instance-model.update",
+              projectId,
+              target: { instanceId: (node.data.instance as InstanceModel | undefined)?.id },
+            })),
+          )
+        }
+
         if (nodes.length === 0) {
           return
         }
@@ -162,6 +198,7 @@ export const useCanvasStore = defineMultiStore({
       })
 
       return {
+        projectId: type === "custom" ? undefined : projectId,
         nodeFactory: markRaw(nodeFactory),
         vueFlowStore: markRaw(vueFlowStore),
 

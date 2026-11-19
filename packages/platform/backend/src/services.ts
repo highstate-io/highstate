@@ -36,6 +36,7 @@ import {
   UnitExtraService,
   UnitOutputService,
   UnlockMethodSettingsService,
+  UserSettingsService,
   WorkerService,
   WorkerSettingsService,
 } from "./business"
@@ -109,6 +110,7 @@ export type Services = {
   readonly backendUnlockService: BackendUnlockService
   readonly backendApiKeySettingsService: BackendApiKeySettingsService
   readonly backendRoleSettingsService: BackendRoleSettingsService
+  readonly userSettingsService: UserSettingsService
   readonly backendServiceAccountSettingsService: BackendServiceAccountSettingsService
   readonly projectApiKeySettingsService: ProjectApiKeySettingsService
   readonly projectRoleSettingsService: ProjectRoleSettingsService
@@ -194,6 +196,7 @@ export async function createServices({
     backendUnlockService,
     backendApiKeySettingsService,
     backendRoleSettingsService,
+    userSettingsService,
     backendServiceAccountSettingsService,
     projectApiKeySettingsService,
     projectRoleSettingsService,
@@ -270,6 +273,7 @@ export async function createServices({
   )
 
   backendRoleSettingsService ??= new BackendRoleSettingsService(database)
+  userSettingsService ??= new UserSettingsService(database)
 
   backendServiceAccountSettingsService ??= new BackendServiceAccountSettingsService(
     database,
@@ -529,6 +533,7 @@ export async function createServices({
     backendUnlockService,
     backendApiKeySettingsService,
     backendRoleSettingsService,
+    userSettingsService,
     backendServiceAccountSettingsService,
     projectApiKeySettingsService,
     projectRoleSettingsService,

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ProjectRoleBindingOutput, ProjectRoleOutput } from "@highstate/backend/shared"
+import TableItemAction from "./TableItemAction.vue"
 import TimeTableCell from "./TimeTableCell.vue"
 
 const { projectId, serviceAccountId, readonly } = defineProps<{
@@ -13,7 +14,7 @@ const { $client } = useNuxtApp()
 
 const bindings = ref<ProjectRoleBindingOutput[]>([])
 const roles = ref<ProjectRoleOutput[]>([])
-const selectedRoleId = ref<string | null>(null)
+const selectedRoleIds = ref<string[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -56,22 +57,26 @@ async function load(): Promise<void> {
 }
 
 async function add(): Promise<void> {
-  if (!selectedRoleId.value) {
+  if (!selectedRoleIds.value.length) {
     return
   }
 
   loading.value = true
 
   try {
-    await $client.projectServiceAccountSettings.addRoleBinding.mutate({
-      projectId,
-      serviceAccountId,
-      roleId: selectedRoleId.value,
-    })
+    for (const roleId of [...selectedRoleIds.value]) {
+      await $client.projectServiceAccountSettings.addRoleBinding.mutate({
+        projectId,
+        serviceAccountId,
+        roleId,
+      })
 
-    selectedRoleId.value = null
+      selectedRoleIds.value = selectedRoleIds.value.filter(id => id !== roleId)
+    }
+
     await load()
   } catch (caught) {
+    await load()
     error.value = caught instanceof Error ? caught.message : "Failed to update role bindings"
   } finally {
     loading.value = false
@@ -104,11 +109,14 @@ await load()
     <VAlert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</VAlert>
     <div class="binding-form mb-6">
       <VSelect
-        v-model="selectedRoleId"
+        v-model="selectedRoleIds"
         :items="availableRoles"
         item-title="meta.title"
         item-value="id"
-        label="Role"
+        label="Roles"
+        multiple
+        chips
+        closable-chips
         density="compact"
         variant="outlined"
         hide-details
@@ -117,9 +125,10 @@ await load()
       <VBtn
         class="binding-action"
         color="primary"
-        :disabled="readonly || !selectedRoleId"
+        :disabled="readonly || loading || !selectedRoleIds.length"
         :loading="loading"
         @click="add"
+        v-access="{ permission: 'role-binding.create', projectId }"
       >
         Add
       </VBtn>
@@ -139,12 +148,12 @@ await load()
             <TimeTableCell :value="role.binding.createdAt" />
           </td>
           <td class="text-right">
-            <VBtn
+            <TableItemAction
               icon="mdi-delete-outline"
-              variant="text"
-              size="small"
-              :disabled="readonly"
+              :tooltip="`Remove ${role.meta.title}`"
+              :disabled="readonly || loading"
               @click="remove(role.id)"
+              :access="{ permission: 'role-binding.delete', projectId }"
             />
           </td>
         </tr>

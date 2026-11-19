@@ -1,10 +1,10 @@
 import { generateKey, l4EndpointToL7, l7EndpointToString } from "@highstate/common"
 import { z } from "@highstate/contract"
-import { Chart, ClusterAccessScope, KubeCommand, Namespace, Secret } from "@highstate/k8s"
+import { Chart, ClusterAccessScope, KubeCommand, Secret } from "@highstate/k8s"
 import { k8s, vault } from "@highstate/library"
 import { forUnit, makeEntityOutput, makeSecretOutput, output, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts } from "../shared"
+import { charts, createAppNamespace } from "../shared"
 
 const {
   //
@@ -61,9 +61,9 @@ function parseVaultInitOutput(stdout: string): { rootToken: string; unsealKeys: 
   }
 }
 
-const { k8sCluster, s3Bucket, resticRepo } = await toPromise(inputs)
+const { s3Bucket, resticRepo } = await toPromise(inputs)
 
-const namespace = Namespace.create(args.namespace ?? args.appName, { cluster: k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const backupKey = getSecret("backupKey", generateKey)
 let rootToken = getSecret("rootToken", () => "")

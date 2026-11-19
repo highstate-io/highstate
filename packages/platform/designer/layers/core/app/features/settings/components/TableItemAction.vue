@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AccessRequirement } from "../../../utils/access-control"
+
 const {
   icon,
   tooltip,
@@ -6,6 +8,7 @@ const {
   size = "small",
   color,
   disabled = false,
+  access,
 } = defineProps<{
   icon: string
   tooltip: string
@@ -13,6 +16,7 @@ const {
   size?: "x-small" | "small" | "default" | "large" | "x-large"
   color?: string
   disabled?: boolean
+  access?: AccessRequirement | AccessRequirement[]
 }>()
 
 defineEmits<{
@@ -24,6 +28,7 @@ defineEmits<{
   <VTooltip location="top">
     <template #activator="{ props: tooltipProps }">
       <VBtn
+        v-access="access"
         v-bind="tooltipProps"
         :icon="icon"
         :aria-label="tooltip"

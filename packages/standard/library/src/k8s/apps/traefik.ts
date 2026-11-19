@@ -3,7 +3,7 @@ import { pick } from "remeda"
 import { gatewayEntity } from "../../common"
 import { l4EndpointEntity } from "../../network"
 import { serviceEntity } from "../service"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The Traefik instance + gateway implementation.
@@ -44,6 +44,7 @@ export const traefik = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster"]),
   },
 

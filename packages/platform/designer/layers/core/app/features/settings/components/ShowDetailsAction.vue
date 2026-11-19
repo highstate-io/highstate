@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TableItemAction } from "#layers/core/app/features/settings"
+import { routeAccess } from "../../../utils/access-policy"
 
 const {
   pageName,
@@ -25,6 +26,7 @@ const handleClick = () => {
 
 <template>
   <TableItemAction
+    :access="routeAccess(pageName, pageParams)"
     icon="mdi-eye"
     tooltip="View Details"
     :variant="variant"

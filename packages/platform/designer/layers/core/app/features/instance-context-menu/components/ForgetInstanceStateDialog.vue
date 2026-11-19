@@ -4,7 +4,7 @@ import { Icon } from "@iconify/vue"
 
 const visible = defineModel<boolean>("visible")
 
-const { stateStore, libraryStore } = useProjectStores()
+const { stateStore, libraryStore, projectStore } = useProjectStores()
 
 const { instances } = defineProps<{
   instances: InstanceModel[]
@@ -143,7 +143,11 @@ const title = computed(() => {
       <VCardActions>
         <VSpacer />
         <VBtn @click="visible = false">Cancel</VBtn>
-        <VBtn :loading="loading" @click="forgetState">
+        <VBtn
+          v-access="instances.map(instance => ({ permission: 'instance-state.delete' as const, projectId: projectStore.projectId, target: { instanceId: instance.id } }))"
+          :loading="loading"
+          @click="forgetState"
+        >
           Forget State{{ isMultipleInstances ? ` (${instances.length})` : "" }}
         </VBtn>
       </VCardActions>

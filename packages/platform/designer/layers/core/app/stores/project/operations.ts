@@ -147,7 +147,7 @@ export const useProjectOperationsStore = defineMultiStore({
       }
 
       const cancelOperation = async (operationId: string) => {
-        await $client.operation.cancel.mutate({ operationId })
+        await $client.operation.cancel.mutate({ projectId, operationId })
       }
 
       const cancelInstanceOperation = async (operationId: string, instanceId: InstanceId) => {
@@ -206,6 +206,7 @@ export const useProjectOperationsStore = defineMultiStore({
       })
 
       return {
+        projectId,
         initialize,
 
         operations,

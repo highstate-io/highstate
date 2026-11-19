@@ -94,7 +94,19 @@ const editingSecrets = defineModel<boolean>("editingSecrets", { default: false }
 const editingArgs = ref(false)
 const isNestedInstance = computed(() => !!instance.parentId)
 const canOpenArgsEditor = computed(() => editable || isNestedInstance.value)
-const argsEditorReadOnly = computed(() => !editable && isNestedInstance.value)
+
+const effectiveEditable = computed(
+  () =>
+    editable &&
+    (!projectId ||
+      useAccess().status({
+        permission: "instance-model.update",
+        projectId,
+        target: { instanceId: instance.id },
+      }).allowed),
+)
+
+const argsEditorReadOnly = computed(() => !effectiveEditable.value)
 const canEditSecrets = computed(() => editable || isNestedInstance.value)
 
 const hasInputs = computed(() => Object.keys(component.inputs).length > 0)
@@ -246,7 +258,7 @@ const showIconOverlay = computed(() => vueFlowStore.viewport.value.zoom < 0.5)
         :component="component"
         :instance="instance"
         :entities="entities"
-        :editable="editable"
+        :editable="effectiveEditable"
         :project-id="projectId"
         :state-id="state?.id"
         :is-valid-connection="isValidConnection"
@@ -265,6 +277,8 @@ const showIconOverlay = computed(() => vueFlowStore.viewport.value.zoom < 0.5)
     <VDivider />
 
     <InstanceNodeActions
+      :project-id="projectId"
+      :instance-id="instance.id"
       :loading-secrets="loadingSecrets"
       :loading-terminal="loadingTerminal"
       :loading-page="loadingPage"

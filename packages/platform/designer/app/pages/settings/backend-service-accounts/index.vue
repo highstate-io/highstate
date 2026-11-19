@@ -75,7 +75,14 @@ void serviceAccountStore.items.load()
     description="Manage non-human identities that access backend and project resources."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
+      <VBtn
+        v-access="{ permission: 'service-account.manage' }"
+        color="primary"
+        prepend-icon="mdi-plus"
+        @click="dialogVisible = true"
+      >
+        Create
+      </VBtn>
     </template>
     <template #default="{ height }">
       <BackendServiceAccountsTable
@@ -102,7 +109,13 @@ void serviceAccountStore.items.load()
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'service-account.manage', target: { resourceId: serviceAccountToDelete?.id } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

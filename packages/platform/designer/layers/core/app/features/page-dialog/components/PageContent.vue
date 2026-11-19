@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { bytesToHumanReadable, type PageBlock } from "@highstate/contract"
+import { bytesToHumanReadable, type File, type PageBlock } from "@highstate/contract"
 import { Icon } from "@iconify/vue"
 import VueQrcode from "vue-qrcode"
 import { getFileUrl } from "../business"
@@ -10,6 +10,31 @@ defineProps<{
 
 const route = useRoute()
 const projectId = route.params.projectId as string
+const access = useAccess()
+const failure = ref<string>()
+
+const download = async (file: File) => {
+  failure.value = undefined
+
+  try {
+    const response = await fetch(getFileUrl(file, projectId))
+    if (!response.ok) {
+      throw Object.assign(new Error("The file could not be downloaded"), {
+        statusCode: response.status,
+      })
+    }
+
+    const url = URL.createObjectURL(await response.blob())
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = file.meta.name
+    anchor.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  } catch (error) {
+    access.reject(error, "artifact download", { projectId })
+    failure.value = accessError(error)?.message ?? "The file could not be downloaded."
+  }
+}
 
 const qrCodeColor = {
   dark: "#000000",
@@ -29,6 +54,7 @@ const renderQrContent = (content: string, language?: string) => {
   <!-- eslint-disable vue/no-v-html -->
 
   <div class="d-flex gr-4 flex-column">
+    <AccessNotice v-if="failure" title="Download unavailable" :message="failure" />
     <template v-for="(block, index) in content" :key="index">
       <div
         v-if="block.type === 'markdown'"
@@ -70,7 +96,12 @@ const renderQrContent = (content: string, language?: string) => {
 
         <v-spacer />
 
-        <v-btn icon variant="text" :href="getFileUrl(block.file, projectId)" download>
+        <v-btn
+          v-access="block.file.content.type === 'artifact' ? { permission: 'artifact.get', projectId, target: { artifactHash: block.file.content.hash } } : undefined"
+          icon
+          variant="text"
+          @click="download(block.file)"
+        >
           <v-icon>mdi-download</v-icon>
         </v-btn>
       </v-card>

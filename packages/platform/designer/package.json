@@ -23,6 +23,11 @@
     "access": "public"
   },
   "nx": {
+    "targets": {
+      "test": {
+        "dependsOn": ["^build", "typecheck"]
+      }
+    },
     "tags": [
       "platform"
     ]
@@ -97,6 +102,7 @@
     "zxcvbn-typescript": "^5.0.1"
   },
   "dependencies": {
+    "openid-client": "^6.8.1",
     "@highstate/backend": "workspace:*",
     "@highstate/backend-api": "workspace:*",
     "@highstate/contract": "workspace:*",

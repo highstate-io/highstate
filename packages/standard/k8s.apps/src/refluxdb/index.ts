@@ -1,15 +1,15 @@
 import { l4EndpointToL7, l7EndpointToString } from "@highstate/common"
-import { Deployment, KubeCommand, Namespace, requireBestEndpoint, Secret } from "@highstate/k8s"
+import { Deployment, KubeCommand, requireBestEndpoint, Secret } from "@highstate/k8s"
 import { influxdb3, k8s } from "@highstate/library"
 import { forUnit, makeEntityOutput, secret, toPromise } from "@highstate/pulumi"
-import { images } from "../shared"
+import { createAppNamespace, images } from "../shared"
 
 const { args, stateId, inputs, setSecret, outputs } = forUnit(k8s.apps.refluxdb)
 
 const { k8sCluster, s3Bucket } = await toPromise(inputs)
 const s3Endpoint = requireBestEndpoint(s3Bucket.endpoints, k8sCluster)
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const appSecret = Secret.create(
   args.appName,

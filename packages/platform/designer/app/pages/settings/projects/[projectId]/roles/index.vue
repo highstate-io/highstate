@@ -14,7 +14,18 @@ const deleteDialogVisible = ref(false)
 const roleToDelete = ref<ProjectRoleOutput | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
-const restrictionOptions = await roleStore.getRestrictionOptions()
+
+const { state: restrictionOptions, execute: loadOptions } = useAsyncState(
+  () => roleStore.getRestrictionOptions(),
+  undefined,
+  { immediate: false },
+)
+
+watch(dialogVisible, visible => {
+  if (visible) {
+    void loadOptions()
+  }
+})
 
 definePageMeta({
   name: "settings.project-roles",
@@ -70,7 +81,13 @@ void roleStore.items.load()
     description="Manage roles that grant permissions within this project."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create</VBtn>
+      <VBtn
+        v-access="{ permission: 'role.create', projectId: params.projectId }"
+        color="primary"
+        prepend-icon="mdi-plus"
+        @click="dialogVisible = true"
+        >Create</VBtn
+      >
     </template>
     <template #default="{ height }">
       <ProjectRolesTable
@@ -87,6 +104,7 @@ void roleStore.items.load()
     </template>
   </SettingsListPage>
   <ProjectRoleDialog
+    v-if="restrictionOptions"
     v-model:visible="dialogVisible"
     :loading="saving"
     :restriction-options="restrictionOptions"
@@ -100,7 +118,13 @@ void roleStore.items.load()
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'role.delete', projectId: params.projectId, target: { resourceId: roleToDelete?.id } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

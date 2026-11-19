@@ -1,10 +1,12 @@
 import type { Request } from "@playwright/test"
 import { mkdir, writeFile } from "node:fs/promises"
+import { userInfo } from "node:os"
 import { join } from "node:path"
-import { expect as baseExpect, chromium } from "@playwright/test"
+import { expect as baseExpect } from "@playwright/test"
 import { root, startDesigner } from "../harness/designer"
 import { createFixtureProject } from "../harness/fixtures"
 import { inspectDesigner } from "../harness/inspection"
+import { launchBrowser } from "./launch"
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 
@@ -29,13 +31,13 @@ const step = async (name: string, action: () => Promise<void>) => {
 }
 
 let designer: Awaited<ReturnType<typeof startDesigner>> | undefined
-let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
+let browser: Awaited<ReturnType<typeof launchBrowser>> | undefined
 const faults: string[] = []
 const pending = new Set<Request>()
 
 try {
   designer = await startDesigner()
-  browser = await chromium.launch({ headless: true })
+  browser = await launchBrowser()
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
   page.setDefaultTimeout(30_000)
   page.setDefaultNavigationTimeout(60_000)
@@ -73,24 +75,58 @@ try {
     return new URL(page.url()).pathname.split("/")[2]!
   }
 
-  await step("fresh production settings disable the project scope without projects", async () => {
-    await page.goto(designer!.url)
-    await page.getByText("Data & Settings", { exact: true }).click()
-    await expect(settings().getByRole("heading", { name: "Projects", exact: true })).toBeVisible()
-    await expect(settings().getByRole("button", { name: "Project", exact: true })).toBeDisabled()
+  await step(
+    "fresh production settings preserve deep links and disable the project scope without projects",
+    async () => {
+      await page.goto(`${designer!.url}/settings/project-list`)
+      await expect(settings().getByRole("heading", { name: "Projects", exact: true })).toBeVisible()
+      await expect(settings().getByRole("button", { name: "Project", exact: true })).toBeDisabled()
 
-    for (const name of ["Backend Roles", "Backend Service Accounts", "Backend API Keys"]) {
-      await settings().getByRole("button", { name, exact: true }).click()
-      await expect(settings().getByRole("heading", { name, exact: true })).toBeVisible()
-      await expect(settings().getByRole("button", { name: "Create", exact: true })).toBeEnabled()
-    }
-  })
+      for (const name of ["Backend Roles", "Backend Service Accounts", "Backend API Keys"]) {
+        await settings().getByRole("button", { name, exact: true }).click()
+        await expect(settings().getByRole("heading", { name, exact: true })).toBeVisible()
+        await expect(settings().getByRole("button", { name: "Create", exact: true })).toBeEnabled()
+      }
+    },
+  )
+
+  await step(
+    "local account uses the OS username and UID without repeating its display name",
+    async () => {
+      const user = userInfo()
+      const account = page.getByRole("button", { name: `Account: ${user.username}`, exact: true })
+      await account.click()
+
+      await expect(
+        dialog().getByRole("heading", { name: user.username, exact: true }),
+      ).toBeVisible()
+
+      await expect(dialog().locator(".account-identity .text-body-2")).toHaveCount(0)
+
+      await expect(dialog().locator(".v-list-item").filter({ hasText: "User ID" })).toContainText(
+        String(user.uid),
+      )
+
+      await expect(dialog()).toContainText("Local")
+      await expect(dialog()).not.toContainText("Local development")
+      await expect(dialog().getByRole("button", { name: "Sign out" })).toHaveCount(0)
+      await page.screenshot({ path: join(evidence, "local-account.png") })
+      await account.click()
+      await expect(dialog()).not.toBeVisible()
+    },
+  )
 
   await step("create and delete a backend role through persisted settings", async () => {
     await settings().getByRole("button", { name: "Backend Roles", exact: true }).click()
     await settings().getByRole("button", { name: "Create", exact: true }).click()
     await dialog().getByLabel("Title", { exact: true }).fill("Browser role")
     await dialog().getByRole("button", { name: "Add rule", exact: true }).click()
+
+    await dialog()
+      .getByRole("combobox", { name: "Permission group", exact: true })
+      .press("ArrowDown")
+
+    await page.getByRole("option", { name: "Backend", exact: true }).click()
     await dialog().getByRole("combobox", { name: "Permissions", exact: true }).press("ArrowDown")
     await page.getByRole("option", { name: /View backend/ }).click()
     await page.keyboard.press("Escape")

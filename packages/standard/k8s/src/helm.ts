@@ -295,7 +295,7 @@ export class Chart extends ComponentResource {
         {
           ...opts,
           parent: this,
-          provider: getProvider(cluster),
+          providers: { kubernetes: getProvider(cluster) },
 
           transforms: [
             ...(opts?.transforms ?? []),
@@ -339,7 +339,14 @@ export class Chart extends ComponentResource {
                         : omit(serviceSpec, ["ports"])),
                     },
                   },
-                  opts: resourceArgs.opts,
+                  opts: { ...resourceArgs.opts, provider: getProvider(cluster) },
+                }
+              }
+
+              if (resourceArgs.custom && resourceArgs.type.startsWith("kubernetes:")) {
+                return {
+                  props: resourceArgs.props,
+                  opts: { ...resourceArgs.opts, provider: getProvider(cluster) },
                 }
               }
 

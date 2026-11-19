@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InstanceId } from "@highstate/contract"
 import {
   type InstanceState,
   isInstanceDeployed,
@@ -8,11 +9,15 @@ import { type ComponentModel, isUnitModel } from "@highstate/contract"
 import { GenericIcon } from "#layers/core/app/features/shared"
 
 const {
+  projectId,
+  instanceId,
   component,
   state,
   terminalIds,
   ghost = false,
 } = defineProps<{
+  projectId?: string
+  instanceId?: InstanceId
   component: ComponentModel
   state?: InstanceState
   terminalIds?: string[]
@@ -115,6 +120,7 @@ defineSlots<{
       title="Create"
       :disabled="locked"
       @click="emit('operation:launch', 'update')"
+      v-access="projectId ? { permission: 'operation.create', projectId, target: { instanceId } } : undefined"
     >
       <VIcon>mdi-rocket-launch</VIcon>
     </VBtn>
@@ -127,6 +133,7 @@ defineSlots<{
       title="Update"
       :disabled="locked"
       @click="emit('operation:launch', 'update')"
+      v-access="projectId ? { permission: 'operation.create', projectId, target: { instanceId } } : undefined"
     >
       <VIcon>mdi-play</VIcon>
     </VBtn>
@@ -139,6 +146,7 @@ defineSlots<{
       class="toolbar-button"
       title="Cancel Operation"
       @click="emit('operation:cancel')"
+      v-access="projectId ? { permission: 'operation.cancel', projectId, target: { instanceId, resourceId: state?.lastOperationState?.operationId } } : undefined"
     >
       <VIcon>mdi-cancel</VIcon>
     </VBtn>
@@ -151,6 +159,7 @@ defineSlots<{
       title="Edit Arguments"
       :locked="locked"
       @click="emit('open:args')"
+      v-access="projectId ? { permission: 'instance-model.update', projectId, target: { instanceId } } : undefined"
     >
       <VIcon>mdi-pencil</VIcon>
     </VBtn>
@@ -164,6 +173,7 @@ defineSlots<{
       :locked="locked"
       title="Edit Secrets"
       @click="emit('open:secrets')"
+      v-access="projectId ? [{ permission: 'secret.value.get', projectId, target: { instanceId } }, { permission: 'secret.update', projectId, target: { instanceId } }] : undefined"
     >
       <VIcon>mdi-key</VIcon>
     </VBtn>
@@ -175,6 +185,7 @@ defineSlots<{
       class="toolbar-button"
       :loading="loadingTerminal"
       title="Open Terminal"
+      v-access="projectId ? { permission: 'terminal.connect', projectId, collection: true } : undefined"
       @click="emit('open:terminal')"
     >
       <VIcon>mdi-console</VIcon>
@@ -186,6 +197,7 @@ defineSlots<{
       variant="tonal"
       class="toolbar-button"
       title="Open Page"
+      v-access="projectId ? { permission: 'page.get', projectId, collection: true } : undefined"
       :loading="loadingPage"
       @click="emit('open:page')"
     >
@@ -198,6 +210,7 @@ defineSlots<{
       variant="tonal"
       class="toolbar-button"
       title="Open Panel"
+      v-access="projectId ? { permission: 'panel.get', projectId, collection: true } : undefined"
       :loading="loadingPanel"
       @click="emit('open:panel')"
     >

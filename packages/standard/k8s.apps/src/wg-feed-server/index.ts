@@ -2,10 +2,10 @@ import type { types } from "@pulumi/kubernetes"
 import { readdir, readFile } from "node:fs/promises"
 import { join, relative } from "node:path"
 import { endpointToString, MaterializedFolder, parseEndpoint } from "@highstate/common"
-import { ConfigMap, Deployment, Namespace } from "@highstate/k8s"
+import { ConfigMap, Deployment, type Namespace } from "@highstate/k8s"
 import { type common, k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
-import { images } from "../shared"
+import { createAppNamespace, images } from "../shared"
 
 const { args, inputs, outputs } = forUnit(k8s.apps.wgFeedServer)
 
@@ -13,7 +13,7 @@ if (Boolean(args.pathPattern) !== Boolean(inputs.fallbackSite)) {
   throw new Error("PathPattern and fallbackSite must be provided together")
 }
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const fallbackSiteVolume = inputs.fallbackSite
   ? await createFallbackSiteConfigMap(args.appName, namespace, inputs.fallbackSite)

@@ -8,7 +8,6 @@ import {
 import {
   Chart,
   createMonitorWorker,
-  Namespace,
   PersistentVolumeClaim,
   Secret,
   StatefulSet,
@@ -23,12 +22,12 @@ import {
   toPromise,
 } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts, createBootstrapServiceEndpoint } from "../shared"
+import { charts, createAppNamespace, createBootstrapServiceEndpoint } from "../shared"
 import { backupEnvironment, baseEnvironment } from "./scripts"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.mariadb)
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const adminPassword = getSecret("adminPassword", generatePassword)
 const backupKey = getSecret("backupKey", generateKey)

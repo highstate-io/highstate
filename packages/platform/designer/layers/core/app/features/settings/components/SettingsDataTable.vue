@@ -38,10 +38,17 @@ const slots =
 
 <template>
   <div class="settings-table-container">
-    <VAlert v-if="data.error" type="error" density="compact" class="mb-4">{{ data.error }}</VAlert>
+    <AccessNotice
+      v-if="data.accessDenied"
+      :message="data.error!"
+      title="This collection is unavailable"
+    />
+    <VAlert v-else-if="data.error" type="error" density="compact" class="mb-4"
+      >{{ data.error }}</VAlert
+    >
 
     <!-- Search and Summary -->
-    <div v-if="!hideHeader" class="table-header">
+    <div v-if="!hideHeader && !data.accessDenied" class="table-header">
       <div class="d-flex align-center">
         <VIcon class="mr-2">mdi-format-list-bulleted</VIcon>
         <span class="text-subtitle-1 font-weight-medium">
@@ -64,7 +71,7 @@ const slots =
       />
     </div>
 
-    <div class="table-wrapper">
+    <div v-if="!data.accessDenied" class="table-wrapper">
       <VDataTableServer
         :headers="headers"
         :items="data.items"

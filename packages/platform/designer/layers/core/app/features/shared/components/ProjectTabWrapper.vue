@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import ProjectContainer from "./ProjectContainer.vue"
 
-const { projectId } = defineProps<{
+const { projectId, initializeStores = true } = defineProps<{
   projectId: string
+  initializeStores?: boolean
 }>()
 
-ensureProjectStoresCreated(projectId)
+if (initializeStores) {
+  ensureProjectStoresCreated(projectId)
+}
 </script>
 
 <template>

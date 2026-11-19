@@ -1,7 +1,7 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
 import { serviceEntity } from "../service"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * SigNoz deployed on Kubernetes.
@@ -23,6 +23,7 @@ export const signoz = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint", "postgresql"]),
   },
 

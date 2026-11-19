@@ -19,7 +19,7 @@ import type {
 import type { DualAbortSignal } from "./force-abort"
 import { EventEmitter, on } from "node:events"
 import { mkdir, rm } from "node:fs/promises"
-import { cpus, homedir } from "node:os"
+import { cpus } from "node:os"
 import { join, resolve } from "node:path"
 import { getInstanceId, type InstanceId, unitArtifactSchema } from "@highstate/contract"
 import { ensureDependencyInstalled } from "nypm"
@@ -31,6 +31,8 @@ import {
   collectAndStoreArtifacts,
   setupArtifactEnvironment,
 } from "./artifact-env"
+import { getPulumiEnvironment } from "./environment"
+import { probeHostsNamespace } from "./force-abort"
 import {
   highstateRuntimeEndpointEnvVar,
   highstateRuntimeTokenEnvVar,
@@ -196,7 +198,7 @@ export class LocalRunnerBackend implements RunnerBackend {
       options.signal?.throwIfAborted()
 
       const envVars: Record<string, string> = {
-        HOME: homedir(), // pulumi for some reason does not set HOME in bun runtime
+        ...getPulumiEnvironment(),
         HIGHSTATE_CACHE_DIR: this.cacheDir,
         PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
         HIGHSTATE_PULUMI_COMMAND: preview ? "preview" : "update",
@@ -405,7 +407,7 @@ export class LocalRunnerBackend implements RunnerBackend {
           projectPath: resolvedSource.projectPath,
           hostsFilePath,
           envVars: {
-            HOME: homedir(), // pulumi for some reason does not set HOME in bun runtime
+            ...getPulumiEnvironment(),
             HIGHSTATE_CACHE_DIR: this.cacheDir,
             PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
             HIGHSTATE_PULUMI_COMMAND: "destroy",
@@ -747,7 +749,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     const { PulumiCommand } = await import("@pulumi/pulumi/automation/index.js")
 
     await PulumiCommand.install({
-      root: resolve(homedir(), ".pulumi"),
+      root: resolve(getPulumiEnvironment().HOME, ".pulumi"),
     })
 
     let cacheDir = config.HIGHSTATE_RUNNER_BACKEND_LOCAL_CACHE_DIR
@@ -764,10 +766,24 @@ export class LocalRunnerBackend implements RunnerBackend {
 
     let runner: LocalRunnerBackend | undefined
 
+    let unavailableReason: string | undefined
+
+    try {
+      await probeHostsNamespace(config.HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS)
+    } catch (error) {
+      unavailableReason = error instanceof Error ? error.message : String(error)
+
+      logger.warn(
+        { error },
+        "unit sidecars unavailable; running other units without a hosts overlay",
+      )
+    }
+
     const sidecarTracker = new SidecarTracker({
       dockerBinary: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_BINARY,
       dockerUseSudo: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_USE_SUDO,
       dockerHost: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_HOST,
+      unavailableReason,
       logger: logger.child({ service: "SidecarTracker" }),
       onUnitLog: (unitId, message) => {
         runner?.emitStateUpdate({ type: "message", unitId, message })

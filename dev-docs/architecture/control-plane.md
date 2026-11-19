@@ -13,15 +13,15 @@ The exact service inventory and configuration remain source-owned.
 The adapter interfaces separate domain behavior from persistence, execution, coordination, workers, and
 terminals.
 Those interfaces are extension seams, not claims that multiple supported implementations exist.
-Current factories expose local databases and artifacts, a local library and runner, Docker workers and
-terminals, and process-local unlock, pubsub, and lock implementations.
+Current factories expose local or PostgreSQL backend storage, local project databases and artifacts, a local library
+and runner, Docker workers and terminals, and process-local unlock, pubsub, and lock implementations.
 
 ## Embedding And Transports
 
 The designer's Nitro process is the integrated local host.
 It creates the backend services and mounts two different access paths:
 
-- Designer tRPC is a trusted local UI facade over the in-process service graph.
+- Designer tRPC supports a trusted local UI and a hosted human-authenticated facade over the in-process service graph.
 - ConnectRPC exposes public and worker APIs around the same domain services.
 
 The CLI manages active backends as a ConnectRPC client.
@@ -50,6 +50,8 @@ Different workloads cross different isolation boundaries:
 
 Pulumi programs use an ephemeral, operation-scoped loopback API.
 They do not call the public backend API.
+If the runner cannot isolate the hosts file in a private mount namespace, it rejects unit sidecar requests rather than
+altering shared name resolution. Other units can still run.
 [Contracts and Extensions](contracts-and-extensions.md#worker-connectivity) defines worker connectivity.
 
 ## Coordination Boundary
@@ -59,6 +61,8 @@ held by the backend process.
 These choices make the process a coordination boundary and prevent safe active-active ownership of one
 project.
 One backend can load multiple projects, but only one backend may actively own a particular project.
+The packaged Kubernetes runtime and its offline backup share a persistent-filesystem ownership lock.
+Storage access modes alone do not replace that runtime ownership boundary.
 
 Generated database clients, federation identifiers, and adapter interfaces do not establish a supported
 distributed deployment.

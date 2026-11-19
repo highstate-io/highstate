@@ -1,13 +1,13 @@
 import { getEntityId } from "@highstate/contract"
-import { Chart, ConfigMap, Deployment, Namespace } from "@highstate/k8s"
+import { Chart, ConfigMap, Deployment } from "@highstate/k8s"
 import { k8s, type postgresql } from "@highstate/library"
 import { forUnit, output } from "@highstate/pulumi"
-import { charts, createPostgresqlCredentialsSecret, images } from "../shared"
+import { charts, createAppNamespace, createPostgresqlCredentialsSecret, images } from "../shared"
 import { createInitSecretsJob } from "./init-secrets-job"
 
 const { args, inputs, outputs } = forUnit(k8s.apps.matrixStack)
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const synapseHost = `synapse.${args.fqdn}`
 const elementWebHost = `chat.${args.fqdn}`

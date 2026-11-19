@@ -7,6 +7,8 @@ import CodeArgumentInput from "./CodeArgumentInput.vue"
 import GroupArgumentInput from "./GroupArgumentInput.vue"
 import PlainArgumentInput from "./PlainArgumentInput.vue"
 
+const projectId = useProjectStore().projectId
+
 const { component, state, initialSecrets } = defineProps<{
   instance: InstanceModel
   state?: InstanceState
@@ -95,7 +97,12 @@ const { plainArguments, expandableArguments } = createEditorArguments(
         <VSpacer />
 
         <VBtn @click="cancel">Cancel</VBtn>
-        <VBtn @click="save" color="primary">Save</VBtn>
+        <VBtn
+          v-access="{ permission: 'secret.update', projectId, target: { instanceId: instance.id } }"
+          @click="save"
+          color="primary"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

@@ -1,3 +1,4 @@
+import { accessRouter } from "./routers/access"
 import { apiKeyRouter } from "./routers/api-key"
 import { libraryRouter } from "./routers/library"
 import { logsRouter } from "./routers/logs"
@@ -9,6 +10,7 @@ import {
   backendApiKeySettingsRouter,
   backendRoleSettingsRouter,
   backendServiceAccountSettingsRouter,
+  backendUserSettingsRouter,
   entitySettingsRouter,
   operationSettingsRouter,
   pageSettingsRouter,
@@ -16,6 +18,7 @@ import {
   projectApiKeySettingsRouter,
   projectRoleSettingsRouter,
   projectServiceAccountSettingsRouter,
+  projectUserSettingsRouter,
   secretSettingsRouter,
   terminalSettingsRouter,
   triggerSettingsRouter,
@@ -29,11 +32,14 @@ import { workspaceRouter } from "./routers/workspace"
 import { router } from "./trpc"
 
 export const appRouter = router({
+  access: accessRouter,
   apiKey: apiKeyRouter,
   worker: workerRouter,
   backendApiKeySettings: backendApiKeySettingsRouter,
   backendRoleSettings: backendRoleSettingsRouter,
   backendServiceAccountSettings: backendServiceAccountSettingsRouter,
+  backendUserSettings: backendUserSettingsRouter,
+  projectUserSettings: projectUserSettingsRouter,
   projectApiKeySettings: projectApiKeySettingsRouter,
   projectRoleSettings: projectRoleSettingsRouter,
   projectServiceAccountSettings: projectServiceAccountSettingsRouter,

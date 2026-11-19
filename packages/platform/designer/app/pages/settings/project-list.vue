@@ -5,6 +5,7 @@ import {
   SettingsDataTable,
   SettingsListPage,
   type TableHeader,
+  TableItemAction,
 } from "#layers/core/app/features/settings"
 
 const projectsStore = useProjectsStore()
@@ -51,6 +52,12 @@ const data = computed(() => {
   return {
     items: filteredProjects,
     total: filteredProjects.length,
+    accessDenied: !projectsStore.listAccess.allowed && !projectsStore.listAccess.pending,
+    error: projectsStore.listAccess.pending
+      ? undefined
+      : projectsStore.listAccess.allowed
+        ? projectsStore.error
+        : projectsStore.listAccess.reason,
   }
 })
 
@@ -76,15 +83,15 @@ const navigateToProject = (projectId: string) => {
         v-model:items-per-page="itemsPerPage"
         :headers="tableHeaders"
         :data="data"
-        :loading="false"
+        :loading="projectsStore.loading || projectsStore.listAccess.pending"
         :height="height"
       >
         <!-- Actions Column -->
         <template #item.actions="{ item }">
-          <VBtn
+          <TableItemAction
             icon="mdi-arrow-right"
-            variant="text"
-            size="small"
+            tooltip="Open project"
+            :access="{ permission: 'project.get', target: { projectId: item.id } }"
             @click="navigateToProject(item.id)"
           />
         </template>

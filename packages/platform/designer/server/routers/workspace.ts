@@ -1,5 +1,11 @@
+import { requireProjectPermission } from "@highstate/backend"
 import { z } from "zod"
-import { backendProcedure, projectProcedure, router } from "../trpc"
+import { backendProcedure, projectProcedure as baseProjectProcedure, router } from "../trpc"
+
+const projectProcedure = baseProjectProcedure.use(async ({ ctx, next }) => {
+  requireProjectPermission(ctx.requestContext, "instance-model.get")
+  return await next()
+})
 
 export const workspaceRouter = router({
   getWorkspaceLayout: backendProcedure.query(async ({ ctx }) => {

@@ -1,13 +1,13 @@
 import { generateKey } from "@highstate/common"
-import { Deployment, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
+import { Deployment, PersistentVolumeClaim, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { createMysqlCredentialsSecret, images } from "../shared"
+import { createAppNamespace, createMysqlCredentialsSecret, images } from "../shared"
 
 const { args, getSecret, inputs, outputs } = forUnit(k8s.apps.vaultwarden)
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 
 const mysqlCredentials = createMysqlCredentialsSecret(
   `${args.appName}-mysql-credentials`,

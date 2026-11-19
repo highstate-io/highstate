@@ -9,7 +9,7 @@ export const userMetaSchema = z.object({
 
 export type UserMeta = z.infer<typeof userMetaSchema>
 
-export const userTypeSchema = z.enum(["local", "oidc"])
+export const userTypeSchema = z.enum(["local", "oidc", "oauth"])
 
 export type UserType = z.infer<typeof userTypeSchema>
 
@@ -22,6 +22,15 @@ export const userOutputSchema = z.object({
 })
 
 export type UserOutput = z.infer<typeof userOutputSchema>
+
+export const humanRoleBindingOptionSchema = z.object({
+  id: z.cuid2(),
+  meta: z.object({ title: z.string(), description: z.string().optional() }),
+  granted: z.boolean(),
+  requiresEscalation: z.boolean(),
+})
+
+export type HumanRoleBindingOption = z.infer<typeof humanRoleBindingOptionSchema>
 
 export const userGroupMetaSchema = z.object({
   title: z.string().min(1),

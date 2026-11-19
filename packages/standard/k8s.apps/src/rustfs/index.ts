@@ -6,11 +6,11 @@ import {
   l4EndpointToString,
   parseEndpoint,
 } from "@highstate/common"
-import { Chart, ClusterAccessScope, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
+import { Chart, ClusterAccessScope, PersistentVolumeClaim, Secret } from "@highstate/k8s"
 import { k8s, rustfs } from "@highstate/library"
 import { forUnit, makeEntityOutput, makeSecretOutput, output, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts } from "../shared"
+import { charts, createAppNamespace } from "../shared"
 
 const { stateId, args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.rustfs)
 
@@ -18,7 +18,7 @@ if ((args.consoleFqdn || args.fqdn) && !inputs.accessPoint) {
   throw new Error("Access point must be provided when fqdn or consoleFqdn is set")
 }
 
-const namespace = Namespace.create(args.namespace ?? args.appName, { cluster: inputs.k8sCluster })
+const namespace = await createAppNamespace(args, inputs)
 const adminPassword = getSecret("adminPassword", generatePassword)
 const backupKey = getSecret("backupKey", generateKey)
 

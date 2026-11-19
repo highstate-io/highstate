@@ -30,10 +30,24 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const [restrictionOptions, serviceAccounts] = await Promise.all([
-  useProjectRoleSettingsStore().getRestrictionOptions(),
-  apiKeyStore.getServiceAccountOptions(),
-])
+const { state: options, execute: loadOptions } = useAsyncState(
+  () =>
+    Promise.all([
+      useProjectRoleSettingsStore().getRestrictionOptions(),
+      apiKeyStore.getServiceAccountOptions(),
+    ]),
+  undefined,
+  { immediate: false },
+)
+
+const restrictionOptions = computed(() => options.value?.[0])
+const serviceAccounts = computed(() => options.value?.[1] ?? [])
+
+watch(dialogVisible, visible => {
+  if (visible) {
+    void loadOptions()
+  }
+})
 
 definePageMeta({
   name: "settings.api-keys",
@@ -118,7 +132,14 @@ void apiKeyStore.items.load()
     description="Manage tokens that provide programmatic access to project resources."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
+      <VBtn
+        v-access="{ permission: 'api-key.create', projectId: params.projectId }"
+        color="primary"
+        prepend-icon="mdi-plus"
+        @click="dialogVisible = true"
+      >
+        Create
+      </VBtn>
     </template>
     <template #default="{ height }">
       <ApiKeysTable
@@ -136,6 +157,7 @@ void apiKeyStore.items.load()
     </template>
   </SettingsListPage>
   <ProjectApiKeyDialog
+    v-if="restrictionOptions"
     v-model:visible="dialogVisible"
     :service-accounts="serviceAccounts"
     :restriction-options="restrictionOptions"
@@ -149,7 +171,13 @@ void apiKeyStore.items.load()
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="deleting" @click="deleteDialogVisible = false">Cancel</VBtn>
-        <VBtn color="error" :loading="deleting" @click="remove">Delete</VBtn>
+        <VBtn
+          v-access="{ permission: 'api-key.delete', projectId: params.projectId, target: { resourceId: apiKeyToDelete?.id } }"
+          color="error"
+          :loading="deleting"
+          @click="remove"
+          >Delete</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>
@@ -159,7 +187,13 @@ void apiKeyStore.items.load()
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="rotating" @click="rotateDialogVisible = false">Cancel</VBtn>
-        <VBtn color="warning" :loading="rotating" @click="rotate">Rotate</VBtn>
+        <VBtn
+          v-access="{ permission: 'api-key.rotate', projectId: params.projectId, target: { resourceId: apiKeyToRotate?.id } }"
+          color="warning"
+          :loading="rotating"
+          @click="rotate"
+          >Rotate</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

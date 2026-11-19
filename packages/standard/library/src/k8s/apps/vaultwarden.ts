@@ -42,6 +42,7 @@ export const vaultwarden = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint", "mysql"]),
     ...pick(optionalSharedInputs, ["resticRepo"]),
   },

@@ -1,6 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The Portal application deployed on Kubernetes.
@@ -14,6 +14,7 @@ export const portal = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint"]),
   },
 

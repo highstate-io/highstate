@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue"
+import { accessError } from "../../../utils/access-control"
 import {
   type GlobalSearchPaletteGroup,
   type GlobalSearchPaletteItem,
@@ -20,6 +21,19 @@ const searchField = ref<HTMLInputElement | null>(null)
 
 const projectsStore = useProjectsStore()
 const { $client } = useNuxtApp()
+const access = useAccess()
+const searchAccess = computed(() => access.status({ permission: "backend.search" }))
+const failure = ref<string>()
+
+watch(
+  () => searchAccess.value.allowed,
+  allowed => {
+    if (!allowed) {
+      groups.value = []
+      runSearchCounter.value++
+    }
+  },
+)
 
 const resolveProjectTitle = (projectId: string): string => {
   const project = projectsStore.getById(projectId)
@@ -34,6 +48,10 @@ const clearResults = () => {
 const runSearchCounter = ref(0)
 
 const runSearch = async () => {
+  if (!searchAccess.value.allowed) {
+    return
+  }
+
   if (!visible.value) {
     return
   }
@@ -68,6 +86,9 @@ const runSearch = async () => {
     }
 
     groups.value = toGroupsFromTextResult(result, { resolveProjectTitle })
+  } catch (error) {
+    groups.value = []
+    failure.value = accessError(error)?.message ?? "Search could not be completed."
   } finally {
     if (requestId === runSearchCounter.value) {
       loading.value = false
@@ -128,7 +149,14 @@ useEventListener(window, "keydown", event => {
   <VDialog v-model="visible" max-width="900" persistent>
     <VCard>
       <VCardText class="pa-4">
+        <AccessNotice
+          v-if="!searchAccess.allowed && !searchAccess.pending"
+          :message="searchAccess.reason"
+          title="Search unavailable"
+        />
+        <AccessNotice v-else-if="failure" :message="failure" title="Search unavailable" />
         <VTextField
+          v-access="{ permission: 'backend.search' }"
           ref="searchField"
           v-model="query"
           label="Search"

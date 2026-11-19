@@ -1,10 +1,12 @@
 import type { CollectionQuery, CollectionQueryResult } from "@highstate/backend/shared"
+import { accessError } from "./access-control"
 
 export type ObservedCollectionQueryResult<T> = CollectionQueryResult<T> & {
   total: number
   hasMore: boolean
   hasNextPage: boolean
   error: string | null
+  accessDenied?: boolean
 }
 
 export function useCollectionQuery<T>(
@@ -47,8 +49,11 @@ export function useCollectionQuery<T>(
     }
   }
 
+  let generation = 0
   async function load(force = true): Promise<void> {
+    const current = ++generation
     const pageIndex = page.value - 1
+
     if (!force && pages.value[pageIndex]) {
       updateData()
       return
@@ -70,20 +75,40 @@ export function useCollectionQuery<T>(
         pageToken: previousPage?.nextPageToken,
       })
 
+      if (current !== generation) {
+        return
+      }
+
       pages.value = [...pages.value.slice(0, pageIndex), result]
       updateData()
       triggerReload()
     } catch (caught) {
+      if (current !== generation) {
+        return
+      }
+
+      const denial = accessError(caught)
+      if (denial) {
+        pages.value = []
+      }
+
       data.value = {
         ...data.value,
-        error: caught instanceof Error ? caught.message : "Failed to load collection",
+        ...(denial ? { items: [], total: 0, hasMore: false, hasNextPage: false } : {}),
+        accessDenied: !!denial,
+        error:
+          denial?.message ??
+          (caught instanceof Error ? caught.message : "Failed to load collection"),
       }
     } finally {
-      isLoading.value = false
+      if (current === generation) {
+        isLoading.value = false
+      }
     }
   }
 
   function reset(): void {
+    generation++
     pages.value = []
     page.value = 1
     data.value = { ...data.value, error: null }
@@ -103,6 +128,15 @@ export function useCollectionQuery<T>(
   })
 
   watch(page, async () => await load(false))
+  const access = useAccess()
+
+  watch(
+    () => access.revision.value,
+    () => {
+      reset()
+      void load()
+    },
+  )
 
   return { search, sortBy, page, itemsPerPage, isLoading, data, reset, load, onReload }
 }

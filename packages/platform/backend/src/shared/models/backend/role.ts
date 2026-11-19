@@ -52,6 +52,14 @@ export type BackendPermissionGroupDefinition = {
 
 export const backendPermissionGroups = [
   {
+    title: "Users",
+    permissions: [
+      { name: "user.list", title: "List known users", risk: "low" },
+      { name: "user.get", title: "View known users", risk: "low" },
+    ],
+    supportedRestrictions: [],
+  },
+  {
     title: "Backend",
     permissions: [
       {

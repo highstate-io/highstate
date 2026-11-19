@@ -2,7 +2,7 @@ import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { influxdb3, s3 } from "../../databases"
 import { deploymentEntity } from "../workload"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The RefluxDB instance deployed on Kubernetes.
@@ -30,6 +30,7 @@ export const refluxdb = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster"]),
     s3Bucket: s3.bucketEntity,
   },

@@ -1,3 +1,5 @@
+import type { ProjectNodeEvent } from "@highstate/backend/shared"
+import { hasProjectPermission } from "@highstate/backend"
 import {
   projectInputSchema,
   projectModelInstanceSchema,
@@ -11,7 +13,7 @@ import {
   instanceModelSchema,
 } from "@highstate/contract"
 import { z } from "zod"
-import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
+import { backendProcedure, projectProcedure, router } from "../trpc"
 
 export const projectRouter = router({
   getProjects: backendProcedure
@@ -42,14 +44,64 @@ export const projectRouter = router({
       )
     }),
 
-  watchProjectNodes: publicProcedure
+  watchProjectNodes: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
     .subscription(async ({ input, ctx, signal }) => {
-      return ctx.pubsubManager.subscribe(["project-model", input.projectId], signal)
+      const initial = await ctx.projectService.getProjectModel(ctx.requestContext)
+
+      const visible = new Set(
+        [...initial.instances, ...initial.virtualInstances, ...initial.ghostInstances].map(
+          instance => instance.id,
+        ),
+      )
+
+      const unrestricted = hasProjectPermission(ctx.requestContext, "instance-model.get")
+      const events = await ctx.pubsubManager.subscribe(["project-model", input.projectId], signal)
+      return (async function* () {
+        for await (const event of events) {
+          if (unrestricted) {
+            yield event
+            continue
+          }
+
+          const model = await ctx.projectService.getProjectModel(ctx.requestContext)
+
+          const current = new Set(
+            [...model.instances, ...model.virtualInstances, ...model.ghostInstances].map(
+              instance => instance.id,
+            ),
+          )
+
+          const filtered: ProjectNodeEvent = {
+            updatedInstances: event.updatedInstances?.filter(instance => current.has(instance.id)),
+            updatedVirtualInstances: event.updatedVirtualInstances?.filter(instance =>
+              current.has(instance.id),
+            ),
+            updatedGhostInstances: event.updatedGhostInstances?.filter(instance =>
+              current.has(instance.id),
+            ),
+            deletedInstanceIds: event.deletedInstanceIds?.filter(id => visible.has(id)),
+            deletedVirtualInstanceIds: event.deletedVirtualInstanceIds?.filter(id =>
+              visible.has(id),
+            ),
+            deletedGhostInstanceIds: event.deletedGhostInstanceIds?.filter(id => visible.has(id)),
+          }
+
+          visible.clear()
+
+          for (const id of current) {
+            visible.add(id)
+          }
+
+          if (Object.values(filtered).some(values => Array.isArray(values) && values.length > 0)) {
+            yield filtered
+          }
+        }
+      })()
     }),
 
   getProject: backendProcedure

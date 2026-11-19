@@ -49,10 +49,16 @@ const headers = [
           page-name="settings.backend-api-key-details"
           :page-params="{ apiKeyId: item.id }"
         />
-        <TableItemAction icon="mdi-refresh" tooltip="Rotate token" @click="$emit('rotate', item)" />
+        <TableItemAction
+          :access="{ permission: 'api-key.rotate', target: { resourceId: item.id } }"
+          icon="mdi-refresh"
+          tooltip="Rotate token"
+          @click="$emit('rotate', item)"
+        />
         <TableItemAction
           icon="mdi-delete-outline"
           tooltip="Delete API key"
+          :access="{ permission: 'api-key.delete', target: { resourceId: item.id } }"
           color="error"
           @click="$emit('delete', item)"
         />

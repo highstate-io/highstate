@@ -182,6 +182,7 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   roleBindings?: Prisma.UserBackendRoleBindingListRelationFilter
   workspaceLayout?: Prisma.XOR<Prisma.UserWorkspaceLayoutNullableScalarRelationFilter, Prisma.UserWorkspaceLayoutWhereInput> | null
+  designerSessions?: Prisma.DesignerSessionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -192,6 +193,7 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   roleBindings?: Prisma.UserBackendRoleBindingOrderByRelationAggregateInput
   workspaceLayout?: Prisma.UserWorkspaceLayoutOrderByWithRelationInput
+  designerSessions?: Prisma.DesignerSessionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -205,6 +207,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   roleBindings?: Prisma.UserBackendRoleBindingListRelationFilter
   workspaceLayout?: Prisma.XOR<Prisma.UserWorkspaceLayoutNullableScalarRelationFilter, Prisma.UserWorkspaceLayoutWhereInput> | null
+  designerSessions?: Prisma.DesignerSessionListRelationFilter
 }, "id">
 
 export type UserOrderByWithAggregationInput = {
@@ -237,6 +240,7 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   roleBindings?: Prisma.UserBackendRoleBindingCreateNestedManyWithoutUserInput
   workspaceLayout?: Prisma.UserWorkspaceLayoutCreateNestedOneWithoutUserInput
+  designerSessions?: Prisma.DesignerSessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -247,6 +251,7 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   roleBindings?: Prisma.UserBackendRoleBindingUncheckedCreateNestedManyWithoutUserInput
   workspaceLayout?: Prisma.UserWorkspaceLayoutUncheckedCreateNestedOneWithoutUserInput
+  designerSessions?: Prisma.DesignerSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -257,6 +262,7 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleBindings?: Prisma.UserBackendRoleBindingUpdateManyWithoutUserNestedInput
   workspaceLayout?: Prisma.UserWorkspaceLayoutUpdateOneWithoutUserNestedInput
+  designerSessions?: Prisma.DesignerSessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -267,6 +273,7 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleBindings?: Prisma.UserBackendRoleBindingUncheckedUpdateManyWithoutUserNestedInput
   workspaceLayout?: Prisma.UserWorkspaceLayoutUncheckedUpdateOneWithoutUserNestedInput
+  designerSessions?: Prisma.DesignerSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -320,6 +327,20 @@ export type UserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type UserCreateNestedOneWithoutDesignerSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDesignerSessionsInput, Prisma.UserUncheckedCreateWithoutDesignerSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDesignerSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutDesignerSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDesignerSessionsInput, Prisma.UserUncheckedCreateWithoutDesignerSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDesignerSessionsInput
+  upsert?: Prisma.UserUpsertWithoutDesignerSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDesignerSessionsInput, Prisma.UserUpdateWithoutDesignerSessionsInput>, Prisma.UserUncheckedUpdateWithoutDesignerSessionsInput>
+}
+
 export type UserCreateNestedOneWithoutWorkspaceLayoutInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceLayoutInput, Prisma.UserUncheckedCreateWithoutWorkspaceLayoutInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceLayoutInput
@@ -352,6 +373,62 @@ export type EnumUserTypeFieldUpdateOperationsInput = {
   set?: $Enums.UserType
 }
 
+export type UserCreateWithoutDesignerSessionsInput = {
+  id: string
+  type: $Enums.UserType
+  meta:PrismaJson.UserMeta
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roleBindings?: Prisma.UserBackendRoleBindingCreateNestedManyWithoutUserInput
+  workspaceLayout?: Prisma.UserWorkspaceLayoutCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutDesignerSessionsInput = {
+  id: string
+  type: $Enums.UserType
+  meta:PrismaJson.UserMeta
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  roleBindings?: Prisma.UserBackendRoleBindingUncheckedCreateNestedManyWithoutUserInput
+  workspaceLayout?: Prisma.UserWorkspaceLayoutUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutDesignerSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDesignerSessionsInput, Prisma.UserUncheckedCreateWithoutDesignerSessionsInput>
+}
+
+export type UserUpsertWithoutDesignerSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDesignerSessionsInput, Prisma.UserUncheckedUpdateWithoutDesignerSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDesignerSessionsInput, Prisma.UserUncheckedCreateWithoutDesignerSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDesignerSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDesignerSessionsInput, Prisma.UserUncheckedUpdateWithoutDesignerSessionsInput>
+}
+
+export type UserUpdateWithoutDesignerSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  meta?:PrismaJson.UserMeta
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roleBindings?: Prisma.UserBackendRoleBindingUpdateManyWithoutUserNestedInput
+  workspaceLayout?: Prisma.UserWorkspaceLayoutUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDesignerSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  meta?:PrismaJson.UserMeta
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roleBindings?: Prisma.UserBackendRoleBindingUncheckedUpdateManyWithoutUserNestedInput
+  workspaceLayout?: Prisma.UserWorkspaceLayoutUncheckedUpdateOneWithoutUserNestedInput
+}
+
 export type UserCreateWithoutWorkspaceLayoutInput = {
   id: string
   type: $Enums.UserType
@@ -359,6 +436,7 @@ export type UserCreateWithoutWorkspaceLayoutInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   roleBindings?: Prisma.UserBackendRoleBindingCreateNestedManyWithoutUserInput
+  designerSessions?: Prisma.DesignerSessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkspaceLayoutInput = {
@@ -368,6 +446,7 @@ export type UserUncheckedCreateWithoutWorkspaceLayoutInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   roleBindings?: Prisma.UserBackendRoleBindingUncheckedCreateNestedManyWithoutUserInput
+  designerSessions?: Prisma.DesignerSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkspaceLayoutInput = {
@@ -393,6 +472,7 @@ export type UserUpdateWithoutWorkspaceLayoutInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleBindings?: Prisma.UserBackendRoleBindingUpdateManyWithoutUserNestedInput
+  designerSessions?: Prisma.DesignerSessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkspaceLayoutInput = {
@@ -402,6 +482,7 @@ export type UserUncheckedUpdateWithoutWorkspaceLayoutInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleBindings?: Prisma.UserBackendRoleBindingUncheckedUpdateManyWithoutUserNestedInput
+  designerSessions?: Prisma.DesignerSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRoleBindingsInput = {
@@ -411,6 +492,7 @@ export type UserCreateWithoutRoleBindingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   workspaceLayout?: Prisma.UserWorkspaceLayoutCreateNestedOneWithoutUserInput
+  designerSessions?: Prisma.DesignerSessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRoleBindingsInput = {
@@ -420,6 +502,7 @@ export type UserUncheckedCreateWithoutRoleBindingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   workspaceLayout?: Prisma.UserWorkspaceLayoutUncheckedCreateNestedOneWithoutUserInput
+  designerSessions?: Prisma.DesignerSessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRoleBindingsInput = {
@@ -445,6 +528,7 @@ export type UserUpdateWithoutRoleBindingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceLayout?: Prisma.UserWorkspaceLayoutUpdateOneWithoutUserNestedInput
+  designerSessions?: Prisma.DesignerSessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoleBindingsInput = {
@@ -454,6 +538,7 @@ export type UserUncheckedUpdateWithoutRoleBindingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceLayout?: Prisma.UserWorkspaceLayoutUncheckedUpdateOneWithoutUserNestedInput
+  designerSessions?: Prisma.DesignerSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -463,10 +548,12 @@ export type UserUncheckedUpdateWithoutRoleBindingsInput = {
 
 export type UserCountOutputType = {
   roleBindings: number
+  designerSessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roleBindings?: boolean | UserCountOutputTypeCountRoleBindingsArgs
+  designerSessions?: boolean | UserCountOutputTypeCountDesignerSessionsArgs
 }
 
 /**
@@ -486,6 +573,13 @@ export type UserCountOutputTypeCountRoleBindingsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.UserBackendRoleBindingWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDesignerSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DesignerSessionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -495,6 +589,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   roleBindings?: boolean | Prisma.User$roleBindingsArgs<ExtArgs>
   workspaceLayout?: boolean | Prisma.User$workspaceLayoutArgs<ExtArgs>
+  designerSessions?: boolean | Prisma.User$designerSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -526,6 +621,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roleBindings?: boolean | Prisma.User$roleBindingsArgs<ExtArgs>
   workspaceLayout?: boolean | Prisma.User$workspaceLayoutArgs<ExtArgs>
+  designerSessions?: boolean | Prisma.User$designerSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -542,6 +638,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * The workspace layout belonging to this user.
      */
     workspaceLayout: Prisma.$UserWorkspaceLayoutPayload<ExtArgs> | null
+    /**
+     * Durable Designer browser sessions, invalidated when this user is deleted.
+     */
+    designerSessions: Prisma.$DesignerSessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -962,6 +1062,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   roleBindings<T extends Prisma.User$roleBindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roleBindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserBackendRoleBindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workspaceLayout<T extends Prisma.User$workspaceLayoutArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workspaceLayoutArgs<ExtArgs>>): Prisma.Prisma__UserWorkspaceLayoutClient<runtime.Types.Result.GetResult<Prisma.$UserWorkspaceLayoutPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  designerSessions<T extends Prisma.User$designerSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$designerSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DesignerSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1424,6 +1525,30 @@ export type User$workspaceLayoutArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
   where?: Prisma.UserWorkspaceLayoutWhereInput
+}
+
+/**
+ * User.designerSessions
+ */
+export type User$designerSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DesignerSession
+   */
+  select?: Prisma.DesignerSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DesignerSession
+   */
+  omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
+  where?: Prisma.DesignerSessionWhereInput
+  orderBy?: Prisma.DesignerSessionOrderByWithRelationInput | Prisma.DesignerSessionOrderByWithRelationInput[]
+  cursor?: Prisma.DesignerSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DesignerSessionScalarFieldEnum | Prisma.DesignerSessionScalarFieldEnum[]
 }
 
 /**

@@ -13,23 +13,41 @@ export class Evidence {
     this.secrets.add(value)
   }
 
+  sanitize(value: string): string {
+    for (const secret of this.secrets) {
+      value = value.replaceAll(secret, "[redacted]")
+    }
+
+    return value
+      .replace(/(Bearer\s+)[A-Za-z0-9._-]+/gi, "$1[redacted]")
+      .replace(
+        /^([\t ]*(?:-[\t ]*)?(?:cookie|set-cookie|authorization)[\t ]*:)[^\r\n]*/gim,
+        "$1 [redacted]",
+      )
+  }
+
   async write(name: string, value: unknown): Promise<void> {
     await mkdir(this.directory, { recursive: true })
 
-    let text =
+    const text =
       typeof value === "string"
-        ? value
+        ? this.sanitize(value)
         : JSON.stringify(
             value,
-            (_key, value: unknown) => (typeof value === "bigint" ? value.toString() : value),
+            (key, value: unknown) => {
+              if (/^(cookie|set-cookie|authorization)$/i.test(key)) {
+                return "[redacted]"
+              }
+
+              if (typeof value === "bigint") {
+                return value.toString()
+              }
+
+              return typeof value === "string" ? this.sanitize(value) : value
+            },
             2,
           )
 
-    for (const secret of this.secrets) {
-      text = text.replaceAll(secret, "[redacted]")
-    }
-
-    text = text.replace(/(Bearer\s+)[A-Za-z0-9._-]+/gi, "$1[redacted]")
     await writeFile(join(this.directory, name), text)
   }
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { RouteLocationNormalizedLoaded } from "vue-router"
 import { ProjectTabWrapper } from "#layers/core/app/features/shared"
+import { routeAccess } from "#layers/core/app/utils/access-policy"
 
 definePageMeta({
   name: "settings",
@@ -219,7 +220,12 @@ watch(selectedProjectId, async projectId => {
           @update:model-value="switchScope"
         >
           <VBtn value="backend">Backend</VBtn>
-          <VBtn value="project" :disabled="!projectsStore.projects.length">Project</VBtn>
+          <VBtn
+            v-access="{ permission: 'project.list', collection: true }"
+            value="project"
+            :disabled="!projectsStore.projects.length"
+            >Project</VBtn
+          >
         </VBtnToggle>
 
         <template v-if="scope === 'backend'">
@@ -236,6 +242,7 @@ watch(selectedProjectId, async projectId => {
               </div>
               <VBtn
                 v-for="tab in group.tabs"
+                v-access="routeAccess(tab.name)"
                 :key="tab.name"
                 variant="text"
                 :class="['tab-item', { active: isTabActive(tab) }]"
@@ -251,6 +258,7 @@ watch(selectedProjectId, async projectId => {
         <template v-else>
           <div class="project-selector-row">
             <VSelect
+              v-access="{ permission: 'project.list', collection: true }"
               v-model="selectedProjectId"
               :items="projectsStore.projects"
               label="Project"
@@ -279,6 +287,7 @@ watch(selectedProjectId, async projectId => {
               </div>
               <VBtn
                 v-for="tab in group.tabs"
+                v-access="routeAccess(tab.name, { projectId: selectedProjectId })"
                 :key="tab.name"
                 variant="text"
                 :class="['tab-item', { active: isTabActive(tab) }]"
@@ -298,15 +307,21 @@ watch(selectedProjectId, async projectId => {
           <VCardText class="content-card-text">
             <RouterView v-if="currentRoute" :route="currentRoute">
               <template #default="{ Component }">
-                <Suspense v-if="currentRoute.params.projectId">
-                  <ProjectTabWrapper
-                    :project-id="String(currentRoute.params.projectId)"
-                    :key="String(currentRoute.params.projectId)"
-                  >
-                    <component :is="Component" :params="currentRoute.params" />
-                  </ProjectTabWrapper>
-                </Suspense>
-                <component :is="Component" v-else :params="currentRoute.params" />
+                <AccessBoundary
+                  :panel="!!currentRoute.params.projectId"
+                  :requirements="currentRoute.params.projectId || currentRoute.name?.toString().endsWith('-details') ? routeAccess(String(currentRoute.name), currentRoute.params) : []"
+                >
+                  <Suspense v-if="currentRoute.params.projectId">
+                    <ProjectTabWrapper
+                      :project-id="String(currentRoute.params.projectId)"
+                      :initialize-stores="!['settings.users', 'settings.user-details'].includes(String(currentRoute.name))"
+                      :key="`${currentRoute.params.projectId}/${['settings.users', 'settings.user-details'].includes(String(currentRoute.name)) ? 'users' : 'resources'}`"
+                    >
+                      <component :is="Component" :params="currentRoute.params" />
+                    </ProjectTabWrapper>
+                  </Suspense>
+                  <component :is="Component" v-else :params="currentRoute.params" />
+                </AccessBoundary>
               </template>
             </RouterView>
           </VCardText>

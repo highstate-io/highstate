@@ -94,6 +94,7 @@ await load()
               :disabled="readonly || !project.unlocked"
               :loading="loadingProjectIds.has(project.projectId)"
               @update:model-value="setBinding(project.projectId, $event)"
+              v-access="{ permission: 'backend-service-account-project-binding.bind', target: { projectId: project.projectId } }"
             />
           </td>
         </tr>

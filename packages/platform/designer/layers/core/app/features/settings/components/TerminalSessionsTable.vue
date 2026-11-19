@@ -91,6 +91,7 @@ const formatDuration = (startedAt: string | Date, finishedAt: string | Date | nu
         icon="mdi-open-in-new"
         size="small"
         @click="emit('openSession', item.id)"
+        v-access="{ permission: 'terminal.connect', projectId, target: { resourceId: item.terminalId } }"
       />
     </template>
   </SettingsDataTable>

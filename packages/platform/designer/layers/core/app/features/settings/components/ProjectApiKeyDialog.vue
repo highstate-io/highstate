@@ -13,6 +13,8 @@ import { projectRoleRulesSchema } from "@highstate/backend/shared"
 import { stringify } from "yaml"
 import ProjectRoleRulesBuilder from "./ProjectRoleRulesBuilder.vue"
 
+const projectId = useProjectStore().projectId
+
 const { apiKey, serviceAccounts, restrictionOptions, loading } = defineProps<{
   apiKey?: ApiKeyOutput | null
   serviceAccounts: ApiKeyServiceAccountOption[]
@@ -247,7 +249,14 @@ function restrictionIds(
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="visible = false">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!valid" :loading="loading" @click="save">Save</VBtn>
+        <VBtn
+          v-access="{ permission: apiKey ? 'api-key.update' : 'api-key.create', projectId, target: { resourceId: apiKey?.id } }"
+          color="primary"
+          :disabled="!valid"
+          :loading="loading"
+          @click="save"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

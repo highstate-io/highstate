@@ -20,7 +20,8 @@ export interface BackendDatabaseBackend {
   readonly database: BackendDatabase
 
   /**
-   * Whether the backend database is encrypted.
+   * Whether backend secrets are encrypted.
+   * Local storage also encrypts the database file; PostgreSQL encrypts secret metadata, not all rows.
    */
   readonly isEncryptionEnabled: boolean
 

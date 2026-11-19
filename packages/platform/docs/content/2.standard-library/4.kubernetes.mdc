@@ -268,6 +268,17 @@ Here is a Traefik example:
 ::designer-preview{title="Traefik" type="snippet" id="standard-library/kubernetes/traefik"}
 ::
 
+### Existing namespaces
+
+Apps that install workloads accept an optional `namespace` input containing a `k8s.namespace.v1` entity.
+Connect it to install the app inside a namespace managed elsewhere, using the cluster credentials supplied to the app.
+The app does not create, read, patch, or delete that namespace, so the credentials do not need namespace-management permissions.
+They still need permission to manage the app's resources, and some apps also require cluster-scoped resources.
+
+Without this input, apps retain their usual namespace-creation behavior.
+An explicit namespace name or an existing volume must agree with the supplied namespace and cluster.
+Configure namespace policies and labels, such as those needed for privileged containers, before installing the app.
+
 ### ExetRouter
 
 `k8s.apps.exetrouter.v1` deploys [ExetRouter](https://github.com/mocki-toki/exetrouter) as a single-replica

@@ -1,7 +1,7 @@
 import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { postgresql } from "../../databases"
-import { appName, sharedArgs, sharedInputs, source } from "./shared"
+import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The Matrix stack deployed on Kubernetes.
@@ -37,6 +37,7 @@ export const matrixStack = defineUnit({
   },
 
   inputs: {
+    ...pick(optionalSharedInputs, ["namespace"]),
     ...pick(sharedInputs, ["k8sCluster", "accessPoint"]),
 
     /**

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ComponentListWrapper } from "#layers/core/app/features/component-panel"
+import { ProjectContainer } from "#layers/core/app/features/shared"
 
 defineProps<{
   params: unknown
@@ -28,8 +29,17 @@ const projectsStore = useProjectsStore()
 </script>
 
 <template>
-  <Suspense v-if="projectsStore.focusedProjectId" :key="projectsStore.focusedProjectId">
-    <ComponentListWrapper :project-id="projectsStore.focusedProjectId" />
-  </Suspense>
-  <div v-else class="mt-4 text-center text-uppercase text-disabled">No active project</div>
+  <div class="h-100">
+    <Suspense v-if="projectsStore.focusedProjectId" :key="projectsStore.focusedProjectId">
+      <ProjectContainer :project-id="projectsStore.focusedProjectId">
+        <AccessBoundary
+          panel
+          :requirements="[{ permission: 'library.get', collection: true }, { permission: 'instance-model.get', projectId: projectsStore.focusedProjectId, collection: true }]"
+        >
+          <ComponentListWrapper :project-id="projectsStore.focusedProjectId" />
+        </AccessBoundary>
+      </ProjectContainer>
+    </Suspense>
+    <div v-else class="mt-4 text-center text-uppercase text-disabled">No active project</div>
+  </div>
 </template>

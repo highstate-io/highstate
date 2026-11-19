@@ -3,6 +3,7 @@ import images from "../../assets/images.json"
 
 export * from "./endpoint"
 export * from "./mysql"
+export * from "./namespace"
 export * from "./post-renderer"
 export * from "./postgresql"
 export { charts, images }

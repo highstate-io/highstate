@@ -14,6 +14,8 @@ import {
 import { stringify } from "yaml"
 import ProjectRoleRulesBuilder from "./ProjectRoleRulesBuilder.vue"
 
+const projectId = useProjectStore().projectId
+
 const { role, loading } = defineProps<{
   role?: ProjectRoleOutput | null
   loading?: boolean
@@ -154,7 +156,14 @@ function save(): void {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="visible = false">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!valid" :loading="loading" @click="save">Save</VBtn>
+        <VBtn
+          v-access="{ permission: role ? 'role.update' : 'role.create', projectId, target: { resourceId: role?.id } }"
+          color="primary"
+          :disabled="!valid"
+          :loading="loading"
+          @click="save"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

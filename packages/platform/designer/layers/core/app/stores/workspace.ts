@@ -70,10 +70,10 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const loadLayout = async () => {
     const layout = await $client.workspace.getWorkspaceLayout.query()
     const data = layout as SerializedDockview
+    const currentRoute = router.currentRoute.value
 
     if (data?.panels && Object.keys(data.panels).length > 0) {
       try {
-        const currentRoute = router.currentRoute.value
         restoringExplicitRoute = currentRoute.name !== "home"
 
         try {
@@ -82,24 +82,24 @@ export const useWorkspaceStore = defineStore("workspace", () => {
         } finally {
           restoringExplicitRoute = false
         }
-
-        if (currentRoute.name !== "home") {
-          // rerun panel middleware without adding a duplicate history entry
-          await navigateTo({
-            name: currentRoute.name,
-            params: currentRoute.params,
-            query: currentRoute.query,
-            hash: currentRoute.hash,
-            force: true,
-            replace: true,
-          })
-        }
       } catch (error) {
         globalLogger.error({ error }, "failed to deserialize layout, resetting to default")
         await populateDefaultLayout()
       }
     } else {
       await populateDefaultLayout()
+    }
+
+    if (currentRoute.name !== "home") {
+      // rerun panel middleware for saved and first-time layouts without adding history
+      await navigateTo({
+        name: currentRoute.name,
+        params: currentRoute.params,
+        query: currentRoute.query,
+        hash: currentRoute.hash,
+        force: true,
+        replace: true,
+      })
     }
   }
 

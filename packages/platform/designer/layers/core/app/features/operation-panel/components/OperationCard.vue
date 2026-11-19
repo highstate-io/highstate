@@ -85,6 +85,7 @@ const cancelOperation = async () => {
       <VDivider />
       <ContextMenuItem
         title="Cancel"
+        :access="{ permission: 'operation.cancel', projectId: operationsStore.projectId, target: { resourceId: operation.id } }"
         icon="mdi-cancel"
         color="error"
         :disabled="!canCancel || cancelling"

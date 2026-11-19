@@ -237,7 +237,14 @@ function restrictionIds(restriction: BackendPermissionRestriction): string[] {
       <VCardActions>
         <VSpacer />
         <VBtn :disabled="loading" @click="visible = false">Cancel</VBtn>
-        <VBtn color="primary" :disabled="!valid" :loading="loading" @click="save">Save</VBtn>
+        <VBtn
+          v-access="{ permission: apiKey ? 'api-key.update' : 'api-key.create', target: { resourceId: apiKey?.id } }"
+          color="primary"
+          :disabled="!valid"
+          :loading="loading"
+          @click="save"
+          >Save</VBtn
+        >
       </VCardActions>
     </VCard>
   </VDialog>

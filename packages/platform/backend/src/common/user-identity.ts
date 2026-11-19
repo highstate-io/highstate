@@ -14,3 +14,11 @@ export function getOidcUserId(issuer: string, subject: string): string {
 export function getOidcUserGroupId(issuer: string, group: string): string {
   return cuidv2d(userGroupNamespace, `oidc:${issuer}:${group}`)
 }
+
+export function getOAuthUserId(authority: string, subject: string): string {
+  return cuidv2d(userNamespace, JSON.stringify(["oauth2", authority, subject]))
+}
+
+export function getOAuthUserGroupId(authority: string, group: string): string {
+  return cuidv2d(userGroupNamespace, JSON.stringify(["oauth2", authority, group]))
+}

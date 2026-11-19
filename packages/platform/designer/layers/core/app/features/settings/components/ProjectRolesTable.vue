@@ -43,6 +43,7 @@ const headers = [baseHeaders.name, baseHeaders.createdAt, baseHeaders.actions]
           :page-params="{ projectId, roleId: item.id }"
         />
         <TableItemAction
+          :access="{ permission: 'role.delete', projectId, target: { resourceId: item.id } }"
           icon="mdi-delete-outline"
           tooltip="Delete role"
           color="error"
