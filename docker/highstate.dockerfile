@@ -16,6 +16,11 @@ RUN bunx --bun nx run @highstate/designer:build
 
 FROM build AS runtime
 COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
+# Pulumi's Bun language host resolves its SDK from each unit's working directory.
+# Expose the workspace's installed SDK to units without a direct SDK dependency.
+RUN mkdir -p node_modules/@pulumi \
+    && ln -s ../../packages/platform/pulumi/node_modules/@pulumi/pulumi node_modules/@pulumi/pulumi \
+    && test -f node_modules/@pulumi/pulumi/package.json
 ARG PULUMI_VERSION=3.232.0
 ARG KUBECTL_VERSION=v1.33.1
 ARG TARGETARCH
