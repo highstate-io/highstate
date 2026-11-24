@@ -16,3 +16,4 @@ node_modules
 
 /docs/.vitepress/cache
 /.artifacts/
+.DS_Store
